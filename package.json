@@ -11,6 +11,7 @@
     "test": "vitest run && playwright test"
   },
   "dependencies": {
+    "dexie": "4.4.4",
     "next": "16.2.12",
     "react": "19.2.8",
     "react-dom": "19.2.8",
@@ -27,6 +28,7 @@
     "@vitejs/plugin-react": "6.0.4",
     "eslint": "9.39.5",
     "eslint-config-next": "16.2.12",
+    "fake-indexeddb": "6.2.5",
     "jsdom": "30.0.0",
     "tailwindcss": "4.3.3",
     "typescript": "5.9.3",
