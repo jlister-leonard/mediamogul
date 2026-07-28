@@ -1,0 +1,155 @@
+/*
+ * Nightstand design tokens — ink and lamplight (PLAN §6, §12).
+ * Dark is the default: warm near-black ink, lit by a lamp-glow accent.
+ * Light mode is warm paper. Every color in the app resolves through this file.
+ */
+
+@font-face {
+  font-family: "Fraunces";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/fraunces-latin-opsz-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Fraunces";
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/fraunces-latin-opsz-italic.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/inter-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@theme static {
+  /* Type. Serif for emphasis, sans for interface — never serif walls. */
+  --font-*: initial;
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  /* Type scale. Reading sizes lead with generous leading; display sizes
+     tighten as they grow, sized for one-hand phone screens. */
+  --text-*: initial;
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1.4;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.5;
+  --text-base: 1rem;
+  --text-base--line-height: 1.55;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.5;
+  --text-xl: 1.375rem;
+  --text-xl--line-height: 1.4;
+  --text-2xl: 1.75rem;
+  --text-2xl--line-height: 1.25;
+  --text-2xl--letter-spacing: -0.01em;
+  --text-3xl: 2.25rem;
+  --text-3xl--line-height: 1.15;
+  --text-3xl--letter-spacing: -0.015em;
+  --text-4xl: 3rem;
+  --text-4xl--line-height: 1.1;
+  --text-4xl--letter-spacing: -0.02em;
+
+  /* Space and shape. 4px grid; radii stop at xl — rounded-full stays built in. */
+  --spacing: 0.25rem;
+  --radius-*: initial;
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+
+  /* Palette. Everything sits between two poles — ink and paper — plus the
+     lamp. All hues live in the same warm 30–40° band: no blue-blacks, no
+     pure black or white. Tailwind's stock palette is cleared so no color
+     outside this file can be reached from a utility class. */
+  --color-*: initial;
+
+  /* --color-ink and --color-lamp are duplicated by value in app/manifest.ts
+     and viewport.themeColor (E0.5): web manifests cannot read CSS variables.
+     Changing either here requires changing them there. */
+  --color-ink: #171310; /* deepest ground · light-mode text */
+  --color-ink-raised: #2a211b;
+  --color-ink-overlay: #352a22;
+  --color-ink-line: #42352b;
+  --color-ink-soft: #6c5d4c; /* muted text on paper · 5.4:1 vs paper */
+
+  --color-paper: #f4ecdd; /* light-mode ground · dark-mode text · 15.7:1 vs ink */
+  --color-paper-raised: #faf4e8;
+  --color-paper-overlay: #fffbf2;
+  --color-paper-line: #dfd5c2;
+  --color-paper-dim: #b3a28c; /* muted text on ink · 7.4:1 vs ink */
+
+  /* No single amber passes AA text contrast on both poles (a luminance high
+     enough for 4.5:1 on ink is too high for 4.5:1 on paper), so the lamp has
+     two states: lit against ink, deep against paper. */
+  --color-lamp: #e6a756; /* 8.8:1 vs ink */
+  --color-lamp-deep: #8a5a0e; /* 5.0:1 vs paper */
+}
+
+/*
+ * Role tokens — what components actually use. Dark is the default theme;
+ * warm paper is the light-mode override. Both meet WCAG AA on every surface:
+ * fg ≥ 11.9:1, fg-muted ≥ 5.4:1, accent ≥ 5.0:1, accent-fg ≥ 5.0:1.
+ */
+:root {
+  color-scheme: dark;
+  --ground: var(--color-ink);
+  --surface: var(--color-ink-raised);
+  --overlay: var(--color-ink-overlay);
+  --line: var(--color-ink-line);
+  --fg: var(--color-paper);
+  --fg-muted: var(--color-paper-dim);
+  --lamp: var(--color-lamp);
+  /* The accent slot: defaults to the lamp; E8.4 repaints it per item from
+     the artwork on screen (PLAN §6). Override --accent, never --lamp. */
+  --accent: var(--lamp);
+  --accent-fg: var(--color-ink);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: light;
+    --ground: var(--color-paper);
+    --surface: var(--color-paper-raised);
+    --overlay: var(--color-paper-overlay);
+    --line: var(--color-paper-line);
+    --fg: var(--color-ink);
+    --fg-muted: var(--color-ink-soft);
+    --lamp: var(--color-lamp-deep);
+    --accent-fg: var(--color-paper);
+  }
+}
+
+@theme inline {
+  --color-ground: var(--ground);
+  --color-surface: var(--surface);
+  --color-overlay: var(--overlay);
+  --color-line: var(--line);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+}
+
+@layer base {
+  html {
+    background-color: var(--ground);
+    color: var(--fg);
+  }
+}
