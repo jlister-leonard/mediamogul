@@ -1,9 +1,10 @@
 "use client";
 
 import { useRef, type KeyboardEvent } from "react";
+import type { Gradient } from "@/lib/types";
 import { cx, focusRing } from "./util";
 
-export type RatingValue = "loved" | "liked" | "fine" | "no";
+export type RatingValue = Gradient;
 
 type RatingGradientProps = {
   /** Accessible name for the group, e.g. "Rate The Overstory". */
