@@ -9,6 +9,14 @@ colliding; the protocol around them is in [`COORDINATION.md`](./COORDINATION.md)
 **Status legend:** `todo` → `claimed` → `in-progress` → `review` → `done`.
 All beads start `todo`. Status lives here, in this file — single source of truth.
 
+## Status board
+
+| Bead | Status | Notes |
+|---|---|---|
+| E0.1 scaffold | **done** ✅ | Blind review PASS; pushed `ec3b2a4`. Pins: next 16.2.12, TS 5.9.3, eslint 9.39.5, @playwright/test 1.56.1 (matches preinstalled chromium), tailwind 4.3.3. `lint` = `eslint .`; vitest excludes `e2e/**`; alias `@/*` → root |
+| E0.2 tokens · E0.3 contracts · E0.5 pwa-shell · E0.6 deploy | in-progress | Wave 2, parallel worktrees |
+| everything else | todo | |
+
 ---
 
 ## Epic map
@@ -144,11 +152,15 @@ graph TD
   - [ ] `share_target` declared in manifest (handler lands in E8.1)
 
 ### E0.6 `deploy` — pipeline
-- **deps:** E0.1 · **owns:** `vercel.json`, GitHub Actions workflow
+- **deps:** E0.1 · **owns:** `vercel.json`, GitHub Actions workflow, `.env.example`
 - **AC:**
   - [ ] Push to branch → preview URL; merge to main → production, via Vercel connector
+        (config authored here; live link happens when Vercel project is connected)
   - [ ] CI runs lint + typecheck + tests on every PR; red CI blocks merge
   - [ ] Env vars documented in `.env.example` (never committed with values)
+- **⚠ from E0.1 review:** `.gitignore`'s `.env*` will silently ignore `.env.example` —
+  add `!.env.example`. CI runners lack the preinstalled browsers: workflow must run
+  `npx playwright install --with-deps chromium` (keep @playwright/test pinned at 1.56.1).
 
 ### E0.7 `style-tile` — the agreement screen
 - **deps:** E0.4 · **owns:** `app/style/page.tsx`
