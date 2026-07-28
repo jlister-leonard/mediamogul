@@ -1,8 +1,8 @@
-# Taste Baseline — analysis of the Goodreads export
+# Taste Baseline — analysis of the Goodreads export + Letterboxd screenshots
 
-Source: `goodreads_library_export.csv`, 225 books. This is the seed corpus and the
-evidence base for several design decisions in `PLAN.md`. Findings here are drawn from the
-data, not assumed.
+Sources: `goodreads_library_export.csv` (225 books) and two Letterboxd profile
+screenshots (32 rated films, hand-parsed — the screenshot importer concept, proven).
+This is the seed corpus and the evidence base for design decisions in `PLAN.md`.
 
 ## Corpus shape
 
@@ -114,6 +114,48 @@ The 17 to-read books cluster tightly:
 
 Ordering this list is the app's easiest first win: seventeen items, a known taste model,
 and a real question ("which of these first?") that Goodreads answers with `DATE ADDED`.
+
+## Finding 7 — The film data confirms the cross-media thesis
+
+32 films from Letterboxd (username jj_lister), parsed from screenshots:
+
+**Five-star + hearted:** *One Battle After Another*, *Knives Out*, *Once Upon a Time in
+Hollywood*, *Black Panther*, *Sicario*, *The Wolf of Wall Street*, *Django Unchained*,
+*The Social Network*, *Inception*, *Inglourious Basterds*, *There Will Be Blood*,
+*Little Miss Sunshine*.
+
+**Four-star:** *Glass Onion*, *Joker*, *Baby Driver*, *Wind River*, *14 Peaks*,
+*Frances Ha*, *Midnight in Paris*, *The Devil Wears Prada* (+ sequel), *Mean Girls*,
+*13 Going on 30*.
+
+**Two-star:** *Everything Everywhere All at Once*, *Hereditary*, *Don't Look Up*,
+*Jojo Rabbit*, *Marty Supreme*.
+
+What this confirms, cross-media:
+
+- **The signature transfers.** Auteur-crafted, propulsive, protagonist-driven work
+  dominates the top: Tarantino ×3 at five stars, PTA ×2, Sorkin/Fincher. *The Wolf of
+  Wall Street* and *The Social Network* are the film versions of *Bad Blood* and *When
+  Genius Failed* — ambition, fraud, institutions, a person at the center. *Sicario* and
+  *Wind River* rhyme with *Into Thin Air*. *Knives Out* / *Glass Onion* are the
+  investigation structure the book list keeps circling. Same palate, different medium —
+  which is the app's entire thesis.
+- **The dislikes transfer too.** *EEAAO* and *Hereditary* at two stars extend the
+  "symbolism and interiority score low" pattern (Finding 2) into film; *Jojo Rabbit* and
+  *Don't Look Up* suggest broad quirk/satire misses as well. Note the nuance: *There Will
+  Be Blood* (slow, heavy, five stars) shows *prestige-slow* works when a monumental
+  protagonist anchors it — slowness isn't the problem, absence of stakes is.
+- **The comfort cluster exists here too** (Finding 3's film twin): *Mean Girls*,
+  *13 Going on 30*, *The Devil Wears Prada*, *Kung Fu Panda* (hearted, unrated). Same
+  treatment: own ladder, excluded from rec signal unless comfort is asked for.
+- **Hearts ≠ stars.** Letterboxd's heart is an independent "love" bit (*Gone Girl*: 3★
+  but hearted). Maps cleanly onto our gradient + mode split — the data model already
+  handles it.
+- **Letterboxd runs ads in your own library too** (Instacart, mid-grid). Same teardown
+  point as Goodreads; same answer.
+
+**Seed genre ladders for film:** Crime & Tension · Ambition & Institutions · Auteur
+Prestige · Comfort & Rewatch. These will refine as data accumulates.
 
 ## Proposed genre ladders
 

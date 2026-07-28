@@ -33,10 +33,37 @@ the single scheduler, merge point, and conflict resolver. "Real-time" coordinati
 ```
 todo → claimed (orchestrator assigns, records agent + worktree)
      → in-progress (agent builds; may message orchestrator with questions/blockers)
-     → review (agent reports; orchestrator runs AC checklist + test suite)
+     → review (BLIND REVIEW GATE — see below)
      → done (merged; dependent beads unblock)          — or —
-     → back to todo (AC failed; findings attached to the bead)
+     → back to todo (gate failed; findings attached to the bead)
 ```
+
+## The blind review gate
+
+Every bead submission is judged by a **fresh reviewer subagent that has seen none of the
+builder's reasoning** — only the spec (PLAN, EPICS bead definition) and the diff. Blind,
+so the reviewer can't inherit the builder's rationalizations. The reviewer verdicts on
+four axes, and the orchestrator merges nothing without a pass:
+
+1. **Correctness** — every AC verified against the actual code, not the builder's claims.
+2. **Absolute perfection** — no sloppiness: no dead code, no TODO stubs, no "works on my
+   machine," no unhandled edge the AC implies.
+3. **Total essentialism** — everything present is necessary; anything speculative,
+   decorative, or "while I was in there" gets the bead sent back. The reviewer asks of
+   every file: *would the product be worse without this?*
+4. **Product delight** — for user-facing beads: is this experience genuinely delightful?
+
+**The 10× bar.** For every user-facing bead, the reviewer must answer one final question:
+*does this surface, as built, make Nightstand at least 10× better than the equivalent
+surface in Goodreads or Letterboxd?* — measured against the real teardowns in PLAN §2 and
+TASTE-BASELINE Finding 7 (postage-stamp art, buried ratings, ads in your own library,
+DATE ADDED as the only order, no reasons, no availability). The reviewer must *genuinely
+believe it*, and say why in one paragraph. "Better" is not the bar. Infra beads instead
+answer: *does this enable the 10× surfaces with zero compromise?*
+
+A failed verdict returns the bead with specific findings. There is no arguing with the
+gate; the builder fixes and resubmits. Two consecutive failures escalate to the
+orchestrator for a spec-level decision.
 
 An agent's completion report must state: which ACs pass and how each was verified, any
 files touched outside its footprint (expected: none), and anything discovered that
