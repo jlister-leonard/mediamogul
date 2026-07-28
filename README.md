@@ -14,6 +14,10 @@ Planning. Nothing built yet.
   the phased build order
 - [`docs/TASTE-BASELINE.md`](docs/TASTE-BASELINE.md) — analysis of the 225-book Goodreads
   export that seeds the taste model
+- [`docs/EPICS.md`](docs/EPICS.md) — epics broken into beads: dependency graphs,
+  acceptance criteria, file footprints, sequencing waves
+- [`docs/COORDINATION.md`](docs/COORDINATION.md) — how parallel subagents build without
+  colliding
 
 ## The idea
 

@@ -23,8 +23,14 @@ Status: **draft for discussion.** Nothing is built yet. Decisions marked 🔵 ne
 | 10 | Clean Amazon links, no affiliate tagging | ✅ agreed |
 | 11 | No Libby/OverDrive integration | ✅ agreed — dropped |
 | 12 | No co-viewing profile; group-watch parked as a future idea | ✅ agreed — see §13 |
+| 13 | **No Supabase / no database service.** Local-first: IndexedDB on device, stateless API routes, JSON export backup | ✅ agreed — see §8 |
+| 14 | **In theaters** as an availability state + Fandango showtimes deep link | ✅ agreed — see §5 |
+| 15 | Spotify deep links for podcasts; **branded provider buttons** per official brand kits | ✅ agreed — see §5 |
+| 16 | Natural-language situation chat and two-scope search are core surfaces | ✅ agreed — see §4.5–4.6 |
+| 17 | Work tracked as **epics → beads** with explicit dependencies and acceptance criteria | ✅ agreed — see `EPICS.md` |
 
-**All questions are resolved. This plan is ready to execute on your go.**
+**All questions are resolved. Execution structure lives in [`EPICS.md`](./EPICS.md) and
+[`COORDINATION.md`](./COORDINATION.md).**
 
 ---
 
@@ -167,14 +173,44 @@ Situations are saved objects that learn. And critically — **Now searches your 
 first.** If something you already saved fits the moment, that's the answer, not a new thing
 to feel guilty about.
 
-### 4.5 The Taste Portrait
+### 4.5 The chat is a front door, not a feature
+
+Worth stating unmissably, since it's the heart of the ask: **Tonight opens into a real
+natural-language conversation.** The chips are shortcuts; the field is the product. You
+describe a *situation* — mood, time, company, energy, what you just finished, what you
+can't face — and it answers like someone who has read your whole file, because it has:
+
+> *"Flight tomorrow, 5 hours, want something absorbing but I'm burned out on business
+> books"* → it knows you just logged three strategy books, sees *American Prometheus* and
+> *The Road* on your stack, checks length and availability, and hands you a considered
+> answer with reasons — not a grid.
+
+Follow-ups work like conversation ("shorter", "funnier", "fine, but on Audible?"), every
+answer cites your history, and every suggestion carries the Get-it row and a
+dismiss-with-reason. The chips in §4.4 are just saved openings for this conversation.
+
+### 4.6 Search
+
+Two different questions share one field, and the app must never confuse them:
+
+- **"Find it"** — the omnibox (§4.1): search the world across all four media to add,
+  log, or check availability.
+- **"Where is it?"** — search *your own* library, stack, notes, and history: by title,
+  by half-remembered detail (*"the one with the lighthouse keeper"* — semantic, §4.7), or
+  by what you said about it.
+
+One search surface, two clearly-labeled scopes — **Your library** first when results exist
+there, **Everything** below. Search is a top-level control on every tab, not a buried
+utility: for a library of hundreds of items, recall *is* a core feature.
+
+### 4.7 The Taste Portrait
 
 The accretive payoff: axes (plot-driven ↔ vibe-driven, comfort ↔ challenge), recurring
 obsessions, blind spots stated as observation and never as a scold, seasonality. **Every
 claim is editable** — thumbs-down corrects the model.
 
 Semantic search over your own notes falls out nearly free: *"what was the book where the
-narrator was a lighthouse keeper?"*
+narrator was a lighthouse keeper?"* (surfaced through the §4.6 search field).
 
 ---
 
@@ -183,15 +219,39 @@ narrator was a lighthouse keeper?"*
 New requirement, and it's a bigger deal than it first looks. Every detail page and every
 recommendation card carries an action row.
 
-**Books** — Kindle (ISBN → ASIN, deep link straight into the Kindle store), Audible,
-**Libby/OverDrive** for your library (free, and shows real-time hold status), Bookshop.org,
-physical.
+**Books** — Kindle (ISBN → ASIN, deep link straight into the Kindle store; clean links,
+no affiliate tags), Audible, Bookshop.org, physical. (Libby/OverDrive: dropped by
+decision #11.)
 
 **Movies & TV** — TMDB's watch-provider data gives per-region availability, distinguishing
 *included with your subscription* from *rent $3.99* from *not available*. Each provider
 gets a button that deep-links to the title in that app.
 
-**Podcasts** — deep links to Spotify / Apple Podcasts / Overcast.
+**In theaters** — a first-class availability state, not an afterthought. TMDB's
+`now_playing` feed (region US) marks current theatrical releases, the Tonight tab gets a
+**"movies in theaters now"** situation chip, and every theatrical title carries a
+**Fandango** button that deep-links to its showtimes page — with your zip (stored once, or
+read from device location with permission) so "showtimes near me" is one tap. This also
+gives the recommender a new move: *"anything actually worth leaving the house for this
+week?"* is a question it can now answer.
+
+**Podcasts** — **Spotify deep links first** (`open.spotify.com/show/…`, resolved via
+Spotify's public search API — no login needed for lookup), then Apple Podcasts and
+Overcast.
+
+### Branded buttons
+
+The action row uses each service's **official brand kit** — real logos, real brand colors,
+correct clear-space, from each service's published brand/developer guidelines (Netflix,
+Prime Video, Hulu, Max, Apple TV+, Disney+, Peacock, Paramount+, Spotify, Audible, Amazon,
+Fandango). A Netflix button should be instantly recognizable as Netflix, not a grey chip
+that says "Netflix."
+
+Assets are bundled locally (no hotlinking), one component (`ProviderButton`) renders all
+of them, and a single registry file maps provider → logo, colors, and deep-link template —
+so adding a service later is a one-entry change. Brand-guideline compliance is an
+acceptance criterion, not a nice-to-have: these are the most-tapped elements in the app,
+and off-brand marks are the fastest way to make the whole thing feel homemade.
 
 ### The honest limitation on "add to My List"
 
@@ -279,26 +339,53 @@ you sent parsed cleanly enough to pull every title, author, and rating. Phase 6,
 
 ---
 
-## 8. Architecture
+## 8. Architecture — local-first, no database service
+
+Supabase is out (it would ride on the Leonard org's account, and this app shouldn't
+depend on anyone's org). The replacement is not a different database vendor — it's **no
+database service at all**, and for a single-user phone app that's the honest architecture,
+not a compromise:
 
 | Layer | Choice | Why |
 |---|---|---|
 | App | **Next.js (App Router) + TypeScript + Tailwind** | Best PWA story, one language |
-| Host | **Vercel** | Zero-config deploys |
-| Data | **Supabase** (Postgres + Auth + pgvector) | Free tier is plenty, RLS keeps it private |
+| Host | **Vercel Hobby (free)** | Deployed and managed via the Vercel connector in this workspace |
+| Data | **On-device: IndexedDB via Dexie** | The phone is the source of truth. Zero hosting cost, zero accounts, works offline by construction |
+| Backup | **One-tap JSON export** via the share sheet; import to restore | Device migration and disaster recovery without a server |
+| Server | **Stateless API routes only** — metadata proxies + LLM calls | No user data is ever stored server-side |
+| Secrets | Vercel env vars; a passphrase header (set once on your phone) guards the LLM route | Keeps the proxy from being abusable if the URL leaks |
 | Intelligence | **Anthropic API** | Opus for portrait synthesis, Sonnet for chat and parsing |
-| Offline | Service worker + IndexedDB mirror, optimistic writes | Subway-proof |
 
-**Metadata sources** — Open Library + Google Books (books); **TMDB** (movies/TV, including
-watch providers); Podcast Index or iTunes Search (podcasts); **OverDrive/Libby** for
-library availability.
+What this buys, beyond "free":
+
+- **Privacy by construction.** Your taste data lives on your phone. The server sees it
+  only transiently, inside prompts, and stores nothing.
+- **Offline-first stops being a feature and becomes the default** — reads and writes hit
+  IndexedDB directly; only search, availability, and chat need the network.
+- **Nothing for anyone to administer.** No migrations against a remote DB, no auth
+  system, no row-level security to get wrong.
+- **No embeddings service needed.** At a few-hundred-item scale, the recommender passes a
+  compact library summary directly in the prompt — simpler and better than a vector DB at
+  this size.
+
+Trade-offs, stated plainly: **no cross-device sync in v1** (export/import covers moving
+phones; a free Turso/libSQL sync layer can be added later without reworking the schema),
+and the periodic portrait refresh runs on app-open rather than on a server cron.
+
+The two things only you can do, both one-time, both in the Vercel dashboard: paste in an
+**Anthropic API key** and a **TMDB API key** (free) as env vars. Everything else — build,
+deploy, domains, env plumbing — I manage through the connector.
+
+**Metadata sources** — Open Library + Google Books (books); **TMDB** (movies/TV: art,
+watch providers, and `now_playing` for theaters, region US); iTunes Search + Podcast
+Index (podcasts).
 
 ```
 items          canonical title: medium, external ids, art, runtime/length, metadata
 entries        my log: item_id, status, started/finished, score, gradient, tags[], note
 comparisons    pairwise ladder results (winner, loser, medium)
 queue          shortlist: item_id, context_tags[], added_reason
-situations     saved contexts ("with M", "flight"), learned preferences
+situations     saved contexts ("flight", "before bed", "in theaters"), learned preferences
 availability   per-item, per-provider: type (sub/rent/buy/borrow), price, deep link, region
 services       which subscriptions and library cards I actually hold
 recs           what was suggested, why, and the rejection reason
