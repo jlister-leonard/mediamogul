@@ -1,0 +1,40 @@
+{
+  "_provenance": "Hand-built to the documented TMDB v3 shape of GET /search/tv (developer.themoviedb.org/reference/search-tv), 2026-07. Not captured from the live API: api.themoviedb.org is unreachable from the build environment (EPICS wave-3 egress note). Field values are plausible, not authoritative.",
+  "page": 1,
+  "results": [
+    {
+      "adult": false,
+      "backdrop_path": "/zBUGqODy2ZbbBOGcDB0hLnjVLZM.jpg",
+      "genre_ids": [18, 35],
+      "id": 136315,
+      "origin_country": ["US"],
+      "original_language": "en",
+      "original_name": "The Bear",
+      "overview": "Carmy, a young fine-dining chef, comes home to Chicago to run his family's sandwich shop after the death of his brother.",
+      "popularity": 273.146,
+      "poster_path": "/sHFlbKS3WLqMnp9t2ghADIJFnuQ.jpg",
+      "first_air_date": "2022-06-23",
+      "name": "The Bear",
+      "vote_average": 8.28,
+      "vote_count": 1379
+    },
+    {
+      "adult": false,
+      "backdrop_path": null,
+      "genre_ids": [16, 35],
+      "id": 810,
+      "origin_country": ["US"],
+      "original_language": "en",
+      "original_name": "Bear in the Big Blue House",
+      "overview": "",
+      "popularity": 20.94,
+      "poster_path": null,
+      "first_air_date": "",
+      "name": "Bear in the Big Blue House",
+      "vote_average": 0.0,
+      "vote_count": 0
+    }
+  ],
+  "total_pages": 1,
+  "total_results": 2
+}

@@ -1,0 +1,44 @@
+{
+  "_provenance": "Hand-built to the documented TMDB v3 shape of GET /movie/now_playing?region=US&page=2 (developer.themoviedb.org/reference/movie-now-playing-list), 2026-07. Not captured from the live API: api.themoviedb.org is unreachable from the build environment (EPICS wave-3 egress note). Field values are plausible, not authoritative. Page 2 of 2 — repeats Superman (id 1061474) from page 1, as TMDB pagination can, to exercise dedupe by id.",
+  "dates": {
+    "maximum": "2026-07-30",
+    "minimum": "2026-06-18"
+  },
+  "page": 2,
+  "results": [
+    {
+      "adult": false,
+      "backdrop_path": "/2siOZBVXTRhAe0dqCGL6mTVJZm5.jpg",
+      "genre_ids": [878, 12],
+      "id": 1061474,
+      "original_language": "en",
+      "original_title": "Superman",
+      "overview": "Superman must reconcile his alien Kryptonian heritage with his human upbringing as reporter Clark Kent.",
+      "popularity": 612.49,
+      "poster_path": "/ombsmhYUqR4qqOLOxAyr5V8hbyv.jpg",
+      "release_date": "2026-07-11",
+      "title": "Superman",
+      "video": false,
+      "vote_average": 7.6,
+      "vote_count": 1882
+    },
+    {
+      "adult": false,
+      "backdrop_path": "/dS7ID6AmnyxpNhWtNvjHmQmCyMc.jpg",
+      "genre_ids": [878, 12, 28],
+      "id": 1234821,
+      "original_language": "en",
+      "original_title": "Jurassic World Rebirth",
+      "overview": "A covert team races to extract genetic material from the three most colossal dinosaurs left on an isolated equatorial island.",
+      "popularity": 401.13,
+      "poster_path": "/1RICxzeoNCAO5NpcRMIgg1XT6fm.jpg",
+      "release_date": "2026-07-02",
+      "title": "Jurassic World Rebirth",
+      "video": false,
+      "vote_average": 6.4,
+      "vote_count": 771
+    }
+  ],
+  "total_pages": 2,
+  "total_results": 3
+}

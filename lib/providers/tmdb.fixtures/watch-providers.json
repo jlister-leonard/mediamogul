@@ -1,0 +1,62 @@
+{
+  "_provenance": "Hand-built to the documented TMDB v3 shape of GET /movie/{movie_id}/watch/providers (developer.themoviedb.org/reference/movie-watch-providers; JustWatch-sourced data), 2026-07. Not captured from the live API: api.themoviedb.org is unreachable from the build environment (EPICS wave-3 egress note). Provider ids match TMDB's published catalog (8 Netflix, 15 Hulu, 2 Apple TV, 10 Amazon Video, 9 Prime Video); offers are plausible, not authoritative. Contains flatrate + rent + buy in US, plus a GB block that normalization must ignore.",
+  "id": 949,
+  "results": {
+    "GB": {
+      "link": "https://www.themoviedb.org/movie/949-heat/watch?locale=GB",
+      "flatrate": [
+        {
+          "logo_path": "/dQeAar5H991VYporEjUspolDarG.jpg",
+          "provider_id": 9,
+          "provider_name": "Amazon Prime Video",
+          "display_priority": 2
+        }
+      ]
+    },
+    "US": {
+      "link": "https://www.themoviedb.org/movie/949-heat/watch?locale=US",
+      "flatrate": [
+        {
+          "logo_path": "/pbpMk2JmcoNnQwx5JGpXngfoWtp.jpg",
+          "provider_id": 8,
+          "provider_name": "Netflix",
+          "display_priority": 0
+        },
+        {
+          "logo_path": "/bxBlRPEPpMVDc4jMhSrTf2339DW.jpg",
+          "provider_id": 15,
+          "provider_name": "Hulu",
+          "display_priority": 7
+        }
+      ],
+      "rent": [
+        {
+          "logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg",
+          "provider_id": 2,
+          "provider_name": "Apple TV",
+          "display_priority": 4
+        },
+        {
+          "logo_path": "/seGSXajazLMCKGB5hnRCidtjay1.jpg",
+          "provider_id": 10,
+          "provider_name": "Amazon Video",
+          "display_priority": 15
+        }
+      ],
+      "buy": [
+        {
+          "logo_path": "/9ghgSC0MA082EL6HLCW3GalykFD.jpg",
+          "provider_id": 2,
+          "provider_name": "Apple TV",
+          "display_priority": 4
+        },
+        {
+          "logo_path": "/seGSXajazLMCKGB5hnRCidtjay1.jpg",
+          "provider_id": 10,
+          "provider_name": "Amazon Video",
+          "display_priority": 15
+        }
+      ]
+    }
+  }
+}

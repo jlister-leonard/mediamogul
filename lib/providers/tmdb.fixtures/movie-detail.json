@@ -1,0 +1,79 @@
+{
+  "_provenance": "Hand-built to the documented TMDB v3 shape of GET /movie/{movie_id}?append_to_response=credits (developer.themoviedb.org/reference/movie-details + /reference/movie-credits), 2026-07. Not captured from the live API: api.themoviedb.org is unreachable from the build environment (EPICS wave-3 egress note). Field values are plausible, not authoritative; crew is truncated to a representative sample.",
+  "adult": false,
+  "backdrop_path": "/rfEXNlql4CafRmtgp2VFQrBC4sh.jpg",
+  "budget": 60000000,
+  "genres": [
+    { "id": 80, "name": "Crime" },
+    { "id": 18, "name": "Drama" },
+    { "id": 53, "name": "Thriller" }
+  ],
+  "homepage": "",
+  "id": 949,
+  "imdb_id": "tt0113277",
+  "original_language": "en",
+  "original_title": "Heat",
+  "overview": "Obsessive master thief Neil McCauley leads a top-notch crew on various daring heists throughout Los Angeles while determined detective Vincent Hanna pursues him without rest.",
+  "popularity": 91.755,
+  "poster_path": "/umSVjVdbVwtx5ryCA2QXL44Durm.jpg",
+  "release_date": "1995-12-15",
+  "revenue": 187436818,
+  "runtime": 170,
+  "status": "Released",
+  "tagline": "A Los Angeles crime saga.",
+  "title": "Heat",
+  "video": false,
+  "vote_average": 7.916,
+  "vote_count": 7534,
+  "credits": {
+    "cast": [
+      {
+        "adult": false,
+        "gender": 2,
+        "id": 1158,
+        "known_for_department": "Acting",
+        "name": "Al Pacino",
+        "character": "Lt. Vincent Hanna",
+        "order": 0
+      },
+      {
+        "adult": false,
+        "gender": 2,
+        "id": 380,
+        "known_for_department": "Acting",
+        "name": "Robert De Niro",
+        "character": "Neil McCauley",
+        "order": 1
+      }
+    ],
+    "crew": [
+      {
+        "adult": false,
+        "gender": 2,
+        "id": 638,
+        "known_for_department": "Directing",
+        "name": "Michael Mann",
+        "department": "Directing",
+        "job": "Director"
+      },
+      {
+        "adult": false,
+        "gender": 2,
+        "id": 638,
+        "known_for_department": "Directing",
+        "name": "Michael Mann",
+        "department": "Writing",
+        "job": "Writer"
+      },
+      {
+        "adult": false,
+        "gender": 2,
+        "id": 4500,
+        "known_for_department": "Production",
+        "name": "Art Linson",
+        "department": "Production",
+        "job": "Producer"
+      }
+    ]
+  }
+}
