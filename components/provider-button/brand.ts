@@ -26,11 +26,12 @@
  *
  * COLOR-LITERAL NOTE: E0.2's discipline is zero raw hex outside
  * `styles/tokens.css` (plus `lib/providers/registry.ts`, sanctioned there for
- * brand facts). This file adds none: the only colors it emits are the CSS
- * keywords `white` and `black`, chosen by measurement as the poles of the sRGB
- * range — not palette choices — and their luminances are exactly 1 and 0, so
- * even the math needs no literals. Every other color it touches comes in as
- * data from the registry.
+ * brand facts). This file adds no new color to the system. The only colors it
+ * EMITS are the CSS keywords `white` and `black` — the poles of the sRGB range,
+ * chosen by measurement rather than as palette choices, and their luminances
+ * are exactly 1 and 0, so even the math needs no literals. Every color it reads
+ * arrives as data from the registry. Hex appears below only inside prose and in
+ * `#RRGGBB` format descriptions, never as a value the code uses.
  */
 
 import type { BrandColors } from "@/lib/providers/registry";
@@ -83,12 +84,20 @@ export interface BrandTreatment {
    * It is the brand's own foreground whenever the brand's published pair clears
    * AA, which is 13 of the 15 entries. Fandango and Overcast publish white on
    * orange at 2.73:1 and 2.58:1, and there the text falls back to the sRGB pole
-   * that reads on that field. Nothing about the brand is repainted by this: the
-   * FIELD — Fandango orange — is the recognition cue and stays exact, and what
-   * changes color is a text stand-in that exists only because we hold no art
-   * for these two (`public/brands/BRANDS.md`). A stand-in nobody can read is
-   * not more faithful, just less usable; and the moment a kit SVG lands, the
-   * mark renders exactly as published, because an image is not text.
+   * that reads on that field.
+   *
+   * Two things carry this, and neither is "a two-toned pill looks like a bug" —
+   * that stops being true the day art lands, when a white kit SVG will sit
+   * beside a black suffix and be exactly right. What carries it is (1)
+   * legibility: nobody can read a wordmark at 2.6:1, and (2) the bar, which is
+   * a clean axe run in both themes — WCAG 1.4.3's logotype exemption means
+   * shipping the published pair would not be a compliance failure, but axe
+   * flags logotype text like any other text, so the exemption does not buy the
+   * clean run. Nothing about the brand is repainted either way: the FIELD —
+   * Fandango orange — is the recognition cue and stays exact, and what changes
+   * color is a text stand-in that exists only because we hold no art for these
+   * two (`public/brands/BRANDS.md`). The moment a kit SVG lands, the mark
+   * renders exactly as published, because an image is not text.
    */
   textColor: string;
   /** The brand field dissolves into the dark (ink) ground; draw a hairline there. */

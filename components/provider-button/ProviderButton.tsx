@@ -32,18 +32,25 @@ export interface ProviderButtonProps {
  * button renders the entry's `wordmark` in its exact official casing (NETFLIX,
  * hulu, prime video) set in the interface sans — never Fraunces, the display
  * serif: faux brand lettering is worse than plain lettering. The wordmark is
- * marked `role="img"` because that is what it is — a stand-in for logo art, and
- * WCAG 1.4.3 exempts text that is part of a logo or brand name from contrast
- * minimums. The moment a kit SVG lands in `public/brands/` and `logoAsset` is
- * set, the `<img>` branch takes over with the identical accessible name and no
- * component change (see `public/brands/BRANDS.md`).
+ * marked `role="img"` because that is what it is — a stand-in for logo art. The
+ * moment a kit SVG lands in `public/brands/` and `logoAsset` is set, the `<img>`
+ * branch takes over with the identical accessible name and no component change
+ * (see `public/brands/BRANDS.md`).
  *
  * NO RE-TINTING. Every brand kit forbids recoloring the mark, so there is no
  * hover opacity or brightness shift here — the brand field is the published
  * color at rest, on hover, and while pressed. The affordance is motion instead.
- * The one place a published color is not painted verbatim is the text color of
- * the two entries whose own pair is below AA; `brandTreatment` documents why
- * and the field itself is still exact.
+ *
+ * The one published color not painted verbatim is the TEXT color of the two
+ * entries whose own pair is below AA (Fandango 2.73:1, Overcast 2.58:1). Two
+ * separate things are true and it is worth keeping them apart: WCAG 1.4.3
+ * exempts text that is part of a logo or brand name from contrast minimums, so
+ * rendering those pairs as published would not be a *compliance* failure — and
+ * that exemption is why nobody is forced to touch them. We recolor the text
+ * anyway because it is unreadable at 2.6:1, and because the bar this bead was
+ * held to is a clean axe run on the demo page, which the exemption does not buy
+ * (axe flags logotype text like any other text — measured). `brandTreatment`
+ * carries the reasoning; the brand FIELD stays exact either way.
  *
  * SEARCH-SCOPED. Streaming links land on the provider's search results for the
  * title, not on the title's page — Nightstand holds no provider-internal title
@@ -74,12 +81,20 @@ export function ProviderButton({
         color: treatment.textColor,
       }}
       className={cx(
-        // ≥44px tap target, with room to spare: 48px tall, and 20px of side
-        // padding — at least half the 24px mark height on every edge, which is
-        // the clear-space rule every kit in BRANDS.md states some variant of.
+        // ≥44px tap target with room to spare: 48px tall, 20px of side padding.
+        // Clear space around the MARK, measured rather than claimed: the logo
+        // branch gets 20px horizontally and (48−24)/2 = 12px above and below a
+        // 24px mark, which is the ≥0.5× rule every kit in BRANDS.md states some
+        // variant of. The wordmark branch's vertical figure is 10.5px — that is
+        // text leading around an 18px/1.5 line, not mark clear space, and it
+        // stops mattering the moment real art replaces it.
         "inline-flex min-h-12 items-center gap-2.5 rounded-full px-5",
         "transition-transform duration-150 motion-reduce:transition-none",
+        // Under reduced motion the transition is suppressed, which would turn
+        // the eased 2% grow into an instant snap — harsher than what it
+        // replaces. So the scale itself is dropped too, not just its easing.
         "hover:scale-[1.02] active:scale-[0.97]",
+        "motion-reduce:hover:scale-100 motion-reduce:active:scale-100",
         hairlineClasses(treatment),
         focusRing,
         className,
