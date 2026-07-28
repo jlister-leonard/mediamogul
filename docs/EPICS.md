@@ -16,9 +16,10 @@ All beads start `todo`. Status lives here, in this file — single source of tru
 | E0.1 scaffold | **done** ✅ | Review PASS; `ec3b2a4`. Pins: next 16.2.12, TS 5.9.3, eslint 9.39.5, @playwright/test 1.56.1, tailwind 4.3.3 |
 | E0.6 deploy | **done** ✅ | FAIL→fix→PASS (CI lacked production build). Merged `674fecb`. Repo-setup TODO: mark `ci` check required on main; link Vercel project + env vars |
 | E0.2 tokens | **done** ✅ | Review PASS "without reservation". 18/18 AA pairs. Merged + nit fixes (format strings, hue comment) |
-| E0.3 contracts | review | PASS + 4 mandated amendments applied (`ec3febd`, 40 tests); delta-verify in flight; merge next |
-| E0.5 pwa-shell | review | FAIL (precache hole) → fixed (`0dd676d`); re-review in flight |
-| E0.4 primitives | in-progress | Launched after E0.2 merge |
+| E0.3 contracts | **done** ✅ | PASS + delta-verified amendments (ItemSeed, communityRating, ms-pinned timestamps). Merged; 40 unit tests |
+| E0.5 pwa-shell | **done** ✅ | FAIL (precache hole) → fixed → PASS. First-session offline proven. Merged |
+| E0.4 primitives | in-progress | |
+| E1.1 db-schema · E2.1 books · E2.2 tmdb · E2.3 podcasts · E5.2 registry · E6.1 llm-route | in-progress | Wave 3. **Egress note:** only googleapis.com reachable from the build env — providers are fixture-first with env-gated live smokes; brand assets ship colors+wordmarks with official-kit swap-in path |
 | everything else | todo | |
 
 ---
