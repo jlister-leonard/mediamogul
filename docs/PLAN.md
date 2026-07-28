@@ -1,4 +1,4 @@
-# Mediamogul — Product & Build Plan
+# Nightstand — Product & Build Plan
 
 A personal media companion: books, movies, TV, podcasts. One library, one taste model,
 one place to ask "what should I do with the next 90 minutes?" — and then actually get it.
@@ -19,6 +19,12 @@ Status: **draft for discussion.** Nothing is built yet. Decisions marked 🔵 ne
 | 6 | No social features of any kind | ✅ agreed |
 | 7 | Deep-link to titles; no credential-scraping for "My List" | ✅ agreed |
 | 8 | Region **US**; 10 subscriptions on file | ✅ agreed — see §5 |
+| 9 | Named **Nightstand** | ✅ agreed — see §12 |
+| 10 | Clean Amazon links, no affiliate tagging | ✅ agreed |
+| 11 | No Libby/OverDrive integration | ✅ agreed — dropped |
+| 12 | No co-viewing profile; group-watch parked as a future idea | ✅ agreed — see §13 |
+
+**All questions are resolved. This plan is ready to execute on your go.**
 
 ---
 
@@ -28,7 +34,7 @@ Goodreads is a *database with a social network bolted on*. The content is genuin
 the metadata, the descriptions, the aggregate ratings. The product wrapped around it is
 fifteen years stale, and it gives you almost nothing back for what you put in.
 
-Mediamogul inverts that. **The log is not the product. The log is the training data.**
+Nightstand inverts that. **The log is not the product. The log is the training data.**
 
 Everything you capture feeds one asset: a living, legible model of your taste. Every
 surface is a view into that model:
@@ -191,7 +197,7 @@ gets a button that deep-links to the title in that app.
 
 **Netflix, Max, Disney+, and Prime Video have no public write APIs.** There is no
 sanctioned way for any third-party app to add a title to your Netflix My List — this isn't
-a Mediamogul limitation, it's why no app anywhere offers it. Anyone claiming otherwise is
+a Nightstand limitation, it's why no app anywhere offers it. Anyone claiming otherwise is
 scraping with your password, which I'm not going to build.
 
 What we *can* do, and what I'd build: a button that **deep-links directly to that title
@@ -341,17 +347,58 @@ automate anything a platform doesn't sanction.
 
 ---
 
-## 11. Open questions 🔵
+## 11. Open questions
 
-Everything blocking Phase 0 is now answered. These are the remaining calls, none of which
-gate the start of work:
+None outstanding. See the decisions log in §0.
 
-1. **Library card?** Libby/OverDrive is the one free source not covered by your ten
-   subscriptions, and it's the best path for books you don't want to buy. Worth wiring up?
-2. **"With M"** — is shared viewing real for you? It adds a lightweight second profile,
-   but it's the most common real-world recommendation problem there is.
-3. **Amazon affiliate tagging** on Kindle links — set it up, or keep links clean?
-4. **The name.** `mediamogul` is a fine repo name; it's jokey for something this quiet.
-5. **Do the childhood 5s stay visible?** Comfort titles are excluded from *rec signal* by
-   default (§4.2), but they're a real part of your library — I'd keep them fully visible
-   in Library and on their own ladder. Say if you'd rather they were hidden.
+One standing default worth stating: **comfort titles stay fully visible.** The childhood
+fives are excluded from *recommendation signal* (§4.2) but remain in Library and hold
+their own ladder — they're a real part of the collection, not noise to be hidden.
+
+---
+
+## 12. The name
+
+**Nightstand.**
+
+It earns its keep beyond sounding good — it's the one surface in a house where all four
+media already coexist. The book you're mid-way through, the remote, the phone with the
+podcast on it, and the lamp. That's the product, described by a piece of furniture.
+
+It also gives us a vocabulary that makes the interface easier to write, with no invented
+jargon:
+
+| Concept | Nightstand word |
+|---|---|
+| Now tab | **Tonight** |
+| In progress | **On the nightstand** |
+| Queue / shortlist | **The stack** |
+| Finished | **The drawer** |
+| Comfort re-reads | **Well-worn** |
+| The between-heavy-things pick | **Lamplight** — short, easy, undemanding |
+
+And it retroactively justifies the palette in §6: a **warm dark mode of ink and lamplight**
+was the right instinct before we had the name, and now it's the literal subject. Dark mode
+is the default; the lamp is the accent.
+
+**The discipline:** the metaphor lives in the vocabulary and the palette, never in the
+pixels. No wood-grain textures, no skeuomorphic drawers, no lamp illustration. Themed apps
+turn twee fast, and this one is meant to feel like a well-made object, not a cartoon of
+one.
+
+---
+
+## 13. Parked for later
+
+Good ideas, deliberately not in scope now:
+
+- **Group watch.** More than two people, each with a taste profile, converging on one
+  thing everyone will actually enjoy — a real problem nobody has solved well. It needs
+  multi-user, which every other decision here rules out, so it's a v2 conversation rather
+  than a feature to leave hooks for. Noted because it's genuinely the best expansion path
+  this design has.
+- **Screenshot importer** — vision → titles → bulk resolve, for Letterboxd/Trakt and
+  anything else without an export. Proven viable; Phase 6.
+- **A shareable Taste Portrait.** Private by default and staying that way. But the Portrait
+  is the one artifact in this app anyone would ever want to show someone, so it should be
+  designed as though it might be — which costs nothing now and keeps the option open.
