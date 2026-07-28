@@ -78,6 +78,11 @@ changes another bead (fed back into `EPICS.md` before dependents launch).
 - Blocked or surprised → message the orchestrator immediately; don't improvise around a
   contract.
 - Match the codebase's existing idiom; no new dependencies without orchestrator sign-off.
+- **Never `git stash` in a worktree.** The stash stack is shared repo-wide across all
+  worktrees; parallel stash/pop WILL cross agents' work (this happened — wave 3). Need a
+  clean tree? Make a WIP commit on your worktree branch and amend it later.
+- E2E tests in a shared container: run on your own dedicated port via a temp config
+  outside your commit; never rely on port 3000 and never kill another agent's server.
 
 ## Human gates
 
