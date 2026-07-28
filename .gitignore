@@ -13,3 +13,6 @@ next-env.d.ts
 !.env.example
 
 .DS_Store
+
+# agent worktrees (session-local)
+.claude/
