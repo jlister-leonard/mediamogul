@@ -363,13 +363,25 @@ graph TD
   - [ ] Zip stored once in settings; optional geolocation with permission prompt
   - [ ] Recommendations tab exposes a "movies in theaters now" chip fed by `now_playing`
 
-### E5.5 `getit-row` — assembly
-- **deps:** E5.1, E5.3 · **owns:** `components/getit-row/*`
+### E5.5 `getit-order` — what to offer, in what order
+- **deps:** E5.1, E5.3 · **owns:** `lib/getit/*`
+- **⚠ re-scoped (orchestrator ruling, from E5.3's review):** the `GetItRow` *layout* shipped
+  inside E5.3's lease — a scrolling row cannot be judged without building it. E5.5 therefore
+  owns the **logic**, not the markup: it composes the already-ordered `ProviderButtonProps[]`
+  that `GetItRow` renders. Do not duplicate or rename the component.
 - **AC:**
-  - [ ] Detail pages and rec cards show the row: subscribed sources first, then rent/buy,
-        then theaters; Kindle/Audible for books; Spotify-first for podcasts
-  - [ ] Empty state is honest: "not streamable right now" + best alternative
+  - [ ] Ordering: subscribed sources first, then rent/buy, then theaters; Kindle/Audible for
+        books; Spotify-first for podcasts. One pure function, unit-tested over fixtures
+  - [ ] Suffix composition from `Availability.kind` + `priceUsd` ("rent $3.99") — keep short;
+        long strings widen the pill into the scroll
+  - [ ] Empty state is honest: "not streamable right now" + best alternative (E5.3 renders
+        nothing for an empty array by design — this bead owns the copy and the fallback)
   - [ ] Every rendered link verified non-404 by a fixture test across 20 known titles
+  - [ ] ⚠ from E5.3: `ProviderButton` always builds its href from the registry template.
+        When E5.1 starts resolving direct title links into `availability.url`, ProviderButton
+        needs an `href` override prop — that is a contract change to broadcast, not to work
+        around. Also: `GetItRow` bleeds 16px horizontally, so place it in a container with
+        ≥16px side padding
 
 ## E6 — Recommendations
 
