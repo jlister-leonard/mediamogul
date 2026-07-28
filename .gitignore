@@ -16,3 +16,6 @@ next-env.d.ts
 
 # agent worktrees (session-local)
 .claude/
+
+# style-tile capture output
+/style-tile-shots

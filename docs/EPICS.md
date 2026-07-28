@@ -177,7 +177,7 @@ graph TD
   `npx playwright install --with-deps chromium` (keep @playwright/test pinned at 1.56.1).
 
 ### E0.7 `style-tile` — the agreement screen
-- **deps:** E0.4 · **owns:** `app/style/page.tsx`
+- **deps:** E0.4 · **owns:** `app/style/*`, `e2e/style.spec.ts`
 - **AC:**
   - [ ] One real screen: cover-forward card, serif titles, action row mock, both themes
   - [ ] Reviewed by Jeremy before any E3+ UI bead starts — this is a hard gate
