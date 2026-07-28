@@ -26,7 +26,8 @@ Status: **draft for discussion.** Nothing is built yet. Decisions marked 🔵 ne
 | 13 | **No Supabase / no database service.** Local-first: IndexedDB on device, stateless API routes, JSON export backup | ✅ agreed — see §8 |
 | 14 | **In theaters** as an availability state + Fandango showtimes deep link | ✅ agreed — see §5 |
 | 15 | Spotify deep links for podcasts; **branded provider buttons** per official brand kits | ✅ agreed — see §5 |
-| 16 | Natural-language situation chat and two-scope search are core surfaces | ✅ agreed — see §4.5–4.6 |
+| 16 | Natural-language situation chat and two-scope search are core surfaces | ✅ agreed — see §4.4–4.5 |
+| 18 | **Recommendations** is the tab and the engine; the engine *offers* by default, and chat/situations are ways to *ask* it | ✅ agreed — see §4.4 |
 | 17 | Work tracked as **epics → beads** with explicit dependencies and acceptance criteria | ✅ agreed — see `EPICS.md` |
 
 **All questions are resolved. Execution structure lives in [`EPICS.md`](./EPICS.md) and
@@ -47,7 +48,7 @@ surface is a view into that model:
 
 | Surface | Question it answers |
 |---|---|
-| **Now** | "What should I do *right now*, given my mood, my time, and what I can actually access?" |
+| **Recommendations** | "What should I read / watch / listen to?" — an engine that offers, and that you can also *ask* (situations, chat) |
 | **Library** | "What have I consumed, and what did I think?" |
 | **Portrait** | "Who am I, as a consumer of stories?" |
 
@@ -162,55 +163,60 @@ wrong vibe · bounced off it · can't get it*. One tap.
 Nobody collects negative signal, and it's worth more than positive because it's where the
 model is wrong. This is the flywheel.
 
-### 4.4 Situations as first-class objects
+### 4.4 The Recommendations engine
 
-The Now tab opens with tappable situation chips plus a freeform field:
+**Recommendations is a tab and an engine.** The engine's job: given everything Nightstand
+knows — ladder standings, taste tags, rejection history, what's on your stack, what you
+can actually access tonight — produce a small, considered hand of picks across all four
+media. It has two faces:
 
-> `45 min before bed` · `background while cooking` · `long flight` · `with M` ·
-> `need to cry` · `want to feel smart` · `nothing heavy`
+**It offers.** Open the tab and the engine has already dealt: 3–5 picks spanning books,
+movies, TV, and podcasts, each with a one-line reason citing *your* history ("you ranked
+*Bad Blood* top of Money & Markets; this is the same reporter"), each carrying its Get-it
+row, each dismissible with a reason. Queue-first — if something on your stack fits, it
+leads. Refreshed when the model learns something, not on a dopamine schedule.
 
-Situations are saved objects that learn. And critically — **Now searches your own queue
-first.** If something you already saved fits the moment, that's the answer, not a new thing
-to feel guilty about.
+**You ask.** Two ways to steer the same engine, one tap away:
 
-### 4.5 The chat is a front door, not a feature
+- **Situation chips** — saved openings: `45 min before bed` · `background while cooking` ·
+  `long flight` · `movies in theaters now` · `need to cry` · `want to feel smart` ·
+  `nothing heavy`. Situations are objects that learn what worked.
+- **Chat** — the freeform option within Recommendations. Describe the situation in your
+  own words — mood, time, company, energy, what you just finished, what you can't face —
+  and the engine answers like someone who has read your whole file, because it has:
 
-Worth stating unmissably, since it's the heart of the ask: **Tonight opens into a real
-natural-language conversation.** The chips are shortcuts; the field is the product. You
-describe a *situation* — mood, time, company, energy, what you just finished, what you
-can't face — and it answers like someone who has read your whole file, because it has:
+  > *"Flight tomorrow, 5 hours, want something absorbing but I'm burned out on business
+  > books"* → it knows you just logged three strategy books, sees *American Prometheus*
+  > and *The Road* on your stack, checks length and availability, and hands you a
+  > considered answer with reasons — not a grid.
 
-> *"Flight tomorrow, 5 hours, want something absorbing but I'm burned out on business
-> books"* → it knows you just logged three strategy books, sees *American Prometheus* and
-> *The Road* on your stack, checks length and availability, and hands you a considered
-> answer with reasons — not a grid.
+  Follow-ups refine in context ("shorter", "funnier", "fine, but on Audible?").
 
-Follow-ups work like conversation ("shorter", "funnier", "fine, but on Audible?"), every
-answer cites your history, and every suggestion carries the Get-it row and a
-dismiss-with-reason. The chips in §4.4 are just saved openings for this conversation.
+One engine, three entry points — the default hand, the chips, the chat. Same taste model,
+same availability constraints, same rejection capture behind all three.
 
-### 4.6 Search
+### 4.5 Search
 
 Two different questions share one field, and the app must never confuse them:
 
 - **"Find it"** — the omnibox (§4.1): search the world across all four media to add,
   log, or check availability.
 - **"Where is it?"** — search *your own* library, stack, notes, and history: by title,
-  by half-remembered detail (*"the one with the lighthouse keeper"* — semantic, §4.7), or
+  by half-remembered detail (*"the one with the lighthouse keeper"* — semantic, §4.6), or
   by what you said about it.
 
 One search surface, two clearly-labeled scopes — **Your library** first when results exist
 there, **Everything** below. Search is a top-level control on every tab, not a buried
 utility: for a library of hundreds of items, recall *is* a core feature.
 
-### 4.7 The Taste Portrait
+### 4.6 The Taste Portrait
 
 The accretive payoff: axes (plot-driven ↔ vibe-driven, comfort ↔ challenge), recurring
 obsessions, blind spots stated as observation and never as a scold, seasonality. **Every
 claim is editable** — thumbs-down corrects the model.
 
 Semantic search over your own notes falls out nearly free: *"what was the book where the
-narrator was a lighthouse keeper?"* (surfaced through the §4.6 search field).
+narrator was a lighthouse keeper?"* (surfaced through the §4.5 search field).
 
 ---
 
@@ -228,7 +234,7 @@ decision #11.)
 gets a button that deep-links to the title in that app.
 
 **In theaters** — a first-class availability state, not an afterthought. TMDB's
-`now_playing` feed (region US) marks current theatrical releases, the Tonight tab gets a
+`now_playing` feed (region US) marks current theatrical releases, Recommendations gets a
 **"movies in theaters now"** situation chip, and every theatrical title carries a
 **Fandango** button that deep-links to its showtimes page — with your zip (stored once, or
 read from device location with permission) so "showtimes near me" is one tap. This also
@@ -457,7 +463,7 @@ jargon:
 
 | Concept | Nightstand word |
 |---|---|
-| Now tab | **Tonight** |
+| Recommendations tab (display name) | **Tonight** |
 | In progress | **On the nightstand** |
 | Queue / shortlist | **The stack** |
 | Finished | **The drawer** |

@@ -21,7 +21,7 @@ graph LR
     E2 --> E3
     E1 --> E4[E4 Rate & Rank]
     E2 --> E5[E5 Get It]
-    E3 --> E6[E6 Tonight]
+    E3 --> E6[E6 Recommendations]
     E4 --> E6
     E5 --> E6
     E1 --> E7[E7 Portrait & Memory]
@@ -83,9 +83,10 @@ graph TD
     subgraph E6
         B003 --> B601[E6.1 llm-route]
         B601 & B302 --> B602[E6.2 taste-context]
-        B602 & B505 --> B603[E6.3 chat]
-        B603 --> B604[E6.4 situations]
-        B603 --> B605[E6.5 rejection]
+        B602 & B505 --> B603[E6.3 recs-hand]
+        B603 --> B604[E6.4 chat]
+        B604 --> B605[E6.5 situations]
+        B603 --> B606[E6.6 rejection]
     end
     subgraph E7
         B602 --> B701[E7.1 portrait-synth]
@@ -95,7 +96,7 @@ graph TD
     subgraph E8
         B301 --> B801[E8.1 share-target]
         B301 --> B802[E8.2 barcode]
-        B603 --> B803[E8.3 voice-capture]
+        B604 --> B803[E8.3 voice-capture]
         B303 --> B804[E8.4 dynamic-color]
         B103 --> B805[E8.5 offline-hardening]
         B701 --> B806[E8.6 wrapped]
@@ -307,7 +308,7 @@ graph TD
 - **AC:**
   - [ ] Theatrical titles show a Fandango button deep-linking to that title's showtimes
   - [ ] Zip stored once in settings; optional geolocation with permission prompt
-  - [ ] Tonight tab exposes a "movies in theaters now" chip fed by `now_playing`
+  - [ ] Recommendations tab exposes a "movies in theaters now" chip fed by `now_playing`
 
 ### E5.5 `getit-row` — assembly
 - **deps:** E5.1, E5.3 · **owns:** `components/getit-row/*`
@@ -317,16 +318,21 @@ graph TD
   - [ ] Empty state is honest: "not streamable right now" + best alternative
   - [ ] Every rendered link verified non-404 by a fixture test across 20 known titles
 
-## E6 — Tonight
+## E6 — Recommendations
+
+One engine, three entry points (PLAN §4.4): the default **hand** of picks, **situation
+chips**, and **chat**. All three share the taste context, availability constraints, and
+rejection capture.
 
 ### E6.1 `llm-route` — the intelligence endpoint
-- **deps:** E0.3 · **owns:** `app/api/chat/*`, `lib/llm/*`
+- **deps:** E0.3 · **owns:** `app/api/recommend/*`, `lib/llm/*`
 - **AC:**
   - [ ] Streaming route wrapping Anthropic API; passphrase header enforced; keys server-side
   - [ ] Tool-use schema lets the model query availability and the library summary
+  - [ ] Serves both modes: one-shot hand generation and multi-turn chat
   - [ ] Cost guard: request budget cap + graceful "thinking too hard" fallback
 
-### E6.2 `taste-context` — the model's briefing
+### E6.2 `taste-context` — the engine's briefing
 - **deps:** E6.1, E3.2 · **owns:** `lib/llm/context.ts`
 - **AC:**
   - [ ] Compact library summary (ladder standings, tags, rejections, modes) ≤4k tokens
@@ -334,24 +340,36 @@ graph TD
   - [ ] Comfort titles excluded from signal unless situation requests comfort
   - [ ] Rejection history included with reasons
 
-### E6.3 `chat` — the conversation
-- **deps:** E6.2, E5.5 · **owns:** `app/tonight/*`, `components/chat/*`
+### E6.3 `recs-hand` — the default offer
+- **deps:** E6.2, E5.5 · **owns:** `app/recommendations/page.tsx`, `components/rec-card/*`
 - **AC:**
-  - [ ] Freeform situation in, 3–5 recs out, each with a **reason citing your history**
-        and a Get-it row; streaming render
-  - [ ] Queue-first: stack items that fit are surfaced before new titles
-  - [ ] Follow-ups refine in context ("shorter", "funnier", "in theaters instead")
+  - [ ] Opening the tab shows a pre-dealt hand: 3–5 picks **spanning media types**, each
+        with a one-line reason citing your history and a Get-it row
+  - [ ] Queue-first: stack items that fit lead the hand
+  - [ ] Hand refreshes when the model learns (new rating, rejection, finish) — never on a
+        timer; last hand cached for instant open and offline display
+  - [ ] Cold-start behavior defined: with seed data only, hand is books-weighted and says so
 
-### E6.4 `situations` — saved openings
-- **deps:** E6.3 · **owns:** `components/situations/*`
+### E6.4 `chat` — the ask-in-your-own-words entry
+- **deps:** E6.3 · **owns:** `app/recommendations/chat/*`, `components/chat/*`
 - **AC:**
-  - [ ] Chip row incl. "45 min before bed", "long flight", "movies in theaters now"
+  - [ ] One tap from the Recommendations tab into a freeform conversation
+  - [ ] Situation in, 3–5 recs out, streaming, same rec-card component as the hand
+  - [ ] Follow-ups refine in context ("shorter", "funnier", "in theaters instead")
+  - [ ] A good chat answer is saveable as a situation chip (feeds E6.5)
+
+### E6.5 `situations` — saved openings
+- **deps:** E6.4 · **owns:** `components/situations/*`
+- **AC:**
+  - [ ] Chip row on the tab incl. "45 min before bed", "long flight", "movies in theaters
+        now"; tapping deals a hand for that situation without opening chat
   - [ ] Custom situations saveable from any chat; reuse tracks what worked
-  
-### E6.5 `rejection` — the flywheel
+
+### E6.6 `rejection` — the flywheel
 - **deps:** E6.3 · **owns:** `components/rejection/*`, repo hooks
 - **AC:**
-  - [ ] Every rec card dismissible with one-tap reason (incl. "can't get it", "seen it")
+  - [ ] Every rec card — hand, chip, or chat — dismissible with one-tap reason
+        (incl. "can't get it", "seen it")
   - [ ] Rejections persist and demonstrably alter the next session's `taste-context`
   - [ ] Test: reject 3 long books → next "before bed" ask surfaces nothing >400 pages
 
@@ -382,7 +400,7 @@ graph TD
 
 ### E8.1 `share-target` (deps E3.1) — shared URL/text from any app lands in Inbox, auto-resolves; unresolved shares never lost
 ### E8.2 `barcode` (deps E3.1) — ISBN scan → detail in <3s
-### E8.3 `voice-capture` (deps E6.3) — "finished Bear s3, four stars…" parses to a full logged entry
+### E8.3 `voice-capture` (deps E6.4) — "finished Bear s3, four stars…" parses to a full logged entry
 ### E8.4 `dynamic-color` (deps E3.3) — accent extracted from artwork per detail page, both themes safe
 ### E8.5 `offline-hardening` (deps E1.3) — full offline pass: every read works, every write queues; airplane-mode e2e
 ### E8.6 `wrapped` (deps E7.1) — year-in-review from real data; screenshot-worthy
@@ -400,7 +418,7 @@ graph TD
 | 5 | E1.3, E1.4, E2.5, E3.1*, E3.4, E4.1, E5.1 |
 | 6 | E3.2, E3.3, E4.2, E4.4, E5.4, E5.5 |
 | 7 | E4.3, E4.5, E6.2 |
-| 8 | E6.3 → E6.4, E6.5, E7.1 |
+| 8 | E6.3 → E6.4 → E6.5, E6.6, E7.1 |
 | 9 | E7.2, E7.3, E8.* |
 
 🚦 = human gate: **E0.7 (style tile) needs Jeremy's sign-off before wave-6 UI beads run.**
