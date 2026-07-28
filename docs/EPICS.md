@@ -147,7 +147,9 @@ graph TD
 ### E0.5 `pwa-shell` — installable PWA
 - **deps:** E0.1 · **owns:** `app/manifest.ts`, `public/icons/*`, service-worker setup
 - **AC:**
-  - [ ] Installable on iOS/Android (manifest + icons + SW); Lighthouse PWA pass
+  - [ ] Installable on iOS/Android: manifest fields complete, all icons served with
+        correct mime/dimensions, SW controls the page (e2e-verified — Lighthouse's PWA
+        category no longer exists; these concrete checks are the accepted verification)
   - [ ] App shell cached; offline reload renders UI, not the dino
   - [ ] `share_target` declared in manifest (handler lands in E8.1)
 
