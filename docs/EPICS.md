@@ -192,6 +192,9 @@ graph TD
   - [ ] One-tap export of the full DB to versioned JSON via share sheet
   - [ ] Import restores a fresh install to identical state (round-trip test)
   - [ ] Import validates with Zod and refuses corrupt files with a human message
+- **note (from E0.3 review):** zod default *strip* semantics are the deliberate posture —
+  unknown fields in a backup are stripped, not fatal (forward-compatible imports).
+  Timestamps are millisecond-precision ISO only; imports must not relax this.
 
 ### E1.4 `goodreads-import` — seed from the CSV
 - **deps:** E1.2 · **owns:** `lib/import/goodreads.ts`, `data/` fixtures
@@ -378,6 +381,8 @@ rejection capture.
   - [ ] Chip row on the tab incl. "45 min before bed", "long flight", "movies in theaters
         now"; tapping deals a hand for that situation without opening chat
   - [ ] Custom situations saveable from any chat; reuse tracks what worked
+- **note (from E0.3 review):** "what worked" is DERIVED, not stored — join `rec.itemId`
+  (by `rec.source.situationId`) against subsequent entries/queue adds. No new types.
 
 ### E6.6 `rejection` — the flywheel
 - **deps:** E6.3 · **owns:** `components/rejection/*`, repo hooks

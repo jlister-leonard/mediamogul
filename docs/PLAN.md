@@ -387,20 +387,22 @@ watch providers, and `now_playing` for theaters, region US); iTunes Search + Pod
 Index (podcasts).
 
 ```
-items          canonical title: medium, external ids, art, runtime/length, metadata
-entries        my log: item_id, status, started/finished, score, gradient, tags[], note
-comparisons    pairwise ladder results (winner, loser, medium)
-queue          shortlist: item_id, context_tags[], added_reason
+items          canonical title: medium, external ids, art, length, description, community rating
+entries        my log: item_id, status, started/finished, score, gradient, mode, tags[], note
+comparisons    pairwise ladder results (winner, loser, genre)
+queue          the stack: item_id, context_tags[], added_reason
 situations     saved contexts ("flight", "before bed", "in theaters"), learned preferences
-availability   per-item, per-provider: type (sub/rent/buy/borrow), price, deep link, region
-services       which subscriptions and library cards I actually hold
+availability   per-item, per-provider: kind (sub/rent/buy/theater), price, deep link, region
 recs           what was suggested, why, and the rejection reason
 portrait       versioned taste model + my manual corrections
-embeddings     pgvector over items and over my own notes
 ```
 
-**Cost:** Vercel + Supabase free tiers cover one user. LLM spend is realistically a few
-dollars a month.
+(No `services` table — the ten subscriptions are provider-registry config, decision #8/#11.
+No embeddings table — decision #13: taste context is passed in-prompt at this scale.
+`lib/types/` is the canonical form of this sketch; where they differ, the types win.)
+
+**Cost:** Vercel Hobby covers one user at $0. LLM spend is realistically a few dollars a
+month.
 
 ---
 
