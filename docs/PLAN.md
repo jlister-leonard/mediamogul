@@ -14,9 +14,11 @@ Status: **draft for discussion.** Nothing is built yet. Decisions marked 🔵 ne
 | 1 | Three tabs: Now / Library / Portrait | proposed |
 | 2 | Podcasts tracked at **show** level, not episode | ✅ agreed |
 | 3 | Every item carries a **"Get it"** action row (buy / stream / borrow) | ✅ agreed — see §5 |
-| 4 | No Goodreads CSV to import from; seed another way | ✅ agreed — see §7 |
-| 5 | Pairwise "ladder" ranking instead of stars | 🔵 needs call |
+| 4 | Seed from the Goodreads CSV export — 225 books, in hand | ✅ agreed — see §7 |
+| 5 | Pairwise "ladder" ranking instead of stars, **scoped per genre** | ✅ agreed — see §4.2 |
 | 6 | No social features of any kind | ✅ agreed |
+| 7 | Deep-link to titles; no credential-scraping for "My List" | ✅ agreed |
+| 8 | Region **US**; 10 subscriptions on file | ✅ agreed — see §5 |
 
 ---
 
@@ -105,21 +107,40 @@ genuinely useful when you're deciding, and nobody else says it out loud.
   by the LLM into a full entry with rating and note.
 - **Barcode scan** — camera on a physical book jacket.
 
-### 4.2 Ratings: the ladder, not the stars 🔵
+### 4.2 Ratings: the genre-scoped ladder ✅
 
-Five stars is lossy and drifts — your 4-star from 2019 isn't your 4-star today.
+Five stars is lossy and drifts. Your export proves it: **108 of your 152 ratings are a 4
+or a 5** — 71% of your library is effectively unranked.
 
 Rate fast (*loved / liked / fine / no*), and then the app occasionally asks the only
 question that produces clean signal:
 
 > **"*Inside the Tornado* or *Blue Ocean Strategy* — which one stays?"**
 
-Pairwise, Elo-style, against a title of adjacent rating. Ten seconds, weirdly addictive,
-and it produces a real **ranked ladder** per medium instead of a pile of 4-star ties.
+Pairwise, Elo-style. Ten seconds, weirdly addictive, and it produces a real **ranked
+ladder** instead of a pile of 4-star ties.
+
+**Ladders are per-genre, not per-medium.** Your data makes the case better than any
+argument could: *Green Eggs and Ham* and *The House of Morgan* both hold five stars.
+Asking you to compare them would be meaningless and would discredit the mechanic on
+first use. Eight proposed genre ladders are listed in `TASTE-BASELINE.md` §Proposed genre
+ladders — and per Finding 5, genre is **auto-assigned from metadata**, never a shelf you
+have to maintain.
+
+**Two traps the export exposed**, both handled here rather than discovered later:
+
+- **Two kinds of five-star.** A large nostalgia cluster (Alex Rider ×7, Harry Potter ×6,
+  Dr. Seuss) is rated 5 — that's *comfort*, not *admiration*. Untreated, the recommender
+  concludes "loves YA spy thrillers." We capture **mode** (admired / enjoyed / loved-since-
+  childhood), inferred by default and always correctable. Comfort titles rank on their own
+  ladder and are excluded from rec signal unless a situation asks for comfort.
+- **Context-contaminated negatives.** Ten of your thirteen lowest ratings are assigned
+  high-school canon. That rates the circumstance, not the book — and *The Road* sitting on
+  your to-read shelf proves the naive inference wrong. Onboarding asks about it once.
 
 **Plus taste tags** — after rating, 3–4 contextual one-tap chips (*pacing / ending /
 density / voice / world / performances*). This is what turns "you liked it" into "you
-liked it *because*," and it's what stops the recommender being generic.
+liked it *because*."
 
 ### 4.3 Rejection is the real signal
 
@@ -180,10 +201,19 @@ one, it's reliable, and it doesn't require handing over credentials. For books i
 
 I want that caveat on the record now rather than discovered in Phase 5.
 
+### Subscriptions on file (US)
+
+Netflix · HBO Max · Prime Video · Hulu · Apple TV+ · Peacock · Paramount+ · Disney+ ·
+Spotify · Audible.
+
+Ten services is a lot of surface, and it makes the availability filter *more* valuable
+rather than less: with this much coverage, "can I watch it tonight for free" is almost
+always answerable, and the rare "no" is worth knowing before you get attached. Region is
+**US** for all TMDB provider lookups.
+
 ### The accretive win: availability-aware recommendations
 
-This is where your commerce request stops being a buy button and becomes a *feature*. Tell
-the app once which services you subscribe to and which library card you hold, and the
+This is where your commerce request stops being a buy button and becomes a *feature*. The
 recommender treats availability as a **constraint**:
 
 > *"45 minutes, on something I already pay for, nothing heavy"*
@@ -213,24 +243,33 @@ adjectives.
 
 ---
 
-## 7. Seeding the taste model (no CSV)
+## 7. Seeding the taste model
 
-You said Goodreads has no CSV export, so the import path changes. Worth one check:
-Goodreads *does* have an export on desktop web (My Books → Import and Export → Export
-Library) that isn't exposed in the mobile app at all — if it's still there, that's the
-cheapest possible seed by a wide margin. If it's gone or broken, we do this instead:
+**We have the CSV: 225 books, 152 of them rated.** Full analysis in
+[`TASTE-BASELINE.md`](./TASTE-BASELINE.md). This is a strong cold start — the app ships
+already knowing you, which is the difference between a recommender that's useful in week
+one and one that's useful in month three.
 
-1. **Screenshot importer.** You screenshot your shelves, the app reads the titles out of
-   the images with vision, resolves each against the metadata providers, and bulk-adds
-   them. You just proved this works — the three screenshots you sent were parsed cleanly
-   enough to pull every title, author, and rating off them.
-2. **Conversational cold start.** *"Name ten things you loved and three you hated."* Three
-   minutes of chat, and combined with a few ladder duels you have a ranked spine
-   immediately.
-3. **Amazon / Audible / Kindle library** — your own purchase history is a strong signal.
+Import path:
 
-The screenshot importer is my favorite of these. It's a genuinely good answer to a closed
-platform, it's fun, and it turns the constraint into a feature.
+1. **Parse the export** — 225 rows, 80% carrying ISBN13 (auto-resolves to Kindle/Audible);
+   the remaining 20% fall back to title + author matching.
+2. **Auto-assign genre** to every title from metadata, seeding the eight ladders.
+3. **Infer rating mode** (admired / enjoyed / comfort) from publication date, re-read
+   count, and cluster membership — then confirm the handful it's unsure about.
+4. **Onboarding calibration** — the assigned-canon question (§4.2), then ~15 ladder duels
+   concentrated in the crowded 4–5 band, which is where all the ambiguity lives. Fifteen
+   comparisons across 108 tied books is enough to establish a usable spine.
+5. **Order the to-read shelf** — 17 books, coherent, and answering "which of these first?"
+   is the app's easiest first win. Goodreads answers it with `DATE ADDED`.
+
+Movies, TV, and podcasts still cold-start conversationally (*"name ten you loved"*), but
+the book model will already be carrying real cross-media signal by then — which is exactly
+the wedge in §1.
+
+**Still worth building later:** a screenshot importer (vision → titles → bulk resolve) for
+Letterboxd, Trakt, or anything else with no export. Proven viable — the three screenshots
+you sent parsed cleanly enough to pull every title, author, and rating. Phase 6, not now.
 
 ---
 
@@ -304,12 +343,15 @@ automate anything a platform doesn't sanction.
 
 ## 11. Open questions 🔵
 
-1. **Which services do you actually subscribe to?** Netflix, Max, Prime, Hulu, Apple TV+,
-   Spotify, Audible, Kindle Unlimited — plus a library card if you have one. This directly
-   powers §5 and I need it before Phase 3.
-2. **Region?** Streaming availability is region-locked; TMDB needs a country code.
-3. **Is the ladder in?** (§4.2) My favorite idea, and the riskiest.
-4. **"With M"** — is shared viewing real for you? It adds a lightweight second profile but
-   it's the most common real-world recommendation problem.
-5. **Amazon affiliate tagging** on Kindle links — worth setting up, or just clean links?
-6. **The name.** `mediamogul` is a fine repo name; it's jokey for something this quiet.
+Everything blocking Phase 0 is now answered. These are the remaining calls, none of which
+gate the start of work:
+
+1. **Library card?** Libby/OverDrive is the one free source not covered by your ten
+   subscriptions, and it's the best path for books you don't want to buy. Worth wiring up?
+2. **"With M"** — is shared viewing real for you? It adds a lightweight second profile,
+   but it's the most common real-world recommendation problem there is.
+3. **Amazon affiliate tagging** on Kindle links — set it up, or keep links clean?
+4. **The name.** `mediamogul` is a fine repo name; it's jokey for something this quiet.
+5. **Do the childhood 5s stay visible?** Comfort titles are excluded from *rec signal* by
+   default (§4.2), but they're a real part of your library — I'd keep them fully visible
+   in Library and on their own ladder. Say if you'd rather they were hidden.
