@@ -234,6 +234,25 @@ graph TD
   - [ ] ISBN→item and title+author fallback both covered by tests
   - [ ] Same real-world title from two providers dedupes to one item
 
+### E2.6 `books-union` — one card from two sources *(filed from E2.4's review)*
+- **deps:** E2.1, E2.4 · **owns:** `lib/providers/books.ts`, `lib/resolve/identity.ts`
+- **why:** `getBooksProvider().search()` short-circuits on the first `ok` upstream — and an
+  Open Library response with zero results still counts as `ok`. So a `BooksSuccess` is
+  **always single-source**, OL and GB results never meet, and E2.4's cross-provider merge
+  is inert in production. The union card is a real 10× lever: OL's `-L` cover and 1★–5★
+  histogram (which drives E3.3's "this one splits people") **plus** GB's description and
+  edition ISBN-13, which OL's search API does not return at all.
+- **AC:**
+  - [ ] Books provider gains a union mode: query both upstreams, return both result sets
+        (either may be empty); existing primary→fallback behavior preserved for callers
+        that want it
+  - [ ] E2.4's OL-preference merge rules restored and now genuinely exercised: OL art/year/
+        histogram win, GB description and edition ISBN-13 backfill
+  - [ ] ⚠ **Fix E2.4's F1 veto FIRST** — a union mode multiplies title-collides-title pairs
+        flowing into the title+author rung; merging before the subtitle/year veto lands
+        would amplify the series-collapse bug, not fix it
+  - [ ] Live-smoke coverage for the both-up path when egress allows
+
 ### E2.5 `omnibox-ui` — the Find-it surface
 - **deps:** E2.4 · **owns:** `components/omnibox/*`, `app/search/*`
 - **AC:**
