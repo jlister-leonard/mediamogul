@@ -1,0 +1,21 @@
+/node_modules
+
+/.next
+/out
+next-env.d.ts
+*.tsbuildinfo
+
+/coverage
+/test-results
+/playwright-report
+
+.env*
+!.env.example
+
+.DS_Store
+
+# agent worktrees (session-local)
+.claude/
+
+# style-tile capture output
+/style-tile-shots

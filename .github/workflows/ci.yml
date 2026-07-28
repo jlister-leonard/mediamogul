@@ -1,0 +1,58 @@
+# CI for Nightstand: lint, typecheck, unit tests, e2e — on every PR and push to main.
+#
+# Deployment note (E0.6): there is deliberately no vercel.json. Nightstand is a
+# stock Next.js app and Vercel auto-detects the framework, build command, and
+# output directory. Preview-on-push / production-on-main comes from Vercel's git
+# integration once the orchestrator links the project; a config file would only
+# restate defaults. Env vars (see .env.example) are set in the Vercel dashboard.
+#
+# "Red CI blocks merge" needs the `ci` check marked required on main — a branch
+# protection setting, so an orchestrator action at repo setup (like the Vercel link).
+
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      # Exercise the production compile (prerender, server/client boundaries,
+      # route/metadata exports) — what Vercel will run — as its own step, so a
+      # broken build fails here with a clear name rather than inside e2e setup.
+      # Which server e2e runs against is playwright.config.ts's call, not CI's.
+      - name: Build
+        run: npm run build
+
+      - name: Unit tests
+        run: npx vitest run
+
+      # CI runners have no preinstalled browsers; install the one Playwright
+      # project we run (chromium, pinned via @playwright/test 1.56.1).
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+
+      - name: End-to-end tests
+        run: npx playwright test

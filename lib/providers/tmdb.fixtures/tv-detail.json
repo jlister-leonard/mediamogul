@@ -1,0 +1,39 @@
+{
+  "_provenance": "Hand-built to the documented TMDB v3 shape of GET /tv/{series_id} (developer.themoviedb.org/reference/tv-series-details), 2026-07. Not captured from the live API: api.themoviedb.org is unreachable from the build environment (EPICS wave-3 egress note). Field values are plausible, not authoritative.",
+  "adult": false,
+  "backdrop_path": "/zBUGqODy2ZbbBOGcDB0hLnjVLZM.jpg",
+  "created_by": [
+    {
+      "id": 2739371,
+      "credit_id": "62ab3a6d3a4a120051e2b0a3",
+      "name": "Christopher Storer",
+      "gender": 2,
+      "profile_path": null
+    }
+  ],
+  "episode_run_time": [38],
+  "first_air_date": "2022-06-23",
+  "genres": [
+    { "id": 18, "name": "Drama" },
+    { "id": 35, "name": "Comedy" }
+  ],
+  "homepage": "https://www.fxnetworks.com/shows/the-bear",
+  "id": 136315,
+  "in_production": true,
+  "languages": ["en"],
+  "last_air_date": "2025-06-25",
+  "name": "The Bear",
+  "number_of_episodes": 38,
+  "number_of_seasons": 4,
+  "origin_country": ["US"],
+  "original_language": "en",
+  "original_name": "The Bear",
+  "overview": "Carmy, a young fine-dining chef, comes home to Chicago to run his family's sandwich shop after the death of his brother.",
+  "popularity": 273.146,
+  "poster_path": "/sHFlbKS3WLqMnp9t2ghADIJFnuQ.jpg",
+  "status": "Returning Series",
+  "tagline": "Every second counts.",
+  "type": "Scripted",
+  "vote_average": 8.28,
+  "vote_count": 1379
+}
