@@ -324,6 +324,24 @@ describe("GetItRow", () => {
     expect(screen.getByText("buy $19.99")).toBeTruthy();
   });
 
+  test("two identical offers still render as two buttons", () => {
+    // Position is part of the key, so an array E5.5 hands over with a repeat
+    // renders both rather than silently collapsing to one.
+    render(<GetItRow label="Get Dune" items={[items[1], items[1]]} />);
+    expect(screen.getAllByRole("link")).toHaveLength(2);
+    expect(screen.getAllByText("rent $3.99")).toHaveLength(2);
+  });
+
+  test("the scrollport carries the padding and fade its geometry depends on", () => {
+    const { container } = render(<GetItRow label="Get Dune" items={items} />);
+    const scroller = container.firstElementChild!;
+    // scroll-padding is the knob Chromium's scrollIntoView actually honors,
+    // and the 8px fade must stay narrower than the 12px of ring clearance it
+    // buys — the two numbers are a pair, so they are asserted together.
+    expect(scroller.className).toContain("scroll-px-4");
+    expect(scroller.className).toContain("black_8px");
+  });
+
   test("an empty row renders nothing at all", () => {
     const { container } = render(<GetItRow label="Get Dune" items={[]} />);
     expect(container.innerHTML).toBe("");
