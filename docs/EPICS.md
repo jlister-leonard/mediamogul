@@ -19,8 +19,15 @@ All beads start `todo`. Status lives here, in this file — single source of tru
 | E0.3 contracts | **done** ✅ | PASS + delta-verified amendments (ItemSeed, communityRating, ms-pinned timestamps). Merged; 40 unit tests |
 | E0.5 pwa-shell | **done** ✅ | FAIL (precache hole) → fixed → PASS. First-session offline proven. Merged |
 | E0.4 primitives | in-progress | |
-| E1.1 db-schema · E2.1 books · E2.2 tmdb · E2.3 podcasts · E5.2 registry · E6.1 llm-route | in-progress | Wave 3. **Egress note:** only googleapis.com reachable from the build env — providers are fixture-first with env-gated live smokes; brand assets ship colors+wordmarks with official-kit swap-in path |
-| everything else | todo | |
+| E1.1 db-schema | **done** ✅ | PASS ("platonic infra bead"). Merged |
+| E2.1 books | **done** ✅ | PASS + amendments (per-doc resilience, no arbitrary-edition ISBNs, zoom=3 covers, ISBN-10→13). Merged |
+| E2.3 podcasts | **done** ✅ | FAIL (Unicode cache collisions, publisher no-veto — reproduced) → fixed → PASS. Merged |
+| E0.4 primitives | **done** ✅ | FAIL (tab wrap) → fixed → PASS "with real enthusiasm". Merged; RatingValue = contracts Gradient |
+| E5.2 registry | **done** ✅ | PASS + honesty amendments (search-scoped links documented, URL confidence grades). Merged. White-on-black triplet (HBO Max/Apple TV+/Peacock) awaits kit SVGs |
+| E2.2 tmdb | review | PASS + amendments (paginated now_playing, degraded marker) — delta-verify in flight |
+| E6.1 llm-route | in-progress | FAIL (client-disconnect abort propagation) → fixing. Wave-4 note: tools.ts dynamic-import seam can never resolve at runtime — static-import rewrite mandatory when wiring providers |
+| E0.7 style-tile 🚦 · E1.2 repo-layer · E5.3 branded-buttons | in-progress | E0.7 is the human gate — STOP for Jeremy when built + reviewed |
+| everything else | todo | Wave-3 lessons: egress = googleapis only; fixture-first + env-gated smokes; e2e on dedicated ports; never git stash in worktrees |
 
 ---
 
@@ -309,6 +316,11 @@ graph TD
   - [ ] Per-item availability across the 10 subscribed services; sub vs rent vs buy distinguished
   - [ ] **In-theaters state** from `now_playing`; cached 24h with visible staleness
   - [ ] "On something I pay for" boolean exposed to the recommender (E6)
+- **⚠ constraints from E2.2 review:** `now_playing` is capped at 5 pages — **presence
+  implies in-theaters; absence implies NOTHING** (no negative inference, applies to E5.4
+  too). Availability `kind` must derive from the TMDB payload array (flatrate/rent/buy),
+  never from provider id (the 10→prime-video storefront fold makes this load-bearing).
+  Ad-tier TMDB provider ids: verify against first live payloads, extend registry arrays then.
 
 ### E5.2 `provider-registry` — one source of truth for services
 - **deps:** E0.3 · **owns:** `lib/providers/registry.ts`, `public/brands/*`
@@ -350,7 +362,9 @@ rejection capture.
 - **deps:** E0.3 · **owns:** `app/api/recommend/*`, `lib/llm/*`
 - **AC:**
   - [ ] Streaming route wrapping Anthropic API; passphrase header enforced; keys server-side
-  - [ ] Tool-use schema lets the model query availability and the library summary
+  - [ ] Tool-use schema: `check_availability` + `search_catalog` (the library summary is
+        NOT a tool — it rides in-prompt via tasteContext per decision #13; catalog search
+        is load-bearing so the model can resolve titles to MediaRefs)
   - [ ] Serves both modes: one-shot hand generation and multi-turn chat
   - [ ] Cost guard: request budget cap + graceful "thinking too hard" fallback
 
