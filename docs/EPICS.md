@@ -13,8 +13,12 @@ All beads start `todo`. Status lives here, in this file — single source of tru
 
 | Bead | Status | Notes |
 |---|---|---|
-| E0.1 scaffold | **done** ✅ | Blind review PASS; pushed `ec3b2a4`. Pins: next 16.2.12, TS 5.9.3, eslint 9.39.5, @playwright/test 1.56.1 (matches preinstalled chromium), tailwind 4.3.3. `lint` = `eslint .`; vitest excludes `e2e/**`; alias `@/*` → root |
-| E0.2 tokens · E0.3 contracts · E0.5 pwa-shell · E0.6 deploy | in-progress | Wave 2, parallel worktrees |
+| E0.1 scaffold | **done** ✅ | Review PASS; `ec3b2a4`. Pins: next 16.2.12, TS 5.9.3, eslint 9.39.5, @playwright/test 1.56.1, tailwind 4.3.3 |
+| E0.6 deploy | **done** ✅ | FAIL→fix→PASS (CI lacked production build). Merged `674fecb`. Repo-setup TODO: mark `ci` check required on main; link Vercel project + env vars |
+| E0.2 tokens | **done** ✅ | Review PASS "without reservation". 18/18 AA pairs. Merged + nit fixes (format strings, hue comment) |
+| E0.3 contracts | review | PASS + 4 mandated amendments applied (`ec3febd`, 40 tests); delta-verify in flight; merge next |
+| E0.5 pwa-shell | review | FAIL (precache hole) → fixed (`0dd676d`); re-review in flight |
+| E0.4 primitives | in-progress | Launched after E0.2 merge |
 | everything else | todo | |
 
 ---
@@ -420,7 +424,7 @@ rejection capture.
 ### E8.1 `share-target` (deps E3.1) — shared URL/text from any app lands in Inbox, auto-resolves; unresolved shares never lost
 ### E8.2 `barcode` (deps E3.1) — ISBN scan → detail in <3s
 ### E8.3 `voice-capture` (deps E6.4) — "finished Bear s3, four stars…" parses to a full logged entry
-### E8.4 `dynamic-color` (deps E3.3) — accent extracted from artwork per detail page, both themes safe
+### E8.4 `dynamic-color` (deps E3.3) — accent extracted from artwork per detail page, both themes safe. ⚠ From E0.2 review: override `--accent` only (never `--lamp`); an extracted accent can break the 4.5:1 `accent-fg` pair — this bead OWNS re-verifying contrast per extraction and must fall back to the default lamp accent when the extracted color can't pass
 ### E8.5 `offline-hardening` (deps E1.3) — full offline pass: every read works, every write queues; airplane-mode e2e
 ### E8.6 `wrapped` (deps E7.1) — year-in-review from real data; screenshot-worthy
 
