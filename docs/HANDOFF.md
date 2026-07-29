@@ -41,10 +41,10 @@ The session ended on a **weekly usage limit (resets Jul 31, 08:00 UTC)**. Five b
 killed mid-flight and **committed nothing** — their worktrees are empty of work. Two beads have
 real work committed locally in worktrees but **never pushed**.
 
-| Bead | Worktree | Local SHA | State on resume |
+| Bead | Remote branch (pushed — safe) | SHA | State on resume |
 |---|---|---|---|
-| **E0.7 style-tile** | `agent-abe0de94738abd71f` | **`8dbe493`** | Rewritten after a FAIL. Delta-verify was in flight and never returned. **Re-review, then take to Jeremy (§3).** |
-| **E5.3 branded-buttons** | `agent-aa369b60e8d67406c` | **`9c198f1`** | Fixed after a FAIL. Delta-verify was in flight and never returned. **Re-review, then merge.** |
+| **E0.7 style-tile** | **`wip/e0.7-style-tile`** | **`8dbe493`** | Rewritten after a FAIL. Delta-verify was in flight and never returned. **Re-review, then take to Jeremy (§3).** |
+| **E5.3 branded-buttons** | **`wip/e5.3-branded-buttons`** | **`9c198f1`** | Fixed after a FAIL. Delta-verify was in flight and never returned. **Re-review, then merge.** |
 | E1.4 goodreads-import | `agent-a8a71adde6dc73235` | — | Killed at research. Relaunch from scratch. |
 | E4.1 genre-assign | `agent-a2a2c587d12403c97` | — | Killed at research. Relaunch from scratch. |
 | E5.1 availability | `agent-a337ed7d962f593ca` | — | Killed while writing. Relaunch from scratch. |
@@ -52,10 +52,9 @@ real work committed locally in worktrees but **never pushed**.
 | E4.2 ladder-engine | `agent-a85dd558e30b415c1` | — | Killed at research. Relaunch from scratch. |
 
 **First action on resume, in order:**
-1. `git -C .claude/worktrees/agent-abe0de94738abd71f log --oneline -1` → expect `8dbe493`;
-   same for `agent-aa369b60e8d67406c` → expect `9c198f1`. If the worktrees were reclaimed,
-   both beads must be rebuilt from `docs/EPICS.md` (E0.7, E5.3) — the specs are complete and
-   the review findings that shaped them are in §7 and in the EPICS bead notes.
+1. `git fetch origin` — both beads are on the remote, so nothing depends on the container
+   surviving. Cherry-pick with `git cherry-pick 8dbe493` / `9c198f1`, or work from the
+   `wip/*` branches directly. Delete the `wip/*` branches once merged.
 2. Blind-review those two (they have never been verified in their current form), merge on pass.
 3. Relaunch the five killed beads. Their full briefs are reconstructible from `docs/EPICS.md`
    plus the constraints in §7 — nothing about them was lost except the agents' working time.
