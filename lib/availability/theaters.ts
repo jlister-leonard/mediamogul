@@ -1,3 +1,4 @@
+import { z } from "zod";
 import type { TmdbNowPlayingEntry } from "../providers/tmdb";
 import { providerRegistry } from "../providers/registry";
 import type { TheaterAvailability } from "../types";
@@ -7,6 +8,19 @@ export const MOVIES_IN_THEATERS_NOW_LABEL = "movies in theaters now";
 
 const US_ZIP = /^\d{5}(?:-\d{4})?$/;
 const THEATER_DATA_TTL_MS = 24 * 60 * 60 * 1_000;
+const BIG_DATA_CLOUD_ENDPOINT = "https://api.bigdatacloud.net/data/reverse-geocode-client";
+const BIG_DATA_CLOUD_TIMEOUT_MS = 8_000;
+const BIG_DATA_CLOUD_MAX_RESPONSE_BYTES = 32_768;
+// A separate read budget prevents an endless sequence of empty chunks from
+// retaining state or starving the task queue before the timeout can fire.
+const BIG_DATA_CLOUD_MAX_BODY_READS = 256;
+
+const bigDataCloudCountryPeekSchema = z.object({ countryCode: z.string() });
+const bigDataCloudResponseSchema = z.object({
+  lookupSource: z.literal("coordinates"),
+  countryCode: z.literal("US"),
+  postcode: z.string().min(1).max(16),
+});
 
 type ZipStorage = Pick<Storage, "getItem" | "setItem" | "removeItem">;
 
@@ -67,20 +81,189 @@ function browserStorage(): ZipStorage | undefined {
 }
 
 /**
- * A reverse-geocoder is deliberately injected instead of silently choosing a
- * new location processor. The UI currently supplies none, so coordinates are
- * neither requested nor transmitted until the user approves that dependency.
+ * A reverse-geocoder is deliberately injected so requesting coordinates never
+ * silently selects a processor. Production supplies the approved BigDataCloud
+ * adapter only from the disclosed, explicit-click settings flow.
  */
 export type ReverseGeocodeToZip = (coordinates: {
   latitude: number;
   longitude: number;
 }) => Promise<string | undefined>;
 
+export type BigDataCloudLookupFailure =
+  | "invalid-coordinates"
+  | "timeout"
+  | "service-blocked"
+  | "lookup-failed"
+  | "non-us"
+  | "invalid-response";
+
+export class BigDataCloudLookupError extends Error {
+  constructor(readonly reason: BigDataCloudLookupFailure) {
+    super(reason);
+    this.name = "BigDataCloudLookupError";
+  }
+}
+
+type TheaterFetch = (input: string | URL, init?: RequestInit) => Promise<Response>;
+
+function roundedCoordinate(value: number, minimum: number, maximum: number): string | undefined {
+  if (!Number.isFinite(value) || value < minimum || value > maximum) return undefined;
+  const rounded = Math.round(value * 1_000) / 1_000;
+  return (Object.is(rounded, -0) ? 0 : rounded).toFixed(3);
+}
+
+function cancelReader(reader: ReadableStreamDefaultReader<Uint8Array>): void {
+  try {
+    // Cancellation is cleanup, not a condition for returning the real error.
+    // Observe rejection without awaiting a potentially hostile cancel promise.
+    void reader.cancel().catch(() => undefined);
+  } catch {
+    // Cancellation is best-effort after the response has already been rejected.
+  }
+}
+
+async function readChunk(
+  reader: ReadableStreamDefaultReader<Uint8Array>,
+  signal: AbortSignal,
+): Promise<ReadableStreamReadResult<Uint8Array>> {
+  if (signal.aborted) throw new BigDataCloudLookupError("timeout");
+  return new Promise((resolve, reject) => {
+    const onAbort = () => reject(new BigDataCloudLookupError("timeout"));
+    signal.addEventListener("abort", onAbort, { once: true });
+    void reader.read().then(resolve, reject).finally(() => {
+      signal.removeEventListener("abort", onAbort);
+    });
+  });
+}
+
+async function readBoundedBody(response: Response, signal: AbortSignal): Promise<Uint8Array> {
+  if (response.body === null) throw new BigDataCloudLookupError("invalid-response");
+  const reader = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  let reads = 0;
+  try {
+    const declaredLength = response.headers.get("content-length");
+    if (declaredLength !== null) {
+      const bytes = Number(declaredLength);
+      if (!Number.isSafeInteger(bytes) || bytes < 0 || bytes > BIG_DATA_CLOUD_MAX_RESPONSE_BYTES) {
+        cancelReader(reader);
+        throw new BigDataCloudLookupError("invalid-response");
+      }
+    }
+
+    while (true) {
+      if (reads >= BIG_DATA_CLOUD_MAX_BODY_READS) {
+        cancelReader(reader);
+        throw new BigDataCloudLookupError("invalid-response");
+      }
+      reads += 1;
+      const { done, value } = await readChunk(reader, signal);
+      if (done) break;
+      // Response chunks can originate in the browser/undici realm, so an
+      // instanceof check against this module's Uint8Array can be false.
+      if (Object.prototype.toString.call(value) !== "[object Uint8Array]") {
+        cancelReader(reader);
+        throw new BigDataCloudLookupError("invalid-response");
+      }
+      // Do not retain an attacker-controlled number of empty views. The read
+      // budget above still guarantees this loop settles without task starvation.
+      if (value.byteLength === 0) continue;
+      if (value.byteLength > BIG_DATA_CLOUD_MAX_RESPONSE_BYTES - total) {
+        cancelReader(reader);
+        throw new BigDataCloudLookupError("invalid-response");
+      }
+      chunks.push(value);
+      total += value.byteLength;
+    }
+  } catch (error) {
+    cancelReader(reader);
+    if (error instanceof BigDataCloudLookupError) throw error;
+    throw new BigDataCloudLookupError(signal.aborted ? "timeout" : "invalid-response");
+  } finally {
+    reader.releaseLock();
+  }
+
+  const body = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    body.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return body;
+}
+
+/**
+ * Convert current HTML5 coordinates to a US ZIP through BigDataCloud's
+ * no-key, client-only endpoint. Only the validated ZIP leaves this boundary.
+ */
+export async function bigDataCloudReverseGeocode(
+  coordinates: { latitude: number; longitude: number },
+  options: { fetch?: TheaterFetch; signal?: AbortSignal } = {},
+): Promise<string> {
+  const latitude = roundedCoordinate(coordinates.latitude, -90, 90);
+  const longitude = roundedCoordinate(coordinates.longitude, -180, 180);
+  if (latitude === undefined || longitude === undefined) {
+    throw new BigDataCloudLookupError("invalid-coordinates");
+  }
+
+  const url = new URL(BIG_DATA_CLOUD_ENDPOINT);
+  url.searchParams.set("latitude", latitude);
+  url.searchParams.set("longitude", longitude);
+  url.searchParams.set("localityLanguage", "en");
+  const signal = options.signal ?? AbortSignal.timeout(BIG_DATA_CLOUD_TIMEOUT_MS);
+
+  let response: Response;
+  try {
+    response = await (options.fetch ?? globalThis.fetch)(url, {
+      method: "GET",
+      headers: { Accept: "application/json" },
+      credentials: "omit",
+      cache: "no-store",
+      referrerPolicy: "no-referrer",
+      signal,
+    });
+  } catch {
+    throw new BigDataCloudLookupError(signal.aborted ? "timeout" : "lookup-failed");
+  }
+
+  if (response.status === 402) throw new BigDataCloudLookupError("service-blocked");
+  if (!response.ok) throw new BigDataCloudLookupError("lookup-failed");
+
+  let body: unknown;
+  try {
+    const bytes = await readBoundedBody(response, signal);
+    body = JSON.parse(new TextDecoder("utf-8", { fatal: true }).decode(bytes)) as unknown;
+  } catch (error) {
+    if (error instanceof BigDataCloudLookupError) throw error;
+    throw new BigDataCloudLookupError(signal.aborted ? "timeout" : "invalid-response");
+  }
+
+  const country = bigDataCloudCountryPeekSchema.safeParse(body);
+  if (country.success && country.data.countryCode !== "US") {
+    throw new BigDataCloudLookupError("non-us");
+  }
+  const parsed = bigDataCloudResponseSchema.safeParse(body);
+  if (!parsed.success) throw new BigDataCloudLookupError("invalid-response");
+  const zip = normalizeUsZip(parsed.data.postcode);
+  if (zip === undefined) throw new BigDataCloudLookupError("invalid-response");
+  return zip;
+}
+
 export type LocationZipResult =
   | { ok: true; zip: string }
   | {
       ok: false;
-      reason: "not-enabled" | "unsupported" | "permission-denied" | "unavailable" | "invalid-zip";
+      reason:
+        | "not-enabled"
+        | "unsupported"
+        | "permission-denied"
+        | "timeout"
+        | "service-blocked"
+        | "unavailable"
+        | "non-us"
+        | "invalid-zip";
     };
 
 export async function requestTheaterZipFromLocation(options: {
@@ -106,16 +289,33 @@ export async function requestTheaterZipFromLocation(options: {
             const zip = candidate === undefined ? undefined : normalizeUsZip(candidate);
             resolve(zip === undefined ? { ok: false, reason: "invalid-zip" } : { ok: true, zip });
           },
-          () => resolve({ ok: false, reason: "unavailable" }),
+          (error) => {
+            if (error instanceof BigDataCloudLookupError) {
+              if (error.reason === "timeout") return resolve({ ok: false, reason: "timeout" });
+              if (error.reason === "service-blocked") {
+                return resolve({ ok: false, reason: "service-blocked" });
+              }
+              if (error.reason === "non-us") return resolve({ ok: false, reason: "non-us" });
+              if (error.reason === "invalid-coordinates" || error.reason === "invalid-response") {
+                return resolve({ ok: false, reason: "invalid-zip" });
+              }
+            }
+            return resolve({ ok: false, reason: "unavailable" });
+          },
         );
       },
       (error) => {
         resolve({
           ok: false,
-          reason: error.code === 1 ? "permission-denied" : "unavailable",
+          reason:
+            error.code === error.PERMISSION_DENIED
+              ? "permission-denied"
+              : error.code === error.TIMEOUT
+                ? "timeout"
+                : "unavailable",
         });
       },
-      { enableHighAccuracy: false, maximumAge: 15 * 60 * 1_000, timeout: 10_000 },
+      { enableHighAccuracy: false, maximumAge: 0, timeout: 10_000 },
     );
   });
 }

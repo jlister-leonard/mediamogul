@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import {
   clearTheaterZip,
+  bigDataCloudReverseGeocode,
   readTheaterZip,
   requestTheaterZipFromLocation,
   saveTheaterZip,
@@ -20,8 +21,14 @@ export function locationResultNotice(result: LocationZipResult): string {
       return "This browser does not support location lookup. Enter your ZIP instead.";
     case "permission-denied":
       return "Location permission was denied. Nothing was stored; enter your ZIP instead.";
+    case "timeout":
+      return "Location lookup timed out. Nothing was stored; enter your ZIP instead.";
+    case "service-blocked":
+      return "BigDataCloud refused this lookup. Nothing was stored; enter your ZIP instead.";
     case "unavailable":
-      return "Your location could not be read. Nothing was stored; enter your ZIP instead.";
+      return "Location lookup failed. Nothing was stored; enter your ZIP instead.";
+    case "non-us":
+      return "This location is outside the United States, so no US ZIP was found or stored.";
     case "invalid-zip":
       return "The location result did not contain a valid US ZIP. Nothing was stored; enter it manually.";
   }
@@ -30,6 +37,7 @@ export function locationResultNotice(result: LocationZipResult): string {
 export default function TheaterSettingsPage() {
   const [zip, setZip] = useState("");
   const [notice, setNotice] = useState<string>();
+  const [locating, setLocating] = useState(false);
 
   useEffect(() => {
     // Keep the server and first browser render identical, then hydrate the
@@ -59,9 +67,17 @@ export default function TheaterSettingsPage() {
   }
 
   async function handleLocation() {
-    const result = await requestTheaterZipFromLocation();
-    if (result.ok) setZip(result.zip);
-    setNotice(locationResultNotice(result));
+    setLocating(true);
+    setNotice(undefined);
+    try {
+      const result = await requestTheaterZipFromLocation({
+        reverseGeocode: bigDataCloudReverseGeocode,
+      });
+      if (result.ok) setZip(result.zip);
+      setNotice(locationResultNotice(result));
+    } finally {
+      setLocating(false);
+    }
   }
 
   return (
@@ -103,11 +119,24 @@ export default function TheaterSettingsPage() {
       <section aria-labelledby="location-heading" className="mt-6 rounded-xl bg-surface p-6">
         <h2 id="location-heading" className="text-xl font-semibold">Use my location</h2>
         <p className="mt-2 text-sm text-fg-muted">
-          This privacy-sensitive option is paused until you approve a provider
-          that can turn coordinates into a ZIP. Coordinates will never be stored.
+          If you continue, your current location rounded to 3 decimals (about 100
+          meters) and your requesting IP address go directly from this browser to
+          BigDataCloud. BigDataCloud uses the pairing to improve and validate its IP
+          geolocation. Nightstand never stores your coordinates or BigDataCloud&apos;s
+          response; a found ZIP is only saved if you separately choose Save ZIP.
         </p>
-        <Button className="mt-5" variant="quiet" onClick={() => void handleLocation()}>
-          Check location option
+        <p className="mt-3 text-sm text-fg-muted">
+          Read BigDataCloud&apos;s{" "}
+          <a className="underline" href="https://www.bigdatacloud.com/docs/article/why-is-reverse-geocoding-api-free" target="_blank" rel="noreferrer">
+            location-data explanation
+          </a>{" "}
+          and{" "}
+          <a className="underline" href="https://www.bigdatacloud.com/privacy-and-cookie-policy" target="_blank" rel="noreferrer">
+            privacy policy
+          </a>.
+        </p>
+        <Button className="mt-5" variant="quiet" disabled={locating} onClick={() => void handleLocation()}>
+          {locating ? "Finding ZIP…" : "Find ZIP using my location"}
         </Button>
       </section>
 

@@ -35,7 +35,7 @@ All beads start `todo`. Status lives here, in this file — single source of tru
 | E4.1 genre-assign | **done** ✅ | FAIL (production wiring, precedence, corpus edge cases) → repaired → delta PASS. Frozen audit: 211/225 = 93.78%; add/import wiring and manual override protection verified |
 | E4.2 ladder-engine | **done** ✅ | FAIL (mutation-insensitive Elo tests, duel information ordering, invalid exposure counts) → repaired → delta PASS. Bounded deterministic Elo, strict pool isolation, and property-tested duel selection |
 | E5.1 availability | **done** ✅ | Repeated blind repair → PASS. Same-origin provider bridge, conservative Audible identity, exact ten-service semantics, monotonic durable cache, honest freshness, and privacy-bounded E6 context verified |
-| E5.4 theaters | blocked — external product gates | Safe partial review PASS: presence-only cache, local ZIP, exact-title Fandango search, real recommendations chip, visible staleness. Geolocation awaits processor approval; Fandango publishes no stable title+ZIP contract |
+| E5.4 theaters | blocked — Fandango contract | BigDataCloud geolocation review PASS: disclosed explicit-click lookup, approximate coordinates sent directly from the browser, and only an explicitly saved ZIP persists. Presence-only cache, exact-title Fandango search, real recommendations chip, and visible staleness remain complete; Fandango publishes no stable title+ZIP contract |
 | E5.5 getit-order | **done** ✅ | FAIL (unverified blocked links, unsafe price width) → repaired → delta PASS. Pure media-aware ordering, honest empty fallback, bounded suffixes, and 20 rendered HTTP-200 link captures |
 | E8.5 offline-hardening | **done** ✅ | FAIL (query leakage and error-label honesty) → repaired → delta PASS. All routes render offline; real IndexedDB writes persist; query URLs bypass Cache Storage and HTTP disk cache |
 | everything else | todo | Wave-3 lessons: egress = googleapis only; fixture-first + env-gated smokes; e2e on dedicated ports; never git stash in worktrees |
@@ -379,8 +379,15 @@ graph TD
 - **deps:** E5.1 · **owns:** `lib/availability/theaters.ts`, zip-code setting
 - **AC:**
   - [ ] Theatrical titles show a Fandango button deep-linking to that title's showtimes
-  - [ ] Zip stored once in settings; optional geolocation with permission prompt
-  - [ ] Recommendations tab exposes a "movies in theaters now" chip fed by `now_playing`
+  - [x] Zip stored once in settings; optional geolocation with permission prompt
+  - [x] Recommendations tab exposes a "movies in theaters now" chip fed by `now_playing`
+- **2026-08-01 status:** Jeremy approved BigDataCloud's free client-side reverse
+  geocoder after disclosure of its approximate-coordinate plus requesting-IP data
+  exchange. The reviewed implementation requests current HTML5 location only after
+  an explicit click, calls BigDataCloud directly from that browser, rejects IP
+  fallback, and persists nothing until the user separately saves the validated US
+  ZIP. The remaining AC stays open because Fandango publishes no stable title-plus-
+  ZIP deep-link contract; see `docs/FANDANGO-LINK-EVIDENCE.md`.
 
 ### E5.5 `getit-order` — what to offer, in what order
 - **deps:** E5.1, E5.3 · **owns:** `lib/getit/*`
