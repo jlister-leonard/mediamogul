@@ -78,26 +78,17 @@ export interface BrandTreatment {
   /** Contrast of the brand's own published foreground on its background. */
   pairRatio: number;
   /**
-   * The color every piece of TEXT on the button takes — the wordmark stand-in
-   * and the suffix alike, so a button is never two colors.
+   * The color Nightstand-owned TEXT on the button takes — the optional suffix
+   * and the wordmark fallback used only for a future entry without an asset.
    *
    * It is the brand's own foreground whenever the brand's published pair clears
    * AA, which is 13 of the 15 entries. Fandango and Overcast publish white on
    * orange at 2.73:1 and 2.58:1, and there the text falls back to the sRGB pole
    * that reads on that field.
    *
-   * Two things carry this, and neither is "a two-toned pill looks like a bug" —
-   * that stops being true the day art lands, when a white kit SVG will sit
-   * beside a black suffix and be exactly right. What carries it is (1)
-   * legibility: nobody can read a wordmark at 2.6:1, and (2) the bar, which is
-   * a clean axe run in both themes — WCAG 1.4.3's logotype exemption means
-   * shipping the published pair would not be a compliance failure, but axe
-   * flags logotype text like any other text, so the exemption does not buy the
-   * clean run. Nothing about the brand is repainted either way: the FIELD —
-   * Fandango orange — is the recognition cue and stays exact, and what changes
-   * color is a text stand-in that exists only because we hold no art for these
-   * two (`public/brands/BRANDS.md`). The moment a kit SVG lands, the mark
-   * renders exactly as published, because an image is not text.
+   * The bundled Fandango and Overcast marks already use the readable black
+   * treatment recorded in BRANDS.md. This fallback keeps any adjacent price
+   * or action text at the same readable pole without filtering the asset.
    */
   textColor: string;
   /** The brand field dissolves into the dark (ink) ground; draw a hairline there. */

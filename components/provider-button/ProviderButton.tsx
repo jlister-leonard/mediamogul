@@ -3,11 +3,9 @@ import { cx, focusRing } from "@/components/ui/util";
 import { brandTreatment } from "./brand";
 import { providerWebUrl, type ProviderLinkArgs } from "./link";
 
-export interface ProviderButtonProps {
+interface ProviderButtonBaseProps {
   /** Any entry from `lib/providers/registry.ts` — the single source of truth. */
   provider: ProviderEntry;
-  /** Link arguments, tagged with the entry's `deepLink.params` discriminant. */
-  link: ProviderLinkArgs;
   /**
    * Optional trailing detail — "rent $3.99", "showtimes". Set in Nightstand's
    * own type and weight so it reads as ours rather than as part of the mark,
@@ -17,6 +15,18 @@ export interface ProviderButtonProps {
   suffix?: string;
   className?: string;
 }
+
+/**
+ * Prefer a provider-resolved title URL when availability data supplies one.
+ * The generic registry link remains the honest fallback for catalog-only
+ * items. Making the two forms mutually exclusive prevents a caller from
+ * accidentally supplying a direct URL that is silently ignored.
+ */
+export type ProviderButtonProps = ProviderButtonBaseProps &
+  (
+    | { href: string; link?: never }
+    | { href?: never; link: ProviderLinkArgs }
+  );
 
 /**
  * The most-tapped element in the app: one branded handoff to one service.
@@ -52,22 +62,25 @@ export interface ProviderButtonProps {
  * (axe flags logotype text like any other text — measured). `brandTreatment`
  * carries the reasoning; the brand FIELD stays exact either way.
  *
- * SEARCH-SCOPED. Streaming links land on the provider's search results for the
- * title, not on the title's page — Nightstand holds no provider-internal title
- * ids (registry header). Nothing in this component's labelling implies
- * otherwise; the button says only whose door it opens.
+ * DESTINATION-SCOPED. Exact availability URLs win. Otherwise the registry
+ * supplies either a verified search destination or an honest service homepage;
+ * this component never upgrades an ordinary HTTPS fallback into a universal-
+ * link claim.
  */
 export function ProviderButton({
   provider,
+  href,
   link,
   suffix,
   className,
 }: ProviderButtonProps) {
   const treatment = brandTreatment(provider.brand);
+  const destination =
+    href === undefined ? providerWebUrl(provider, link) : safeHref(href);
 
   return (
     <a
-      href={providerWebUrl(provider, link)}
+      href={destination}
       // Leaving Nightstand must never replace Nightstand: from an installed PWA
       // a same-window hop to another origin strands the user outside the app.
       // `noreferrer` also keeps which title you are looking at out of the
@@ -84,10 +97,9 @@ export function ProviderButton({
         // ≥44px tap target with room to spare: 48px tall, 20px of side padding.
         // Clear space around the MARK, measured rather than claimed: the logo
         // branch gets 20px horizontally and (48−24)/2 = 12px above and below a
-        // 24px mark, which is the ≥0.5× rule every kit in BRANDS.md states some
-        // variant of. The wordmark branch's vertical figure is 10.5px — that is
-        // text leading around an 18px/1.5 line, not mark clear space, and it
-        // stops mattering the moment real art replaces it.
+        // 24px mark, matching the fixed clearance contract in BRANDS.md. The
+        // wordmark fallback retains the same pill geometry for
+        // a future registry entry whose reviewed asset has not landed yet.
         "inline-flex min-h-12 items-center gap-2.5 rounded-full px-5",
         "transition-transform duration-150 motion-reduce:transition-none",
         // Under reduced motion the transition is suppressed, which would turn
@@ -125,6 +137,15 @@ export function ProviderButton({
       )}
     </a>
   );
+}
+
+/** Availability URLs cross an external-data boundary; reject unsafe schemes. */
+function safeHref(href: string): string {
+  const url = new URL(href);
+  if (url.protocol !== "https:") {
+    throw new Error(`Provider destinations must use https, received "${url.protocol}"`);
+  }
+  return url.toString();
 }
 
 /**

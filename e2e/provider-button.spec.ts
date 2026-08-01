@@ -43,22 +43,24 @@ test("every provider button is a comfortable tap target", async ({ page }) => {
   }
 });
 
-test("every wordmark renders in the registry's exact casing, untransformed", async ({
+test("every provider renders a bundled logo asset", async ({
   page,
 }) => {
   await page.goto("/providers-demo");
   for (const entry of providerEntries) {
-    // The "Every service" section renders one button per entry.
-    const mark = page
-      .locator(`a[data-provider="${entry.id}"] span[role="img"]`)
-      .last();
-    await expect(mark).toHaveText(entry.wordmark);
-    // A CSS transform would re-case the mark without changing the DOM text.
-    await expect(mark).toHaveCSS("text-transform", "none");
-    // The interface sans, never the display serif: no faux brand lettering.
-    const family = await mark.evaluate((node) => getComputedStyle(node).fontFamily);
-    expect(family).toContain("Inter");
-    expect(family).not.toContain("Fraunces");
+    const mark = page.locator(
+      `a[data-provider="${entry.id}"] img[alt="${entry.name}"]`,
+    ).last();
+    await expect(mark).toBeVisible();
+    expect(await mark.getAttribute("src")).toBe(entry.logoAsset);
+    const loaded = await mark.evaluate((image: HTMLImageElement) => ({
+      complete: image.complete,
+      naturalWidth: image.naturalWidth,
+      naturalHeight: image.naturalHeight,
+    }));
+    expect(loaded.complete, entry.id).toBe(true);
+    expect(loaded.naturalWidth, entry.id).toBeGreaterThan(0);
+    expect(loaded.naturalHeight, entry.id).toBeGreaterThan(0);
   }
 });
 
@@ -192,16 +194,16 @@ test("under reduced motion the pill does not snap", async ({ browser }) => {
   await context.close();
 });
 
-test("the logo branch renders the asset in place of the wordmark", async ({
+test("the logo branch preserves intrinsic aspect ratio at its fixed height", async ({
   page,
 }) => {
   await page.goto("/providers-demo");
-  // Only the logo branch emits an <img>; every other button renders a wordmark.
   const image = page.locator('main a[data-provider] img[alt="Netflix"]').first();
   await expect(image).toBeVisible();
   const box = (await image.boundingBox())!;
-  // 24px tall clears every published minimum size in BRANDS.md, and the width
-  // follows the art's own aspect ratio — 96:24 for the stub, undistorted.
   expect(box.height).toBeCloseTo(24, 0);
-  expect(box.width / box.height).toBeCloseTo(4, 1);
+  const intrinsicRatio = await image.evaluate(
+    (node: HTMLImageElement) => node.naturalWidth / node.naturalHeight,
+  );
+  expect(box.width / box.height).toBeCloseTo(intrinsicRatio, 1);
 });

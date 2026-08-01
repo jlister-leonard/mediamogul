@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import {
   KNOWN_PROVIDER_IDS,
   getProvider,
@@ -157,11 +159,16 @@ describe("brand colors", () => {
 });
 
 describe("logo assets", () => {
-  it("is null (wordmark rendering) or exactly the entry's /brands/{id}.svg slot", () => {
+  it("bundles one real local asset for every entry", () => {
     for (const entry of providerEntries) {
-      if (entry.logoAsset !== null) {
-        expect(entry.logoAsset, entry.id).toBe(`/brands/${entry.id}.svg`);
-      }
+      expect(entry.logoAsset, entry.id).not.toBeNull();
+      expect(entry.logoAsset, entry.id).toMatch(
+        new RegExp(`^/brands/${entry.id}\\.(?:svg|png)$`),
+      );
+      expect(
+        existsSync(join(process.cwd(), "public", entry.logoAsset!.slice(1))),
+        entry.id,
+      ).toBe(true);
     }
   });
 });
@@ -189,10 +196,17 @@ describe("deep links", () => {
     }
   });
 
-  it("URL-encodes title params for every title-taking provider — spaces, ampersands, colons survive round-trip", () => {
+  it("URL-encodes title params for every title-search fallback", () => {
     for (const entry of providerEntries) {
       if (entry.deepLink.params !== "title") continue;
       const url = new URL(entry.deepLink.web(sampleTitle));
+      // HBO Max, Peacock, and Disney+ have no verified working public search
+      // path; their honest homepage fallbacks intentionally carry no query.
+      if (["hbo-max", "peacock", "disney-plus"].includes(entry.id)) {
+        expect(url.pathname, entry.id).toBe("/");
+        expect(url.search, entry.id).toBe("");
+        continue;
+      }
       // Query key varies per provider (q/phrase/term); the round-tripped
       // value must come back exactly.
       expect([...url.searchParams.values()], entry.id).toContain(
@@ -243,7 +257,7 @@ describe("deep links", () => {
       "https://podcasts.apple.com/us/podcast/id1671669052",
     );
     expect(overcast.web(samplePodcast)).toBe(
-      "https://overcast.fm/itunes1671669052",
+      "https://overcast.fm/+itunes1671669052",
     );
   });
 });
