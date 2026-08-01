@@ -125,6 +125,19 @@ describe("registry completeness", () => {
     }
   });
 
+  it("binds direct availability URLs to explicit provider-owned hosts", () => {
+    for (const entry of providerEntries) {
+      expect(entry.allowedHosts.length, entry.id).toBeGreaterThan(0);
+      for (const host of entry.allowedHosts) {
+        expect(host, entry.id).toBe(host.toLowerCase());
+        expect(host, entry.id).toMatch(/^[a-z0-9.-]+$/);
+      }
+      expect(new Set(entry.allowedHosts).size, entry.id).toBe(
+        entry.allowedHosts.length,
+      );
+    }
+  });
+
   it("preserves official wordmark casing", () => {
     expect(providerRegistry.netflix.wordmark).toBe("NETFLIX");
     expect(providerRegistry.hulu.wordmark).toBe("hulu");
@@ -159,12 +172,18 @@ describe("brand colors", () => {
 });
 
 describe("logo assets", () => {
-  it("bundles one real local asset for every entry", () => {
+  it("bundles only the four reviewed official assets and uses text elsewhere", () => {
+    const approved = new Set(["netflix", "hulu", "spotify", "apple-podcasts"]);
     for (const entry of providerEntries) {
-      expect(entry.logoAsset, entry.id).not.toBeNull();
+      if (!approved.has(entry.id)) {
+        expect(entry.logoAsset, entry.id).toBeNull();
+        expect(entry.logoHeightPx, entry.id).toBeNull();
+        continue;
+      }
       expect(entry.logoAsset, entry.id).toMatch(
         new RegExp(`^/brands/${entry.id}\\.(?:svg|png)$`),
       );
+      expect(entry.logoHeightPx, entry.id).toBeGreaterThanOrEqual(21);
       expect(
         existsSync(join(process.cwd(), "public", entry.logoAsset!.slice(1))),
         entry.id,
@@ -192,6 +211,9 @@ describe("deep links", () => {
         const parsed = new URL(webUrl);
         expect(parsed.protocol, entry.id).toBe("https:");
         expect(parsed.hostname, entry.id).toMatch(/\./);
+        expect(entry.allowedHosts, `${entry.id}: ${parsed.hostname}`).toContain(
+          parsed.hostname,
+        );
       }
     }
   });
@@ -256,9 +278,7 @@ describe("deep links", () => {
     expect(apple.web(samplePodcast)).toBe(
       "https://podcasts.apple.com/us/podcast/id1671669052",
     );
-    expect(overcast.web(samplePodcast)).toBe(
-      "https://overcast.fm/+itunes1671669052",
-    );
+    expect(overcast.web(samplePodcast)).toBe("https://overcast.fm/");
   });
 });
 

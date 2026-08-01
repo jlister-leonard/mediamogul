@@ -31,7 +31,7 @@ export type ProviderButtonProps = ProviderButtonBaseProps &
 /**
  * The most-tapped element in the app: one branded handoff to one service.
  *
- * A Netflix button is white NETFLIX on Netflix red — instantly the real thing,
+ * A Netflix button is the official red N on black — instantly the real thing,
  * not a grey chip that says "Netflix" (PLAN §5). Everything Nightstand controls
  * is held constant so a row of them reads as one row and not as a strip of ads:
  * one height, one radius (the house pill from `components/ui`), one type scale,
@@ -43,7 +43,7 @@ export type ProviderButtonProps = ProviderButtonBaseProps &
  * hulu, prime video) set in the interface sans — never Fraunces, the display
  * serif: faux brand lettering is worse than plain lettering. The wordmark is
  * marked `role="img"` because that is what it is — a stand-in for logo art. The
- * moment a kit SVG lands in `public/brands/` and `logoAsset` is set, the `<img>`
+ * moment a reviewed official asset lands in `public/brands/` and `logoAsset` is set, the `<img>`
  * branch takes over with the identical accessible name and no component change
  * (see `public/brands/BRANDS.md`).
  *
@@ -51,8 +51,8 @@ export type ProviderButtonProps = ProviderButtonBaseProps &
  * hover opacity or brightness shift here — the brand field is the published
  * color at rest, on hover, and while pressed. The affordance is motion instead.
  *
- * The one published color not painted verbatim is the TEXT color of the two
- * entries whose own pair is below AA (Fandango 2.73:1, Overcast 2.58:1). Two
+ * The one published color not painted verbatim is Nightstand-owned TEXT for
+ * entries whose registry pair is below AA. Two
  * separate things are true and it is worth keeping them apart: WCAG 1.4.3
  * exempts text that is part of a logo or brand name from contrast minimums, so
  * rendering those pairs as published would not be a *compliance* failure — and
@@ -76,7 +76,7 @@ export function ProviderButton({
 }: ProviderButtonProps) {
   const treatment = brandTreatment(provider.brand);
   const destination =
-    href === undefined ? providerWebUrl(provider, link) : safeHref(href);
+    href === undefined ? providerWebUrl(provider, link) : safeHref(provider, href);
 
   return (
     <a
@@ -95,9 +95,8 @@ export function ProviderButton({
       }}
       className={cx(
         // ≥44px tap target with room to spare: 48px tall, 20px of side padding.
-        // Clear space around the MARK, measured rather than claimed: the logo
-        // branch gets 20px horizontally and (48−24)/2 = 12px above and below a
-        // 24px mark, matching the fixed clearance contract in BRANDS.md. The
+        // The asset-specific reviewed height is recorded in the registry; the
+        // pill supplies at least 11.5px vertically and 20px horizontally. The
         // wordmark fallback retains the same pill geometry for
         // a future registry entry whose reviewed asset has not landed yet.
         "inline-flex min-h-12 items-center gap-2.5 rounded-full px-5",
@@ -121,15 +120,13 @@ export function ProviderButton({
           {provider.wordmark}
         </span>
       ) : (
-        // Brand SVGs are fixed local vector art: `next/image` does not optimize
-        // SVG, and `w-auto` is what keeps the mark from being stretched.
+        // Reviewed local brand art keeps its intrinsic ratio via `w-auto`.
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={provider.logoAsset}
           alt={provider.name}
-          // 24px clears every published minimum size in BRANDS.md (Spotify's
-          // 21px digital minimum is the strictest).
-          className="h-6 w-auto"
+          style={{ height: `${provider.logoHeightPx ?? 24}px` }}
+          className="w-auto"
         />
       )}
       {suffix !== undefined && (
@@ -140,10 +137,15 @@ export function ProviderButton({
 }
 
 /** Availability URLs cross an external-data boundary; reject unsafe schemes. */
-function safeHref(href: string): string {
+function safeHref(provider: ProviderEntry, href: string): string {
   const url = new URL(href);
   if (url.protocol !== "https:") {
     throw new Error(`Provider destinations must use https, received "${url.protocol}"`);
+  }
+  if (!provider.allowedHosts.includes(url.hostname.toLowerCase())) {
+    throw new Error(
+      `${provider.name} destinations must use an allowed host, received "${url.hostname}"`,
+    );
   }
   return url.toString();
 }

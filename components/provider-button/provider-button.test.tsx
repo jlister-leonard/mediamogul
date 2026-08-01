@@ -68,13 +68,19 @@ describe("the registry, end to end", () => {
     }
   });
 
-  test("every registry entry renders its bundled logo asset", () => {
+  test("every registry entry renders an official asset or exact-casing fallback", () => {
     for (const entry of providerEntries) {
       cleanup();
       render(<ProviderButton provider={entry} link={sampleLink(entry)} />);
       const mark = screen.getByRole("img", { name: entry.name });
-      expect(mark.tagName).toBe("IMG");
-      expect(mark.getAttribute("src")).toBe(entry.logoAsset);
+      if (entry.logoAsset === null) {
+        expect(mark.tagName).toBe("SPAN");
+        expect(mark.textContent).toBe(entry.wordmark);
+      } else {
+        expect(mark.tagName).toBe("IMG");
+        expect(mark.getAttribute("src")).toBe(entry.logoAsset);
+        expect(mark.style.height).toBe(`${entry.logoHeightPx}px`);
+      }
     }
   });
 
@@ -86,8 +92,8 @@ describe("the registry, end to end", () => {
       />,
     );
     const link = screen.getByRole("link");
-    expect(link.style.backgroundColor).toBe("rgb(229, 9, 20)");
-    expect(link.style.color).toBe("rgb(255, 255, 255)");
+    expect(link.style.backgroundColor).toBe("rgb(0, 0, 0)");
+    expect(link.style.color).toBe("white");
   });
 
   test("external links open away from the app, without leaking a referrer", () => {
@@ -153,7 +159,7 @@ describe("typed link building", () => {
         params: "applePodcast",
         appleId: 1200361736,
       }),
-    ).toBe("https://overcast.fm/+itunes1200361736");
+    ).toBe("https://overcast.fm/");
   });
 
   test("uses honest homepages where generated search routes are broken", () => {
@@ -190,6 +196,28 @@ describe("typed link building", () => {
         />,
       ),
     ).toThrow(/must use https/);
+  });
+
+  test("rejects a valid HTTPS URL belonging to another provider", () => {
+    expect(() =>
+      render(
+        <ProviderButton
+          provider={providerRegistry.netflix}
+          href="https://www.hulu.com/watch/abc"
+        />,
+      ),
+    ).toThrow(/Netflix destinations must use an allowed host/);
+  });
+
+  test("rejects lookalike and subdomain-confusion hosts", () => {
+    for (const href of [
+      "https://netflix.com.evil.example/watch/abc",
+      "https://evil.netflix.com/watch/abc",
+    ]) {
+      expect(() =>
+        render(<ProviderButton provider={providerRegistry.netflix} href={href} />),
+      ).toThrow(/Netflix destinations must use an allowed host/);
+    }
   });
 
   test("an entry resolved at runtime rejects arguments of the wrong shape", () => {
@@ -232,7 +260,7 @@ describe("the logo branch", () => {
     expect(image.getAttribute("src")).toBe(STUB);
     expect(screen.queryByText("NETFLIX")).toBeNull();
     // Height is fixed and width is auto: the mark is never distorted.
-    expect(image.className).toContain("h-6");
+    expect(image.style.height).toBe("24px");
     expect(image.className).toContain("w-auto");
   });
 
@@ -264,15 +292,17 @@ describe("brand treatment", () => {
     }
   });
 
-  test("only the two brands whose published pair fails AA get a substitute", () => {
+  test("only registry pairs below AA get a readable text substitute", () => {
     const substituted = providerEntries
       .filter((entry) => brandTreatment(entry.brand).textColor !== entry.brand.foreground)
       .map((entry) => entry.id);
-    expect(substituted).toEqual(["fandango", "overcast"]);
+    expect(substituted).toEqual(["netflix", "fandango", "overcast"]);
+    expect(brandTreatment(providerRegistry.netflix.brand).pairRatio).toBeCloseTo(4.38, 2);
     expect(brandTreatment(providerRegistry.fandango.brand).pairRatio).toBeCloseTo(2.73, 2);
     expect(brandTreatment(providerRegistry.overcast.brand).pairRatio).toBeCloseTo(2.58, 2);
     expect(brandTreatment(providerRegistry.fandango.brand).textColor).toBe("black");
     expect(brandTreatment(providerRegistry.overcast.brand).textColor).toBe("black");
+    expect(brandTreatment(providerRegistry.netflix.brand).textColor).toBe("white");
   });
 
   test("a below-AA brand keeps its field exactly and only re-colors the text", () => {
@@ -301,6 +331,7 @@ describe("brand treatment", () => {
       .map((entry) => entry.id);
     // Near-black fields on warm ink.
     expect(inDark).toEqual([
+      "netflix",
       "hbo-max",
       "prime-video",
       "apple-tv-plus",

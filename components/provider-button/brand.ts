@@ -16,10 +16,10 @@
  *
  * The measured facts, all 15 entries, foreground on background:
  *
- *   below 4.5:1 — Fandango 2.73:1, Overcast 2.58:1 (both "observed" grade)
- *   above 4.5:1 — everything else, from Netflix 4.79:1 up to 21:1
+ *   below 4.5:1 — Netflix 4.38:1, Fandango 2.73:1, Overcast 2.58:1
+ *   above 4.5:1 — everything else
  *
- * dissolves into warm ink  (dark)  — HBO Max, Prime Video, Apple TV+, Peacock,
+ * dissolves into warm ink  (dark)  — Netflix, HBO Max, Prime Video, Apple TV+, Peacock,
  *                                    Disney+, Kindle, Apple Podcasts
  * dissolves into warm paper (light) — Hulu, Spotify, Audible, Bookshop.org,
  *                                     Fandango, Overcast
@@ -82,12 +82,12 @@ export interface BrandTreatment {
    * and the wordmark fallback used only for a future entry without an asset.
    *
    * It is the brand's own foreground whenever the brand's published pair clears
-   * AA, which is 13 of the 15 entries. Fandango and Overcast publish white on
-   * orange at 2.73:1 and 2.58:1, and there the text falls back to the sRGB pole
+   * AA. Netflix red on black (4.38:1), plus Fandango and Overcast white on
+   * orange (2.73:1 and 2.58:1), use the sRGB pole
    * that reads on that field.
    *
-   * The bundled Fandango and Overcast marks already use the readable black
-   * treatment recorded in BRANDS.md. This fallback keeps any adjacent price
+   * Fandango and Overcast use exact-casing text fallbacks recorded in
+   * BRANDS.md. This keeps any adjacent price
    * or action text at the same readable pole without filtering the asset.
    */
   textColor: string;

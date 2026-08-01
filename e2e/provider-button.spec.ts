@@ -43,15 +43,19 @@ test("every provider button is a comfortable tap target", async ({ page }) => {
   }
 });
 
-test("every provider renders a bundled logo asset", async ({
+test("every provider renders an approved asset or exact-casing fallback", async ({
   page,
 }) => {
   await page.goto("/providers-demo");
   for (const entry of providerEntries) {
-    const mark = page.locator(
-      `a[data-provider="${entry.id}"] img[alt="${entry.name}"]`,
-    ).last();
+    const button = page.locator(`a[data-provider="${entry.id}"]`).last();
+    const mark = button.getByRole("img", { name: entry.name });
     await expect(mark).toBeVisible();
+    if (entry.logoAsset === null) {
+      await expect(mark).toHaveText(entry.wordmark);
+      expect(await mark.evaluate((node) => node.tagName)).toBe("SPAN");
+      continue;
+    }
     expect(await mark.getAttribute("src")).toBe(entry.logoAsset);
     const loaded = await mark.evaluate((image: HTMLImageElement) => ({
       complete: image.complete,

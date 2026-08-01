@@ -22,13 +22,13 @@ All beads start `todo`. Status lives here, in this file — single source of tru
 | E2.1 books | **done** ✅ | PASS + amendments (per-doc resilience, no arbitrary-edition ISBNs, zoom=3 covers, ISBN-10→13). Merged |
 | E2.3 podcasts | **done** ✅ | FAIL (Unicode cache collisions, publisher no-veto — reproduced) → fixed → PASS. Merged |
 | E0.4 primitives | **done** ✅ | FAIL (tab wrap) → fixed → PASS "with real enthusiasm". Merged; RatingValue = contracts Gradient |
-| E5.2 registry | **done** ✅ | PASS + honesty amendments (search-scoped links documented, URL confidence grades). Merged. White-on-black triplet (HBO Max/Apple TV+/Peacock) awaits kit SVGs |
+| E5.2 registry | reopened — brand rescope | Registry/deep links remain complete. Safe partial integration retains only verified-context Hulu art; 14 providers use exact-casing text pending sanctioned marks + usable size/clear-space guidance. See `public/brands/BRANDS.md` |
 | E1.2 repo-layer | **done** ✅ | Merged `d1f93de`; typed repo + live hooks. Reactive-hook verification made deterministic in continuation branch |
 | E2.2 tmdb | **done** ✅ | PASS + amendments (paginated now_playing, degraded marker). Merged `75143b7` |
 | E2.4 resolver | **done** ✅ | Merged `3a19c85`; grouped cross-provider resolution and identity dedupe |
 | E6.1 llm-route | review | Merged route repaired on continuation branch: abort propagation + production-safe static catalog-tool wiring; fresh review pending |
 | E0.7 style-tile 🚦 | review | FAIL (unsupported claims) → grounded in the Goodreads CSV → delta PASS `c7c9997`; Jeremy visual approval is the remaining hard gate |
-| E5.3 branded-buttons | in-progress | Blind review FAIL: missing official marks, unverified/broken handoffs, physical iOS pass pending. Fix in flight |
+| E5.3 branded-buttons | in-progress | Safe partial review PASS: provider-bound links, honest fallbacks, accessible text/Hulu rendering. Physical iPhone installed/absent-app validation still blocks completion |
 | E1.3 export-import | **done** ✅ | FAIL (history integrity, cross-tab race, unproven delivery) → fixed → delta PASS. Atomic fresh-install restore + real browser export/import proof; `d423e2b` |
 | E2.6 books-union | **done** ✅ | FAIL (degraded-union cache mutation gap) → test-only fix → delta PASS. Production text resolution unions OL+GB; ISBN fallback preserved; `9a1c1ef` |
 | everything else | todo | Wave-3 lessons: egress = googleapis only; fixture-first + env-gated smokes; e2e on dedicated ports; never git stash in worktrees |
@@ -352,6 +352,10 @@ graph TD
   - [ ] Official logos bundled locally, sourced from each service's brand/press kit,
         with a `BRANDS.md` noting source + guideline constraints per mark
   - [ ] Adding a service = one registry entry + one asset, nothing else
+- **2026-08-01 rescope:** E5.2 and E5.3 share a temporary lease because asset
+  provenance controls button rendering. The registry now allows `logoAsset: null`
+  as the safe text fallback. The official-logo AC remains open for 11 providers;
+  their provider-specific blockers are recorded in `public/brands/BRANDS.md`.
 
 ### E5.3 `branded-buttons` — the ProviderButton
 - **deps:** E5.2 · **owns:** `components/provider-button/*`
@@ -359,6 +363,9 @@ graph TD
   - [ ] One component renders any registry service with correct logo, color, clear-space
   - [ ] Meets each brand's minimum-size and contrast rules in both themes
   - [ ] Deep links open the native app when installed, web fallback otherwise (iOS tested)
+- **2026-08-01 status:** URL overrides are restricted to explicit per-provider
+  hosts and Overcast uses its working homepage instead of the broken `/+itunes`
+  route. Automated checks cannot close the remaining physical-iPhone AC.
 
 ### E5.4 `theaters` — Fandango showtimes
 - **deps:** E5.1 · **owns:** `lib/availability/theaters.ts`, zip-code setting
