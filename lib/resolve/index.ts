@@ -2,6 +2,7 @@ import {
   getBooksProvider,
   isbn10To13,
   type BookQueryInput,
+  type BookSearchOptions,
   type BooksResult,
 } from "../providers/books";
 import {
@@ -104,7 +105,10 @@ export type ResolveResult =
  * provider implementations.
  */
 export interface ResolveProviders {
-  searchBooks(query: BookQueryInput): Promise<BooksResult>;
+  searchBooks(
+    query: BookQueryInput,
+    options?: BookSearchOptions,
+  ): Promise<BooksResult>;
   searchVideo(
     query: string,
     scope: TmdbSearchScope,
@@ -115,7 +119,7 @@ export interface ResolveProviders {
 /** Binds the real providers, each with its own module-level cache. */
 export function defaultResolveProviders(): ResolveProviders {
   return {
-    searchBooks: (query) => getBooksProvider().search(query),
+    searchBooks: (query, options) => getBooksProvider().search(query, options),
     searchVideo: (query, scope) => searchTmdb(query, scope),
     searchPodcasts: (query) =>
       searchPodcastShows(query, { spotify: spotifyConfigFromEnv() }),
@@ -212,12 +216,19 @@ export async function resolve(
 
   const [books, video, podcasts] = await Promise.all([
     scope.has("book")
-      ? lane<BookSeed[]>(async () => {
+      ? lane<{ seeds: BookSeed[]; degraded: boolean }>(async () => {
           const result = await providers.searchBooks(
             isbn !== undefined ? { isbn } : { q: trimmed },
+            { mode: isbn !== undefined ? "fallback" : "union" },
           );
           return result.ok
-            ? { ok: true, value: result.seeds }
+            ? {
+                ok: true,
+                value: {
+                  seeds: result.seeds,
+                  degraded: (result.degraded?.length ?? 0) > 0,
+                },
+              }
             : { ok: false, reason: `books: ${result.error.message}` };
         })
       : undefined,
@@ -253,7 +264,12 @@ export async function resolve(
   }
 
   const degraded = new Set<Medium>();
-  if (books !== undefined && !books.ok) degraded.add("book");
+  if (
+    books !== undefined &&
+    (!books.ok || (books.ok && books.value.degraded))
+  ) {
+    degraded.add("book");
+  }
   if (video !== undefined) {
     if (!video.ok) {
       // The whole TMDB call failed, so every namespace it would have covered
@@ -283,7 +299,7 @@ export async function resolve(
   return {
     ok: true,
     groups: {
-      book: books?.ok === true ? dedupeBooks(books.value) : [],
+      book: books?.ok === true ? dedupeBooks(books.value.seeds) : [],
       movie: dedupeByTmdbId(
         videoSeeds.filter((seed): seed is MovieSeed => seed.medium === "movie"),
       ),

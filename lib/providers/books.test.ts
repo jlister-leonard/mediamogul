@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { dedupeBooks } from "../resolve/identity";
 import { itemSeedSchema } from "../types";
 import {
   booksErrorSchema,
@@ -218,6 +219,18 @@ describe("Google Books normalization", () => {
 });
 
 describe("primary → fallback degradation", () => {
+  it("still short-circuits after an Open Library success", async () => {
+    const { provider, hits } = providerWith({
+      openlibrary: () => jsonResponse(openLibrarySearchFixture),
+      googlebooks: () => jsonResponse(googleBooksSearchFixture),
+    });
+
+    const result = expectOk(await provider.search({ q: "money" }));
+
+    expect(result.source).toBe("openlibrary");
+    expect(hits).toEqual({ openlibrary: 1, googlebooks: 0 });
+  });
+
   it("falls back to Google Books when Open Library is unreachable", async () => {
     const { provider, hits } = providerWith({
       googlebooks: () => jsonResponse(googleBooksSearchFixture),
@@ -286,6 +299,183 @@ describe("primary → fallback degradation", () => {
     expect(booksResultSchema.safeParse(result).success).toBe(true);
     if (result.ok) throw new Error("expected failure");
     expect(result.error.code).toBe("upstream_malformed");
+  });
+});
+
+describe("union mode (E2.6)", () => {
+  it("queries both sources concurrently and the resolver builds one enriched card", async () => {
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const { provider, hits } = providerWith({
+      openlibrary: async () => {
+        await gate;
+        return jsonResponse(openLibrarySearchFixture);
+      },
+      googlebooks: async () => {
+        await gate;
+        return jsonResponse(googleBooksSearchFixture);
+      },
+    });
+
+    const pending = provider.search(
+      { q: "money psychology" },
+      { mode: "union" },
+    );
+    expect(hits).toEqual({ openlibrary: 1, googlebooks: 1 });
+    release();
+    const result = expectOk(await pending);
+
+    expect(result.source).toBe("union");
+    expect(result.degraded).toBeUndefined();
+    expect(result.seeds).toHaveLength(5);
+    const merged = dedupeBooks(result.seeds);
+    expect(merged).toHaveLength(4);
+    const psychology = merged.find(
+      (seed) => seed.title === "The Psychology of Money",
+    );
+    expect(psychology).toMatchObject({
+      year: 2020,
+      artUrl: "https://covers.openlibrary.org/b/id/10520611-L.jpg",
+      description:
+        "Doing well with money isn't necessarily about what you know. It's about how you behave.",
+      communityRating: {
+        average: 4.24,
+        count: 342,
+        histogram: [6, 11, 47, 110, 168],
+      },
+      ref: {
+        medium: "book",
+        openLibraryId: "OL17930368W",
+        googleBooksId: "TnMFDAAAQBAJ",
+        isbn13: "9780857197689",
+      },
+    });
+  });
+
+  it("keeps either successful result set and reports the failed source", async () => {
+    const googleOnly = providerWith({
+      googlebooks: () => jsonResponse(googleBooksSearchFixture),
+    });
+    const fromGoogle = expectOk(
+      await googleOnly.provider.search({ q: "money" }, { mode: "union" }),
+    );
+    expect(fromGoogle).toMatchObject({
+      source: "googlebooks",
+      degraded: ["openlibrary"],
+    });
+    expect(fromGoogle.seeds).toHaveLength(2);
+    expect(googleOnly.hits).toEqual({ openlibrary: 1, googlebooks: 1 });
+
+    const openLibraryOnly = providerWith({
+      openlibrary: () => jsonResponse(openLibrarySearchFixture),
+    });
+    const fromOpenLibrary = expectOk(
+      await openLibraryOnly.provider.search(
+        { q: "money" },
+        { mode: "union" },
+      ),
+    );
+    expect(fromOpenLibrary).toMatchObject({
+      source: "openlibrary",
+      degraded: ["googlebooks"],
+    });
+    expect(fromOpenLibrary.seeds).toHaveLength(3);
+  });
+
+  it("refetches a degraded union after recovery, then caches the complete result", async () => {
+    let googleHealthy = false;
+    const { provider, hits } = providerWith({
+      openlibrary: () => jsonResponse(openLibrarySearchFixture),
+      googlebooks: () => {
+        if (!googleHealthy) throw new TypeError("temporary Google outage");
+        return jsonResponse(googleBooksSearchFixture);
+      },
+    });
+
+    const partial = expectOk(
+      await provider.search({ q: "money" }, { mode: "union" }),
+    );
+    expect(partial).toMatchObject({
+      source: "openlibrary",
+      degraded: ["googlebooks"],
+    });
+    expect(hits).toEqual({ openlibrary: 1, googlebooks: 1 });
+
+    googleHealthy = true;
+    const recovered = expectOk(
+      await provider.search({ q: "money" }, { mode: "union" }),
+    );
+    expect(recovered.source).toBe("union");
+    expect(recovered.degraded).toBeUndefined();
+    expect(recovered.seeds).toHaveLength(5);
+    expect(hits).toEqual({ openlibrary: 2, googlebooks: 2 });
+
+    const cached = expectOk(
+      await provider.search({ q: "money" }, { mode: "union" }),
+    );
+    expect(cached).toEqual(recovered);
+    expect(hits).toEqual({ openlibrary: 2, googlebooks: 2 });
+  });
+
+  it("returns a typed failure when both union sources fail", async () => {
+    const { provider, hits } = providerWith({});
+
+    const result = await provider.search({ q: "money" }, { mode: "union" });
+
+    expect(booksErrorSchema.safeParse(result).success).toBe(true);
+    if (result.ok) throw new Error("expected failure");
+    expect(result.error.code).toBe("upstream_unavailable");
+    expect(result.error.upstream?.map(({ source }) => source)).toEqual([
+      "openlibrary",
+      "googlebooks",
+    ]);
+    expect(hits).toEqual({ openlibrary: 1, googlebooks: 1 });
+  });
+
+  it("keeps sound results when the other union payload is malformed", async () => {
+    const { provider } = providerWith({
+      openlibrary: () => jsonResponse(openLibraryMalformedFixture),
+      googlebooks: () => jsonResponse(googleBooksSearchFixture),
+    });
+
+    const result = expectOk(
+      await provider.search({ q: "money" }, { mode: "union" }),
+    );
+
+    expect(result).toMatchObject({
+      source: "googlebooks",
+      degraded: ["openlibrary"],
+    });
+    expect(result.seeds).toHaveLength(2);
+  });
+
+  it("treats an empty source as a valid half of the union", async () => {
+    const { provider } = providerWith({
+      openlibrary: () => jsonResponse(openLibraryIsbnMissFixture),
+      googlebooks: () => jsonResponse(googleBooksSearchFixture),
+    });
+
+    const result = expectOk(
+      await provider.search({ q: "money" }, { mode: "union" }),
+    );
+
+    expect(result.source).toBe("union");
+    expect(result.degraded).toBeUndefined();
+    expect(result.seeds).toHaveLength(2);
+  });
+
+  it("keeps fallback and union caches isolated", async () => {
+    const { provider, hits } = providerWith({
+      openlibrary: () => jsonResponse(openLibrarySearchFixture),
+      googlebooks: () => jsonResponse(googleBooksSearchFixture),
+    });
+
+    await provider.search({ q: "money" });
+    await provider.search({ q: "money" }, { mode: "union" });
+
+    expect(hits).toEqual({ openlibrary: 2, googlebooks: 1 });
   });
 });
 

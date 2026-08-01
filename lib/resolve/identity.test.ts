@@ -404,11 +404,15 @@ describe("mergeBookSeeds", () => {
     // Only Open Library exposes the 1★→5★ distribution, so it wins even
     // though Google's seed is the primary.
     expect(merged.communityRating?.histogram).toEqual([10, 20, 100, 300, 470]);
-    // Everything else still comes from the higher-ranked seed.
+    // Union mode explicitly prefers Open Library art and first-publication
+    // year even when Google's edition happened to rank first.
     expect(merged.artUrl).toBe(
-      "https://books.google.com/books/content?id=B1hSG45JCX4C&zoom=3",
+      "https://covers.openlibrary.org/b/id/12345-L.jpg",
     );
-    expect(merged.year).toBe(2005);
+    expect(merged.year).toBe(1965);
+    // Google's fields still backfill the work record.
+    expect(merged.description).toBe("Set on the desert planet Arrakis.");
+    expect(merged.ref.isbn13).toBe("9780441013593");
   });
 
   it("keeps the primary's title and subtitle, and backfills a missing subtitle", () => {

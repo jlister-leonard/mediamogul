@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
-import type { BookQueryInput, BooksResult } from "../providers/books";
+import type {
+  BookQueryInput,
+  BookSearchOptions,
+  BooksResult,
+} from "../providers/books";
 import type { PodcastSearchEnvelope } from "../providers/podcasts";
 import type {
   TmdbResult,
@@ -73,6 +77,7 @@ function podcastsOk(seeds: ItemSeed[]): PodcastSearchEnvelope {
 interface Recorder {
   providers: ResolveProviders;
   bookQueries: BookQueryInput[];
+  bookOptions: (BookSearchOptions | undefined)[];
   videoQueries: { query: string; scope: TmdbSearchScope }[];
   podcastQueries: string[];
 }
@@ -92,11 +97,13 @@ interface FakeResponses {
 
 function fakes(responses: FakeResponses = {}): Recorder {
   const bookQueries: BookQueryInput[] = [];
+  const bookOptions: (BookSearchOptions | undefined)[] = [];
   const videoQueries: { query: string; scope: TmdbSearchScope }[] = [];
   const podcastQueries: string[] = [];
   const providers: ResolveProviders = {
-    searchBooks: async (query) => {
+    searchBooks: async (query, options) => {
       bookQueries.push(query);
+      bookOptions.push(options);
       return await (responses.books?.() ?? booksOk([]));
     },
     searchVideo: async (query, scope) => {
@@ -108,7 +115,7 @@ function fakes(responses: FakeResponses = {}): Recorder {
       return await (responses.podcasts?.() ?? podcastsOk([]));
     },
   };
-  return { providers, bookQueries, videoQueries, podcastQueries };
+  return { providers, bookQueries, bookOptions, videoQueries, podcastQueries };
 }
 
 describe("resolve — fan-out", () => {
@@ -217,6 +224,22 @@ describe("resolve — fan-out", () => {
 });
 
 describe("resolve — degradation", () => {
+  it("keeps a partial books union while marking the lane degraded", async () => {
+    const { providers } = fakes({
+      books: () =>
+        Promise.resolve({
+          ...booksOk([bookSeed("Dune", "OL1W")]),
+          degraded: ["googlebooks"],
+        }),
+    });
+
+    const result = await resolve("dune", { media: ["book"], providers });
+
+    if (!result.ok) throw new Error("expected a success envelope");
+    expect(result.groups.book).toHaveLength(1);
+    expect(result.degraded).toEqual(["book"]);
+  });
+
   it("marks the books medium degraded and still serves the rest", async () => {
     const { providers } = fakes({
       books: () =>
@@ -358,6 +381,7 @@ describe("resolve — media scope", () => {
     });
     if (!result.ok) throw new Error("expected a success envelope");
     expect(recorder.bookQueries).toHaveLength(1);
+    expect(recorder.bookOptions).toEqual([{ mode: "union" }]);
     expect(recorder.videoQueries).toHaveLength(0);
     expect(recorder.podcastQueries).toHaveLength(0);
     expect(result.groups.movie).toEqual([]);
@@ -412,6 +436,7 @@ describe("resolve — ISBN path", () => {
     });
     if (!result.ok) throw new Error("expected a success envelope");
     expect(recorder.bookQueries).toEqual([{ isbn: "9780441013593" }]);
+    expect(recorder.bookOptions).toEqual([{ mode: "fallback" }]);
     expect(recorder.videoQueries).toHaveLength(0);
     expect(recorder.podcastQueries).toHaveLength(0);
     expect(result.groups.book).toHaveLength(1);
