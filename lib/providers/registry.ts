@@ -130,7 +130,7 @@ export interface ProviderEntry {
   /**
    * The wordmark text in the brand's exact official casing (NETFLIX is
    * all-caps, hulu is lowercase…). ProviderButton uses this only as a safe
-   * fallback for a future entry without an approved local asset.
+   * fallback for an entry without a retained, verified-context local asset.
    */
   wordmark: string;
   brand: BrandColors;
@@ -196,10 +196,10 @@ export const providerRegistry: Readonly<
       background: "#000000",
       foreground: "#E50914",
       source:
-        "official — Netflix N signature-gradient artwork on black per brand.netflix.com logo guidance",
+        "official identity colors — Netflix red on black per brand.netflix.com; exact-casing text fallback uses the measured accessible text treatment",
     },
-    logoAsset: "/brands/netflix.png",
-    logoHeightPx: 24,
+    logoAsset: null,
+    logoHeightPx: null,
     tmdbProviderIds: [8],
     allowedHosts: ["netflix.com", "www.netflix.com"],
     deepLink: {
@@ -393,8 +393,8 @@ export const providerRegistry: Readonly<
       source:
         "official — Spotify Green #1ED760, logo in black, per Spotify Design & Branding Guidelines (developer.spotify.com/documentation/design)",
     },
-    logoAsset: "/brands/spotify.svg",
-    logoHeightPx: 24,
+    logoAsset: null,
+    logoHeightPx: null,
     tmdbProviderIds: [],
     allowedHosts: ["open.spotify.com"],
     deepLink: {
@@ -511,8 +511,8 @@ export const providerRegistry: Readonly<
       source:
         "official — purple field keyed to the Apple Podcasts app icon, per Apple Podcasts identity guidelines and Marketing Tools",
     },
-    logoAsset: "/brands/apple-podcasts.png",
-    logoHeightPx: 25,
+    logoAsset: null,
+    logoHeightPx: null,
     tmdbProviderIds: [],
     allowedHosts: ["podcasts.apple.com"],
     deepLink: {

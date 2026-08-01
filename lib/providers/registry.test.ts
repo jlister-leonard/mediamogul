@@ -172,10 +172,10 @@ describe("brand colors", () => {
 });
 
 describe("logo assets", () => {
-  it("bundles only the four reviewed official assets and uses text elsewhere", () => {
-    const approved = new Set(["netflix", "hulu", "spotify", "apple-podcasts"]);
+  it("retains only Hulu's verified-context official asset and uses text elsewhere", () => {
+    const verified = new Set(["hulu"]);
     for (const entry of providerEntries) {
-      if (!approved.has(entry.id)) {
+      if (!verified.has(entry.id)) {
         expect(entry.logoAsset, entry.id).toBeNull();
         expect(entry.logoHeightPx, entry.id).toBeNull();
         continue;

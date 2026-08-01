@@ -68,7 +68,7 @@ describe("the registry, end to end", () => {
     }
   });
 
-  test("every registry entry renders an official asset or exact-casing fallback", () => {
+  test("every registry entry renders a verified-context asset or exact-casing fallback", () => {
     for (const entry of providerEntries) {
       cleanup();
       render(<ProviderButton provider={entry} link={sampleLink(entry)} />);

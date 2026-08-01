@@ -43,7 +43,7 @@ test("every provider button is a comfortable tap target", async ({ page }) => {
   }
 });
 
-test("every provider renders an approved asset or exact-casing fallback", async ({
+test("every provider renders a verified-context asset or exact-casing fallback", async ({
   page,
 }) => {
   await page.goto("/providers-demo");
@@ -198,11 +198,11 @@ test("under reduced motion the pill does not snap", async ({ browser }) => {
   await context.close();
 });
 
-test("the logo branch preserves intrinsic aspect ratio at its fixed height", async ({
+test("the retained Hulu mark preserves intrinsic aspect ratio at its fixed height", async ({
   page,
 }) => {
   await page.goto("/providers-demo");
-  const image = page.locator('main a[data-provider] img[alt="Netflix"]').first();
+  const image = page.locator('main a[data-provider] img[alt="Hulu"]').first();
   await expect(image).toBeVisible();
   const box = (await image.boundingBox())!;
   expect(box.height).toBeCloseTo(24, 0);
