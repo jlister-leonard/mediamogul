@@ -13,7 +13,7 @@ import { GetItRow } from "./GetItRow";
  * sentence about why. Three things Goodreads never does, all here:
  *
  *   · the art is the largest element, not a 1/6-row thumbnail;
- *   · the reason cites the reader's own ladder rather than a crowd average;
+ *   · the reason cites the reader's own ratings rather than a crowd average;
  *   · the card is dismissible with a reason, because rejection is the signal
  *     nobody collects (PLAN §4.3).
  *
@@ -33,13 +33,6 @@ const notTonightReasons = [
   "Bounced off it",
   "Can't get it",
 ] as const;
-
-/**
- * Illustrative: the rating distribution, five buckets, one-sided. The one
- * thing worth stealing from the teardown (PLAN §2) — a flat 4.3 and a
- * bimodal 4.3 are different books, and nobody says so out loud.
- */
-const spread = [6, 9, 18, 46, 100];
 
 export function HeroRec() {
   const [askingWhy, setAskingWhy] = useState(false);
@@ -77,32 +70,25 @@ export function HeroRec() {
           <h3 className="text-xs font-semibold tracking-[0.14em] text-accent uppercase">
             Why this
           </h3>
-          {/* Every claim in this sentence survives a grep of the corpus:
-              Steve Jobs and Titan are both 5★/4★ biographies in the export,
-              American Prometheus is the only life story among the 17 on the
-              to-read shelf, and The Social Network is a five-star hearted
-              film in the Letterboxd set (TASTE-BASELINE Finding 7). The last
-              of those is the cross-media wedge doing real work: the reason
-              for a book is partly built out of what he thought of a film. */}
+          {/* Every claim in this sentence survives the source corpus: the
+              Goodreads export records Steve Jobs at 5★, Titan at 4★, and
+              American Prometheus at position 3 on the to-read shelf. The
+              Social Network is a five-star hearted film in the Letterboxd
+              set (TASTE-BASELINE Finding 7), supplying the cross-media wedge. */}
           <p className="text-base">
-            <cite className="font-display italic">Steve Jobs</cite> and{" "}
-            <cite className="font-display italic">Titan</cite> sit one and four
-            in your Lives ladder, and this is the only life story on your
-            stack. You gave{" "}
+            You gave <cite className="font-display italic">Steve Jobs</cite>{" "}
+            5 stars and <cite className="font-display italic">Titan</cite> 4
+            stars. <cite className="font-display italic">American Prometheus</cite>{" "}
+            is on your 17-book to-read shelf. You gave{" "}
             <cite className="font-display italic">The Social Network</cite> five
             stars — same shape: one man, an institution, and the moment it gets
             away from him.
           </p>
           <p className="mt-2 flex items-center gap-3 text-xs text-fg-muted">
-            <span aria-hidden className="ns-spread">
-              {spread.map((height, i) => (
-                <span key={i} style={{ height: `${height}%` }} />
-              ))}
+            <span aria-hidden className="font-display text-lg font-semibold text-accent">
+              #3
             </span>
-            <span>
-              Readers put it at 4.3, and the shape is one-sided — this one
-              doesn&rsquo;t split people.
-            </span>
+            <span>of 17 on your to-read shelf.</span>
           </p>
         </div>
 

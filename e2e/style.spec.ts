@@ -1,4 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 
 /**
@@ -11,6 +13,48 @@ import { expect, test, type Page } from "@playwright/test";
  */
 
 const SHOTS = "style-tile-shots";
+
+function parseCsvLine(line: string): string[] {
+  const cells: string[] = [];
+  let cell = "";
+  let quoted = false;
+  for (let index = 0; index < line.length; index += 1) {
+    const char = line[index];
+    if (char === '"' && quoted && line[index + 1] === '"') {
+      cell += '"';
+      index += 1;
+    } else if (char === '"') {
+      quoted = !quoted;
+    } else if (char === "," && !quoted) {
+      cells.push(cell);
+      cell = "";
+    } else {
+      cell += char;
+    }
+  }
+  cells.push(cell);
+  return cells;
+}
+
+const goodreadsRows = (() => {
+  const csv = readFileSync(
+    join(process.cwd(), "data/goodreads_library_export.csv"),
+    "utf8",
+  ).trim();
+  const [headerLine, ...lines] = csv.split(/\r?\n/);
+  const headers = parseCsvLine(headerLine);
+  return lines.map((line) =>
+    Object.fromEntries(
+      parseCsvLine(line).map((value, index) => [headers[index], value]),
+    ),
+  );
+})();
+
+function goodreadsBook(title: string): Record<string, string> {
+  const book = goodreadsRows.find((row) => row.Title === title);
+  if (book === undefined) throw new Error(`Missing Goodreads record: ${title}`);
+  return book;
+}
 
 // The screen is designed at phone width; it is judged at phone width.
 test.use({ viewport: { width: 390, height: 844 } });
@@ -113,18 +157,37 @@ test.describe("dark theme details", () => {
  * that merely sounds personal.
  */
 test.describe("the copy is corpus-true", () => {
-  test("the reason cites two real Lives titles and a real film", async ({
+  test("the personal claims are derived from the included Goodreads export", async ({
     page,
   }) => {
+    const jobs = goodreadsBook("Steve Jobs");
+    const titan = goodreadsBook("Titan: The Life of John D. Rockefeller, Sr.");
+    const prometheus = goodreadsBook(
+      "American Prometheus: The Triumph and Tragedy of J. Robert Oppenheimer",
+    );
+    const toReadCount = goodreadsRows.filter(
+      (row) => row["Exclusive Shelf"] === "to-read",
+    ).length;
+    const position = prometheus["Bookshelves with positions"].match(
+      /to-read \(#(\d+)\)/,
+    )?.[1];
+
+    expect(position).toMatch(/^\d+$/);
+
     await openTile(page);
     const card = page.locator("article.ns-rec-card");
     await expect(card).toContainText(
-      "Steve Jobs and Titan sit one and four in your Lives ladder, and this is the only life story on your stack",
+      `You gave Steve Jobs ${Number(jobs["My Rating"])} stars and Titan ${Number(titan["My Rating"])} stars. American Prometheus is on your ${toReadCount}-book to-read shelf`,
+    );
+    const shelfPosition = card.locator("p").filter({
+      hasText: `of ${toReadCount} on your to-read shelf`,
+    });
+    await expect(shelfPosition.locator("span").first()).toHaveText(`#${position}`);
+    await expect(shelfPosition.locator("span").last()).toHaveText(
+      `of ${toReadCount} on your to-read shelf.`,
     );
     await expect(card).toContainText("You gave The Social Network five stars");
-    // Into Thin Air is grit-wilderness, not lives (lib/types/genre.ts). It may
-    // appear in the library; it may never be cited as a Lives standing.
-    await expect(card).not.toContainText("Into Thin Air");
+    await expect(card).not.toContainText(/Lives ladder|Readers put it|one-sided/);
   });
 
   test("the greeting asserts no date and no invented finish", async ({

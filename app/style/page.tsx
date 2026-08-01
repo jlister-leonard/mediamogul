@@ -28,11 +28,8 @@ import "./tile.css";
  *   · the five most recent additions to the to-read shelf (all 2026/07/05)
  *     are Inside the Tornado, Blue Ocean Strategy, The Innovator's Solution,
  *     Positioning and 7 Powers — all business strategy;
- *   · American Prometheus is the only biography among the 17 on that shelf;
- *   · Steve Jobs is 5★ and Titan 4★, both biographies, so both are `lives`
- *     (lib/types/genre.ts) — Into Thin Air is NOT, it is grit-wilderness,
- *     and citing it as Lives was the taxonomy error PLAN §4.2 warns kills
- *     trust in the ladder on first use;
+ *   · Steve Jobs is 5★, Titan is 4★, and American Prometheus is explicitly
+ *     position 3 of the 17-book to-read shelf;
  *   · every rating in the drawer is the export's own star value;
  *   · Sicario is a five-star hearted film in the Letterboxd set.
  *
@@ -170,9 +167,6 @@ export default function StyleTilePage() {
               All 199
             </Button>
           </div>
-          {/* "never the crowd's" overclaimed — the card above leads its
-              spread readout with a community 4.3. Yours is first; theirs is
-              allowed to exist, small and late. */}
           <p className="text-sm text-fg-muted">
             Your rating first — books and films on one shelf.
           </p>
