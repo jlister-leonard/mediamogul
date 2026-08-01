@@ -22,7 +22,7 @@ All beads start `todo`. Status lives here, in this file — single source of tru
 | E2.1 books | **done** ✅ | PASS + amendments (per-doc resilience, no arbitrary-edition ISBNs, zoom=3 covers, ISBN-10→13). Merged |
 | E2.3 podcasts | **done** ✅ | FAIL (Unicode cache collisions, publisher no-veto — reproduced) → fixed → PASS. Merged |
 | E0.4 primitives | **done** ✅ | FAIL (tab wrap) → fixed → PASS "with real enthusiasm". Merged; RatingValue = contracts Gradient |
-| E5.2 registry | reopened — brand rescope | Registry/deep links remain complete. Hulu alone retains a verified-context mark; 14 providers use exact-casing text pending sanctioned marks + usable size/clear-space guidance. See `public/brands/BRANDS.md` |
+| E5.2 registry | reopened — brand rescope | Registry/deep links remain complete. Apple Podcasts was removed per Jeremy's service preference; Hulu alone retains a verified-context mark, while 13 providers use exact-casing text pending sanctioned marks + usable size/clear-space guidance. See `public/brands/BRANDS.md` |
 | E1.2 repo-layer | **done** ✅ | Merged `d1f93de`; typed repo + live hooks. Reactive-hook verification made deterministic in continuation branch |
 | E2.2 tmdb | **done** ✅ | PASS + amendments (paginated now_playing, degraded marker). Merged `75143b7` |
 | E2.4 resolver | **done** ✅ | Merged `3a19c85`; grouped cross-provider resolution and identity dedupe |
@@ -236,7 +236,8 @@ graph TD
   - [ ] Normalizes to `MediaRef`/`Item` contract; response cached (LRU + HTTP headers)
   - [ ] Graceful degradation: provider down → typed error, UI-safe
   - [ ] *tmdb only:* watch-providers (US) + `now_playing` endpoints included
-  - [ ] *podcasts only:* resolves Spotify show URL + Apple Podcasts URL per show
+  - [ ] *podcasts only:* resolves a Spotify show URL per show; Apple's keyless
+        iTunes API is metadata-only, never an Apple Podcasts destination
 
 ### E2.4 `resolver` — cross-provider identity
 - **deps:** E2.1–E2.3 · **owns:** `lib/resolve/*`
@@ -361,8 +362,8 @@ graph TD
   - [ ] Adding a service = one registry entry + one asset, nothing else
 - **2026-08-01 rescope:** E5.2 and E5.3 share a temporary lease because asset
   provenance controls button rendering. The registry now allows `logoAsset: null`
-  as the safe text fallback. The official-logo AC remains open for 14 providers
-  (the original 11 plus Netflix, Spotify, and Apple Podcasts);
+  as the safe text fallback. The official-logo AC remains open for 13 providers
+  after Apple Podcasts was removed from the product per Jeremy's preference;
   their provider-specific blockers are recorded in `public/brands/BRANDS.md`.
 
 ### E5.3 `branded-buttons` — the ProviderButton

@@ -14,13 +14,13 @@
  * Both answers are derived from the registry values, so a new provider entry
  * gets the right treatment with no code change here.
  *
- * The measured facts, all 15 entries, foreground on background:
+ * The measured facts, all 14 entries, foreground on background:
  *
  *   below 4.5:1 — Netflix 4.38:1, Fandango 2.73:1, Overcast 2.58:1
  *   above 4.5:1 — everything else
  *
  * dissolves into warm ink  (dark)  — Netflix, HBO Max, Prime Video, Apple TV+, Peacock,
- *                                    Disney+, Kindle, Apple Podcasts
+ *                                    Disney+, Kindle
  * dissolves into warm paper (light) — Hulu, Spotify, Audible, Bookshop.org,
  *                                     Fandango, Overcast
  *

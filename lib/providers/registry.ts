@@ -87,7 +87,7 @@ export interface SpotifyShowParams {
   spotifyShowId: string;
 }
 
-/** Apple Podcasts collection id from iTunes Search (E2.3). */
+/** Apple iTunes podcast collection id used for metadata identity (E2.3). */
 export interface ApplePodcastParams {
   appleId: number;
 }
@@ -171,7 +171,6 @@ export const KNOWN_PROVIDER_IDS = [
   "kindle",
   "bookshop",
   "fandango",
-  "apple-podcasts",
   "overcast",
 ] as const;
 export type KnownProviderId = (typeof KNOWN_PROVIDER_IDS)[number];
@@ -494,29 +493,6 @@ export const providerRegistry: Readonly<
       // must not leave Nightstand through an invented query parameter.
       app: null,
       web: (p) => `https://www.fandango.com/search?q=${enc(p.title)}`,
-    },
-  },
-
-  "apple-podcasts": {
-    id: pid("apple-podcasts"),
-    name: "Apple Podcasts",
-    wordmark: "Apple Podcasts",
-    brand: {
-      background: "#832BC1",
-      foreground: "#FFFFFF",
-      source:
-        "official — purple field keyed to the Apple Podcasts app icon, per Apple Podcasts identity guidelines and Marketing Tools",
-    },
-    logoAsset: null,
-    logoHeightPx: null,
-    tmdbProviderIds: [],
-    allowedHosts: ["podcasts.apple.com"],
-    deepLink: {
-      params: "applePodcast",
-      // Official HTTPS show destination. Exact installed-app behavior remains
-      // part of the physical-iOS acceptance pass.
-      app: null,
-      web: (p) => `https://podcasts.apple.com/us/podcast/id${p.appleId}`,
     },
   },
 

@@ -163,7 +163,7 @@ describe("composeGetIt", () => {
     });
   });
 
-  it("puts Spotify first for podcasts, followed by Apple Podcasts and Overcast", () => {
+  it("puts Spotify first for podcasts without offering Apple Podcasts", () => {
     const podcast = item({
       id: "99pi",
       medium: "podcast",
@@ -184,7 +184,6 @@ describe("composeGetIt", () => {
 
     expect(result.items.map((entry) => entry.provider.id)).toEqual([
       "spotify",
-      "apple-podcasts",
       "overcast",
     ]);
     expect(result.items[0]).toMatchObject({

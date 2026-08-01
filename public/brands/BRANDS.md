@@ -37,7 +37,6 @@ instead of unverified art. That is intentional, not a missing-file failure.
 | Kindle | [Amazon brand usage policy](https://advertising.amazon.com/resources/ad-policy/brand-usage) | Amazon-family logo use requires express approval; the generic Amazon badge would misidentify the Kindle destination. |
 | Bookshop.org | [Bookshop.org Terms of Use](https://bookshop.org/info/terms-of-use) | The terms reserve logo use absent permission; no approved external-link badge and display rules were found. |
 | Fandango | [Fandango](https://www.fandango.com/) | No public official external-use kit with minimum size and clear-space guidance was found. |
-| Apple Podcasts | [Apple Podcasts Marketing Tools](https://tools.applemediaservices.com/podcast/1200361736) and [identity guidelines](https://www.apple.com/itunes/marketing-on-podcasts/identity-guidelines.html) | Apple publishes app icons and badges, but the review did not establish that the app-icon treatment is sanctioned for this compact third-party provider button. Exact-casing text remains until the correct badge context is confirmed. |
 | Overcast | [Overcast](https://overcast.fm/) | No formal public brand kit or sanctioned external-link badge with display constraints was found. |
 
 ## Rendering and remaining acceptance work
@@ -46,8 +45,8 @@ instead of unverified art. That is intentional, not a missing-file failure.
   stretched, shadowed, or animated independently.
 - The accessible provider name remains present in both image and text branches.
 - E5.2's “official asset for every provider” acceptance item remains blocked for
-  14 providers: the original 11 blockers plus Netflix, Spotify, and Apple
-  Podcasts. Exact text is the safe operational fallback.
+  13 providers: the original 11 blockers plus Netflix and Spotify. Exact text
+  is the safe operational fallback.
 - E5.3's physical-iPhone acceptance item is still pending. Desktop/headless
   tests cannot prove whether each exact HTTPS path transfers to an installed
   app. Test with each relevant app installed and absent before calling any path

@@ -147,7 +147,6 @@ function composePodcast(
 
   if (item.ref.appleId !== undefined) {
     const link = { params: "applePodcast" as const, appleId: item.ref.appleId };
-    items.push({ provider: providerRegistry["apple-podcasts"], link });
     items.push({ provider: providerRegistry.overcast, link });
   }
 

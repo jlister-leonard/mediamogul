@@ -14,7 +14,6 @@ import {
 } from "./podcasts.fixtures";
 import {
   LruCache,
-  applePodcastsUrl,
   cacheControlForEnvelope,
   httpStatusForEnvelope,
   lookupPodcastShow,
@@ -82,12 +81,6 @@ beforeEach(() => {
 });
 
 describe("deep-link builders", () => {
-  it("builds the Apple Podcasts show URL from an appleId", () => {
-    expect(applePodcastsUrl(394775318)).toBe(
-      "https://podcasts.apple.com/podcast/id394775318",
-    );
-  });
-
   it("builds the Spotify-first show URL from a spotifyShowId (PLAN §5)", () => {
     expect(spotifyShowUrl("2vjzeqQaEPCn7UBM8mNa1a")).toBe(
       "https://open.spotify.com/show/2vjzeqQaEPCn7UBM8mNa1a",
@@ -393,9 +386,6 @@ describe("lookupPodcastShow", () => {
     expect(result.spotify).toBe("spotify-unconfigured");
     expect(result.seed.ref.appleId).toBe(394775318);
     expect(itemSeedSchema.safeParse(result.seed).success).toBe(true);
-    expect(applePodcastsUrl(result.seed.ref.appleId as number)).toBe(
-      "https://podcasts.apple.com/podcast/id394775318",
-    );
   });
 
   it("types an unknown appleId as not-found", async () => {

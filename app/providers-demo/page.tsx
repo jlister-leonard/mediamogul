@@ -18,7 +18,7 @@ const BOOK = { title: "The Overstory", author: "Richard Powers", isbn13: "978039
 const SHOW_SPOTIFY = "4rOoJ6Egrf8K2IrywzwOMk";
 const SHOW_APPLE = 1200361736;
 
-/** Realistic arguments for every entry, so all 15 render for real. */
+/** Realistic arguments for every entry, so all 14 render for real. */
 function sampleLink(entry: ProviderEntry): ProviderLinkArgs {
   switch (entry.deepLink.params) {
     case "title":
@@ -113,7 +113,6 @@ export default function ProvidersDemoPage() {
               label="Get The Daily"
               items={[
                 { provider: providerRegistry.spotify, link: { params: "spotifyShow", spotifyShowId: SHOW_SPOTIFY } },
-                { provider: providerRegistry["apple-podcasts"], link: { params: "applePodcast", appleId: SHOW_APPLE } },
                 { provider: providerRegistry.overcast, link: { params: "applePodcast", appleId: SHOW_APPLE } },
               ]}
             />
@@ -122,7 +121,7 @@ export default function ProvidersDemoPage() {
 
         <Section
           title="Every service"
-          note="All 15 registry entries. Hulu alone uses a retained official local mark with verified context; the other 14 use exact-casing text until a sanctioned mark and its display rules are established. Nothing is fetched at runtime."
+          note="All 14 registry entries. Hulu alone uses a retained official local mark with verified context; the other 13 use exact-casing text until a sanctioned mark and its display rules are established. Nothing is fetched at runtime."
         >
           <ul className="flex flex-wrap gap-3">
             {providerEntries.map((entry) => (

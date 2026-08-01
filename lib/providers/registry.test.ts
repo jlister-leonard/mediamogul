@@ -84,10 +84,10 @@ function buildSampleUrls(deepLink: DeepLink): { app: string[]; web: string[] } {
 }
 
 describe("registry completeness", () => {
-  it("holds all fifteen services from PLAN §5", () => {
+  it("holds all fourteen services from PLAN §5", () => {
     // The ten subscriptions on file + Kindle, Bookshop.org, Fandango,
-    // Apple Podcasts, Overcast.
-    expect(KNOWN_PROVIDER_IDS).toHaveLength(15);
+    // and Overcast. Apple Podcasts is deliberately not a destination.
+    expect(KNOWN_PROVIDER_IDS).toHaveLength(14);
     expect([...KNOWN_PROVIDER_IDS].sort()).toEqual(
       [
         "netflix",
@@ -103,7 +103,6 @@ describe("registry completeness", () => {
         "kindle",
         "bookshop",
         "fandango",
-        "apple-podcasts",
         "overcast",
       ].sort(),
     );
@@ -270,14 +269,10 @@ describe("deep links", () => {
     );
   });
 
-  it("apple podcasts and overcast: appleId-keyed deep links", () => {
-    const apple = providerRegistry["apple-podcasts"].deepLink;
+  it("overcast remains an appleId-keyed fallback without Apple Podcasts", () => {
     const overcast = providerRegistry.overcast.deepLink;
-    if (apple.params !== "applePodcast" || overcast.params !== "applePodcast")
+    if (overcast.params !== "applePodcast")
       throw new Error("podcast targets take ApplePodcastParams");
-    expect(apple.web(samplePodcast)).toBe(
-      "https://podcasts.apple.com/us/podcast/id1671669052",
-    );
     expect(overcast.web(samplePodcast)).toBe("https://overcast.fm/");
   });
 });
@@ -319,7 +314,6 @@ describe("TMDB provider-id join (E5.1)", () => {
       "kindle",
       "bookshop",
       "fandango",
-      "apple-podcasts",
       "overcast",
     ] as const) {
       expect(providerRegistry[id].tmdbProviderIds).toEqual([]);

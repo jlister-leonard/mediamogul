@@ -48,7 +48,7 @@ function ratio(a: number, b: number): number {
 }
 
 describe("the registry, end to end", () => {
-  test("every entry renders as a link — all 15, no exceptions", () => {
+  test("every entry renders as a link — all 14, no exceptions", () => {
     render(
       <ul>
         {providerEntries.map((entry) => (
@@ -59,7 +59,7 @@ describe("the registry, end to end", () => {
       </ul>,
     );
     const links = screen.getAllByRole("link");
-    expect(links).toHaveLength(15);
+    expect(links).toHaveLength(14);
     expect(links.map((link) => link.getAttribute("data-provider"))).toEqual(
       providerEntries.map((entry) => entry.id),
     );
@@ -338,7 +338,6 @@ describe("brand treatment", () => {
       "peacock",
       "disney-plus",
       "kindle",
-      "apple-podcasts",
     ]);
     // Bright and white fields on warm paper.
     expect(inLight).toEqual([
