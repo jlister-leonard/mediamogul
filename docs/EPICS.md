@@ -30,6 +30,7 @@ All beads start `todo`. Status lives here, in this file — single source of tru
 | E0.7 style-tile 🚦 | review | FAIL (unsupported claims) → grounded in the Goodreads CSV → delta PASS `c7c9997`; Jeremy visual approval is the remaining hard gate |
 | E5.3 branded-buttons | in-progress | Blind review FAIL: missing official marks, unverified/broken handoffs, physical iOS pass pending. Fix in flight |
 | E1.3 export-import | **done** ✅ | FAIL (history integrity, cross-tab race, unproven delivery) → fixed → delta PASS. Atomic fresh-install restore + real browser export/import proof; `d423e2b` |
+| E2.6 books-union | **done** ✅ | FAIL (degraded-union cache mutation gap) → test-only fix → delta PASS. Production text resolution unions OL+GB; ISBN fallback preserved; `9a1c1ef` |
 | everything else | todo | Wave-3 lessons: egress = googleapis only; fixture-first + env-gated smokes; e2e on dedicated ports; never git stash in worktrees |
 
 ---
