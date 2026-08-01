@@ -23,7 +23,7 @@ All beads start `todo`. Status lives here, in this file — single source of tru
 | E2.1 books | **done** ✅ | PASS + amendments (per-doc resilience, no arbitrary-edition ISBNs, zoom=3 covers, ISBN-10→13). Merged |
 | E2.3 podcasts | **done** ✅ | FAIL (Unicode cache collisions, publisher no-veto — reproduced) → fixed → PASS. Merged |
 | E0.4 primitives | **done** ✅ | FAIL (tab wrap) → fixed → PASS "with real enthusiasm". Merged; RatingValue = contracts Gradient |
-| E5.2 registry | **done** ✅ | PASS + honesty amendments (search-scoped links documented, URL confidence grades). Merged. White-on-black triplet (HBO Max/Apple TV+/Peacock) awaits kit SVGs |
+| E5.2 registry | reopened — brand rescope | Registry/deep links remain complete. Community art was removed: 4 providers now use reviewed official assets; 11 use exact-casing text pending a sanctioned mark plus usable size/clear-space guidance. See `public/brands/BRANDS.md` |
 | E2.2 tmdb | review | PASS + amendments (paginated now_playing, degraded marker) — delta-verify in flight |
 | E6.1 llm-route | in-progress | FAIL (client-disconnect abort propagation) → fixing. Wave-4 note: tools.ts dynamic-import seam can never resolve at runtime — static-import rewrite mandatory when wiring providers |
 | E0.7 style-tile 🚦 · E1.2 repo-layer · E5.3 branded-buttons | in-progress | E0.7 is the human gate — STOP for Jeremy when built + reviewed |
@@ -329,6 +329,10 @@ graph TD
   - [ ] Official logos bundled locally, sourced from each service's brand/press kit,
         with a `BRANDS.md` noting source + guideline constraints per mark
   - [ ] Adding a service = one registry entry + one asset, nothing else
+- **2026-08-01 rescope:** E5.2 and E5.3 share a temporary lease because asset
+  provenance controls button rendering. The registry now allows `logoAsset: null`
+  as the safe text fallback. The official-logo AC remains open for 11 providers;
+  their provider-specific blockers are recorded in `public/brands/BRANDS.md`.
 
 ### E5.3 `branded-buttons` — the ProviderButton
 - **deps:** E5.2 · **owns:** `components/provider-button/*`
@@ -336,6 +340,9 @@ graph TD
   - [ ] One component renders any registry service with correct logo, color, clear-space
   - [ ] Meets each brand's minimum-size and contrast rules in both themes
   - [ ] Deep links open the native app when installed, web fallback otherwise (iOS tested)
+- **2026-08-01 status:** URL overrides are restricted to explicit per-provider
+  hosts and Overcast uses its working homepage instead of the broken `/+itunes`
+  route. Automated checks cannot close the remaining physical-iPhone AC.
 
 ### E5.4 `theaters` — Fandango showtimes
 - **deps:** E5.1 · **owns:** `lib/availability/theaters.ts`, zip-code setting

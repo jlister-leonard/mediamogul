@@ -122,7 +122,7 @@ export default function ProvidersDemoPage() {
 
         <Section
           title="Every service"
-          note="All 15 registry entries, each with a locally bundled provider mark, brand field, and the same clear-space geometry. No logo is fetched at runtime."
+          note="All 15 registry entries. Four use reviewed official local assets; the rest use exact-casing text until a sanctioned mark and its display rules are established. Nothing is fetched at runtime."
         >
           <ul className="flex flex-wrap gap-3">
             {providerEntries.map((entry) => (
@@ -186,7 +186,7 @@ export default function ProvidersDemoPage() {
           </div>
           <p className="text-sm text-fg-muted">
             Fandango and Overcast&rsquo;s recorded white-on-orange pairs measure
-            2.73:1 and 2.58:1. Their bundled marks and Nightstand-owned suffix
+            2.73:1 and 2.58:1. Their exact-casing fallbacks and Nightstand-owned suffix
             text use the readable black treatment documented in BRANDS.md; the
             recognizable orange fields remain untouched.
           </p>
