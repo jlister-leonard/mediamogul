@@ -31,8 +31,9 @@ export type ProviderButtonProps = ProviderButtonBaseProps &
 /**
  * The most-tapped element in the app: one branded handoff to one service.
  *
- * A Netflix button is the official red N on black — instantly the real thing,
- * not a grey chip that says "Netflix" (PLAN §5). Everything Nightstand controls
+ * A provider button uses a verified local mark only when its official context
+ * is established; otherwise it uses exact-casing text, not guessed logo art.
+ * Everything Nightstand controls
  * is held constant so a row of them reads as one row and not as a strip of ads:
  * one height, one radius (the house pill from `components/ui`), one type scale,
  * one focus ring. The brand color is contained inside the pill and never leaks
@@ -43,11 +44,11 @@ export type ProviderButtonProps = ProviderButtonBaseProps &
  * hulu, prime video) set in the interface sans — never Fraunces, the display
  * serif: faux brand lettering is worse than plain lettering. The wordmark is
  * marked `role="img"` because that is what it is — a stand-in for logo art. The
- * moment a reviewed official asset lands in `public/brands/` and `logoAsset` is set, the `<img>`
+ * moment an official asset's use context is verified and `logoAsset` is set, the `<img>`
  * branch takes over with the identical accessible name and no component change
  * (see `public/brands/BRANDS.md`).
  *
- * NO RE-TINTING. Every brand kit forbids recoloring the mark, so there is no
+ * NO RE-TINTING. Retained marks follow their published treatment, so there is no
  * hover opacity or brightness shift here — the brand field is the published
  * color at rest, on hover, and while pressed. The affordance is motion instead.
  *

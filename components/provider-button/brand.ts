@@ -1,8 +1,8 @@
 /**
  * Contrast math over the registry's brand colors (E5.3).
  *
- * A brand's colors are external facts we may not repaint (every kit in
- * `public/brands/BRANDS.md` forbids recoloring the mark), so this file does not
+ * A brand's colors are external facts we do not repaint (see the retained-mark
+ * constraints in `public/brands/BRANDS.md`), so this file does not
  * *fix* brand colors — it measures them and decides the two things Nightstand
  * is free to decide:
  *

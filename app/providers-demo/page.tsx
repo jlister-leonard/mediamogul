@@ -122,7 +122,7 @@ export default function ProvidersDemoPage() {
 
         <Section
           title="Every service"
-          note="All 15 registry entries. Four use reviewed official local assets; the rest use exact-casing text until a sanctioned mark and its display rules are established. Nothing is fetched at runtime."
+          note="All 15 registry entries. Hulu alone uses a retained official local mark with verified context; the other 14 use exact-casing text until a sanctioned mark and its display rules are established. Nothing is fetched at runtime."
         >
           <ul className="flex flex-wrap gap-3">
             {providerEntries.map((entry) => (
