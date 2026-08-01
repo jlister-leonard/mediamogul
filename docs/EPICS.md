@@ -14,7 +14,7 @@ All beads start `todo`. Status lives here, in this file — single source of tru
 | Bead | Status | Notes |
 |---|---|---|
 | E0.1 scaffold | **done** ✅ | Review PASS; `ec3b2a4`. Pins: next 16.2.12, TS 5.9.3, eslint 9.39.5, @playwright/test 1.56.1, tailwind 4.3.3 |
-| E0.6 deploy | **done** ✅ | FAIL→fix→PASS (CI lacked production build). Merged `674fecb`. Repo-setup TODO: mark `ci` check required on main; link Vercel project + env vars |
+| E0.6 deploy | blocked — Vercel account setup | CI and protected `main` PASS. JJL Advisors project now has verified `main` production + continuation preview artifacts; automatic Git previews remain blocked until Vercel adds the GitHub Login Connection, and runtime secrets are not configured |
 | E0.2 tokens | **done** ✅ | Review PASS "without reservation". 18/18 AA pairs. Merged + nit fixes (format strings, hue comment) |
 | E0.3 contracts | **done** ✅ | PASS + delta-verified amendments (ItemSeed, communityRating, ms-pinned timestamps). Merged; 40 unit tests |
 | E0.5 pwa-shell | **done** ✅ | FAIL (precache hole) → fixed → PASS. First-session offline proven. Merged |

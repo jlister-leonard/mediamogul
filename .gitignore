@@ -19,3 +19,6 @@ next-env.d.ts
 
 # style-tile capture output
 /style-tile-shots
+
+# Vercel CLI local project linkage and pulled environment files
+.vercel
