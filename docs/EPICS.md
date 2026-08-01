@@ -27,9 +27,9 @@ All beads start `todo`. Status lives here, in this file — single source of tru
 | E2.2 tmdb | **done** ✅ | PASS + amendments (paginated now_playing, degraded marker). Merged `75143b7` |
 | E2.4 resolver | **done** ✅ | Merged `3a19c85`; grouped cross-provider resolution and identity dedupe |
 | E6.1 llm-route | review | Merged route repaired on continuation branch: abort propagation + production-safe static catalog-tool wiring; fresh review pending |
-| E0.7 style-tile 🚦 | in-progress | Blind review FAIL: unsupported ladder/community claims. Fix in flight; Jeremy gate follows delta verification |
+| E0.7 style-tile 🚦 | review | FAIL (unsupported claims) → grounded in the Goodreads CSV → delta PASS `c7c9997`; Jeremy visual approval is the remaining hard gate |
 | E5.3 branded-buttons | in-progress | Blind review FAIL: missing official marks, unverified/broken handoffs, physical iOS pass pending. Fix in flight |
-| E1.3 export-import | in-progress | Builder active on versioned backup, validation, round-trip restore, and accessible settings UI |
+| E1.3 export-import | **done** ✅ | FAIL (history integrity, cross-tab race, unproven delivery) → fixed → delta PASS. Atomic fresh-install restore + real browser export/import proof; `d423e2b` |
 | everything else | todo | Wave-3 lessons: egress = googleapis only; fixture-first + env-gated smokes; e2e on dedicated ports; never git stash in worktrees |
 
 ---
