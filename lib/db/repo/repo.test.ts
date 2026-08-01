@@ -60,6 +60,7 @@ import {
   RepoValidationError,
   replayComparisonsByGenre,
   restoreSnapshot,
+  restoreSnapshotIfEmpty,
   setEntryScore,
   setItemGenre,
   startEntry,
@@ -1209,5 +1210,18 @@ describe("snapshot (E1.3 export/import, E1.4 seed)", () => {
     expect(await db.items.count()).toBe(1);
     expect(await getItem(fresh.id)).toBeUndefined();
     expect(await db.situations.count()).toBe(0);
+  });
+
+  it("atomically refuses a fresh-install restore when any table has data", async () => {
+    const movie = await addItem(movieSeed);
+    const offer = subscriptionOffer(movie.id, T0);
+    await Promise.all(db.tables.map((table) => table.clear()));
+    await restoreSnapshot({ availability: [offer] });
+
+    await expect(
+      restoreSnapshotIfEmpty({ items: [movie] }),
+    ).rejects.toThrow(RepoConflictError);
+    expect(await db.items.count()).toBe(0);
+    expect(await db.availability.count()).toBe(1);
   });
 });

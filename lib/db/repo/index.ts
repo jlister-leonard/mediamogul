@@ -85,4 +85,9 @@ export {
   type PortraitInput,
 } from "./portrait";
 
-export { readSnapshot, restoreSnapshot, type RepoSnapshot } from "./snapshot";
+export {
+  readSnapshot,
+  restoreSnapshot,
+  restoreSnapshotIfEmpty,
+  type RepoSnapshot,
+} from "./snapshot";
