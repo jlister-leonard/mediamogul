@@ -2,11 +2,11 @@ import { z } from "zod";
 import { itemSeedSchema, type ItemSeed } from "../types";
 
 /**
- * E2.1 provider-books — book metadata search, Open Library primary with
- * Google Books fallback. Both are keyless for basic search, so this module
- * holds no secrets. Everything upstream is Zod-parsed into explicit
- * upstream-shape schemas before mapping; nothing downstream of this file
- * ever touches a raw provider payload (lib/types/media.ts contract).
+ * E2.1 provider-books + E2.6 books-union — book metadata search with either
+ * Open Library-primary fallback or an explicit concurrent union of Open
+ * Library and Google Books. Both are keyless for basic search, so this module
+ * holds no secrets. Everything upstream is Zod-parsed into explicit shapes
+ * before mapping; downstream code never touches a raw provider payload.
  *
  * The route handler in `app/api/providers/books/route.ts` is a thin shell
  * over `getBooksProvider().search()`.
@@ -55,9 +55,11 @@ export type BooksError = z.infer<typeof booksErrorSchema>;
 
 export const booksSuccessSchema = z.object({
   ok: z.literal(true),
-  /** Which upstream actually answered — primary or fallback. */
-  source: bookSourceSchema,
+  /** The answering upstream, or `union` when both answered together. */
+  source: z.union([bookSourceSchema, z.literal("union")]),
   seeds: z.array(bookSeedSchema),
+  /** In union mode, upstreams that failed while the other still answered. */
+  degraded: z.array(bookSourceSchema).optional(),
 });
 export type BooksSuccess = z.infer<typeof booksSuccessSchema>;
 
@@ -145,6 +147,13 @@ export const bookQuerySchema = z
 export type BookQuery = z.infer<typeof bookQuerySchema>;
 /** What callers may pass — `limit` optional, isbn hyphens not yet stripped. */
 export type BookQueryInput = z.input<typeof bookQuerySchema>;
+
+export const bookSearchModeSchema = z.enum(["fallback", "union"]);
+export type BookSearchMode = z.infer<typeof bookSearchModeSchema>;
+export interface BookSearchOptions {
+  /** `fallback` preserves E2.1; `union` queries both sources concurrently. */
+  mode?: BookSearchMode;
+}
 
 // ---------------------------------------------------------------------------
 // Upstream shapes — minimal loose schemas for exactly the fields we map.
@@ -515,7 +524,7 @@ function failureMessage(error: unknown): string {
 }
 
 // ---------------------------------------------------------------------------
-// Provider — in-memory LRU over normalized results, primary→fallback logic.
+// Provider — in-memory LRU over normalized fallback and union results.
 // ---------------------------------------------------------------------------
 
 export interface BooksProviderOptions {
@@ -529,7 +538,10 @@ export interface BooksProviderOptions {
 }
 
 export interface BooksProvider {
-  search(query: BookQueryInput): Promise<BooksResult>;
+  search(
+    query: BookQueryInput,
+    options?: BookSearchOptions,
+  ): Promise<BooksResult>;
 }
 
 class LruCache<V> {
@@ -564,12 +576,13 @@ class LruCache<V> {
   }
 }
 
-function cacheKey(query: BookQuery): string {
+function cacheKey(query: BookQuery, mode: BookSearchMode): string {
   const fold = (value: string | undefined): string | undefined =>
     value === undefined
       ? undefined
       : collapseWhitespace(value).toLowerCase();
   return JSON.stringify([
+    mode,
     fold(query.q),
     fold(query.title),
     fold(query.author),
@@ -668,7 +681,35 @@ export function createBooksProvider(
     return { ok: true, seeds };
   }
 
-  async function search(rawQuery: BookQueryInput): Promise<BooksResult> {
+  function failed(failures: readonly UpstreamFailure[]): BooksError {
+    // Malformed only when nothing was merely down — an outage is the more
+    // actionable (and more likely) diagnosis.
+    const code: BooksErrorCode = failures.every((f) => f.kind === "malformed")
+      ? "upstream_malformed"
+      : "upstream_unavailable";
+    return {
+      ok: false,
+      error: {
+        code,
+        message: failures.map((f) => `${f.source}: ${f.reason}`).join("; "),
+        upstream: failures.map((f) => ({
+          source: f.source,
+          reason: f.reason,
+        })),
+      },
+    };
+  }
+
+  function seedsFor(query: BookQuery, outcome: Extract<UpstreamOutcome, { ok: true }>): BookSeed[] {
+    return query.isbn !== undefined
+      ? pickIsbnSeed(outcome.seeds, query.isbn)
+      : outcome.seeds;
+  }
+
+  async function search(
+    rawQuery: BookQueryInput,
+    options: BookSearchOptions = {},
+  ): Promise<BooksResult> {
     const query = bookQuerySchema.safeParse(rawQuery);
     if (!query.success) {
       return {
@@ -677,9 +718,48 @@ export function createBooksProvider(
       };
     }
 
-    const key = cacheKey(query.data);
+    const mode = options.mode ?? "fallback";
+    const key = cacheKey(query.data, mode);
     const cached = cache.get(key);
     if (cached !== undefined) return cached;
+
+    if (mode === "union") {
+      // Keep Open Library first: the resolver preserves the highest-ranked
+      // member's position while merging Google's edition metadata into it.
+      const outcomes = await Promise.all([
+        searchOpenLibrary(query.data),
+        searchGoogleBooks(query.data),
+      ]);
+      const failures = outcomes.filter(
+        (outcome): outcome is Extract<UpstreamOutcome, { ok: false }> =>
+          !outcome.ok,
+      );
+      const successes = outcomes.filter(
+        (outcome): outcome is Extract<UpstreamOutcome, { ok: true }> =>
+          outcome.ok,
+      );
+      if (successes.length === 0) return failed(failures);
+
+      const success: BooksSuccess = {
+        ok: true,
+        source:
+          successes.length === 2
+            ? "union"
+            : outcomes[0].ok
+              ? "openlibrary"
+              : "googlebooks",
+        seeds: outcomes.flatMap((outcome) =>
+          outcome.ok ? seedsFor(query.data, outcome) : [],
+        ),
+        ...(failures.length > 0 && {
+          degraded: failures.map((failure) => failure.source),
+        }),
+      };
+      // A partial answer is useful but short-lived: do not let an hour-long
+      // LRU entry hide recovery of the missing source.
+      if (failures.length === 0) cache.set(key, success);
+      return success;
+    }
 
     const failures: UpstreamFailure[] = [];
     for (const attempt of [searchOpenLibrary, searchGoogleBooks] as const) {
@@ -688,37 +768,16 @@ export function createBooksProvider(
         failures.push(outcome);
         continue;
       }
-      const seeds =
-        query.data.isbn !== undefined
-          ? pickIsbnSeed(outcome.seeds, query.data.isbn)
-          : outcome.seeds;
       const success: BooksSuccess = {
         ok: true,
         source: attempt === searchOpenLibrary ? "openlibrary" : "googlebooks",
-        seeds,
+        seeds: seedsFor(query.data, outcome),
       };
       cache.set(key, success);
       return success;
     }
 
-    // Both upstreams failed. Malformed only when nothing was merely down —
-    // an outage is the more actionable (and more likely) diagnosis.
-    const code: BooksErrorCode = failures.every((f) => f.kind === "malformed")
-      ? "upstream_malformed"
-      : "upstream_unavailable";
-    return {
-      ok: false,
-      error: {
-        code,
-        message: failures
-          .map((f) => `${f.source}: ${f.reason}`)
-          .join("; "),
-        upstream: failures.map((f) => ({
-          source: f.source,
-          reason: f.reason,
-        })),
-      },
-    };
+    return failed(failures);
   }
 
   return { search };

@@ -2,6 +2,7 @@
 // and every lib/ module keeps imports alias-free for that reason.
 import {
   genreAssignmentSchema,
+  genreSchema,
   itemIdSchema,
   itemSchema,
   type Genre,
@@ -12,6 +13,7 @@ import {
   type Medium,
 } from "../../types";
 import { db } from "../index";
+import { classifyGenre } from "../../genre/classify";
 import { RepoNotFoundError, validate } from "./errors";
 import { mintId } from "./mint";
 
@@ -31,9 +33,10 @@ import { mintId } from "./mint";
  * Goodreads import.
  */
 export async function addItem(seed: ItemSeed): Promise<Item> {
+  const candidate = { ...seed, id: mintId(itemIdSchema) };
   const item = validate(
     itemSchema,
-    { ...seed, id: mintId(itemIdSchema) },
+    { ...candidate, genre: classifyGenre(candidate).assignment },
     "items",
     "addItem",
   );
@@ -108,6 +111,42 @@ export async function setItemGenre(
       { ...existing, genre },
       "items",
       "setItemGenre",
+    );
+    await db.items.put(updated);
+    return updated;
+  });
+}
+
+/**
+ * Apply an automatic ladder only while the persisted record is not manually
+ * assigned. The check and write share one IndexedDB transaction, so an import
+ * or background reclassification cannot race a person's override.
+ */
+export async function setAutoItemGenreIfAllowed(
+  id: ItemId,
+  candidate: Genre,
+): Promise<Item> {
+  const genre = validate(
+    genreSchema,
+    candidate,
+    "items",
+    "setAutoItemGenreIfAllowed",
+  );
+  return db.transaction("rw", db.items, async () => {
+    const existing = await db.items.get(id);
+    if (!existing) {
+      throw new RepoNotFoundError(
+        "items",
+        `setAutoItemGenreIfAllowed: no item ${id}`,
+      );
+    }
+    if (existing.genre?.source === "manual") return existing;
+
+    const updated = validate(
+      itemSchema,
+      { ...existing, genre: { genre, source: "auto" } },
+      "items",
+      "setAutoItemGenreIfAllowed",
     );
     await db.items.put(updated);
     return updated;

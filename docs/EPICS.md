@@ -14,19 +14,30 @@ All beads start `todo`. Status lives here, in this file — single source of tru
 | Bead | Status | Notes |
 |---|---|---|
 | E0.1 scaffold | **done** ✅ | Review PASS; `ec3b2a4`. Pins: next 16.2.12, TS 5.9.3, eslint 9.39.5, @playwright/test 1.56.1, tailwind 4.3.3 |
-| E0.6 deploy | **done** ✅ | FAIL→fix→PASS (CI lacked production build). Merged `674fecb`. Repo-setup TODO: mark `ci` check required on main; link Vercel project + env vars |
+| E0.6 deploy | blocked — Vercel account setup | CI and protected `main` PASS. JJL Advisors project now has verified `main` production + continuation preview artifacts; automatic Git previews remain blocked until Vercel adds the GitHub Login Connection, and runtime secrets are not configured |
 | E0.2 tokens | **done** ✅ | Review PASS "without reservation". 18/18 AA pairs. Merged + nit fixes (format strings, hue comment) |
 | E0.3 contracts | **done** ✅ | PASS + delta-verified amendments (ItemSeed, communityRating, ms-pinned timestamps). Merged; 40 unit tests |
 | E0.5 pwa-shell | **done** ✅ | FAIL (precache hole) → fixed → PASS. First-session offline proven. Merged |
-| E0.4 primitives | in-progress | |
 | E1.1 db-schema | **done** ✅ | PASS ("platonic infra bead"). Merged |
 | E2.1 books | **done** ✅ | PASS + amendments (per-doc resilience, no arbitrary-edition ISBNs, zoom=3 covers, ISBN-10→13). Merged |
 | E2.3 podcasts | **done** ✅ | FAIL (Unicode cache collisions, publisher no-veto — reproduced) → fixed → PASS. Merged |
 | E0.4 primitives | **done** ✅ | FAIL (tab wrap) → fixed → PASS "with real enthusiasm". Merged; RatingValue = contracts Gradient |
-| E5.2 registry | **done** ✅ | PASS + honesty amendments (search-scoped links documented, URL confidence grades). Merged. White-on-black triplet (HBO Max/Apple TV+/Peacock) awaits kit SVGs |
-| E2.2 tmdb | review | PASS + amendments (paginated now_playing, degraded marker) — delta-verify in flight |
-| E6.1 llm-route | in-progress | FAIL (client-disconnect abort propagation) → fixing. Wave-4 note: tools.ts dynamic-import seam can never resolve at runtime — static-import rewrite mandatory when wiring providers |
-| E0.7 style-tile 🚦 · E1.2 repo-layer · E5.3 branded-buttons | in-progress | E0.7 is the human gate — STOP for Jeremy when built + reviewed |
+| E5.2 registry | reopened — brand rescope | Registry/deep links remain complete. Apple Podcasts was removed per Jeremy's service preference; Hulu alone retains a verified-context mark, while 13 providers use exact-casing text pending sanctioned marks + usable size/clear-space guidance. See `public/brands/BRANDS.md` |
+| E1.2 repo-layer | **done** ✅ | Merged `d1f93de`; typed repo + live hooks. Reactive-hook verification made deterministic in continuation branch |
+| E2.2 tmdb | **done** ✅ | PASS + amendments (paginated now_playing, degraded marker). Merged `75143b7` |
+| E2.4 resolver | **done** ✅ | Merged `3a19c85`; grouped cross-provider resolution and identity dedupe |
+| E6.1 llm-route | **done** ✅ | Fresh blind review PASS: fixed aggregate request/model/tool/result ceilings, readable exhaustion, abort propagation, static catalog wiring, and mutation-pinned 60 requests/hour policy |
+| E0.7 style-tile 🚦 | review | FAIL (unsupported claims) → grounded in the Goodreads CSV → delta PASS `c7c9997`; Jeremy visual approval is the remaining hard gate |
+| E5.3 branded-buttons | in-progress | Safe partial review PASS: provider-bound links, honest fallbacks, accessible text/Hulu rendering. Physical iPhone installed/absent-app validation still blocks completion |
+| E1.3 export-import | **done** ✅ | FAIL (history integrity, cross-tab race, unproven delivery) → fixed → delta PASS. Atomic fresh-install restore + real browser export/import proof; `d423e2b` |
+| E2.6 books-union | **done** ✅ | FAIL (degraded-union cache mutation gap) → test-only fix → delta PASS. Production text resolution unions OL+GB; ISBN fallback preserved; `9a1c1ef` |
+| E1.4 goodreads-import | blocked — provider evidence | Import, durable manual matching, strict CSV/ISBN identity, and backup integration repaired. Open Library proves 156/179 covers (87.15%); Google Books project quota is hard-zero, so the ≥171/179 coverage gate remains unproven |
+| E4.1 genre-assign | **done** ✅ | FAIL (production wiring, precedence, corpus edge cases) → repaired → delta PASS. Frozen audit: 211/225 = 93.78%; add/import wiring and manual override protection verified |
+| E4.2 ladder-engine | **done** ✅ | FAIL (mutation-insensitive Elo tests, duel information ordering, invalid exposure counts) → repaired → delta PASS. Bounded deterministic Elo, strict pool isolation, and property-tested duel selection |
+| E5.1 availability | **done** ✅ | Repeated blind repair → PASS. Same-origin provider bridge, conservative Audible identity, exact ten-service semantics, monotonic durable cache, honest freshness, and privacy-bounded E6 context verified |
+| E5.4 theaters | blocked — Fandango contract | BigDataCloud geolocation review PASS: disclosed explicit-click lookup, approximate coordinates sent directly from the browser, and only an explicitly saved ZIP persists. Presence-only cache, exact-title Fandango search, real recommendations chip, and visible staleness remain complete; Fandango publishes no stable title+ZIP contract |
+| E5.5 getit-order | **done** ✅ | FAIL (unverified blocked links, unsafe price width) → repaired → delta PASS. Pure media-aware ordering, honest empty fallback, bounded suffixes, and 20 rendered HTTP-200 link captures |
+| E8.5 offline-hardening | **done** ✅ | FAIL (query leakage and error-label honesty) → repaired → delta PASS. All routes render offline; real IndexedDB writes persist; query URLs bypass Cache Storage and HTTP disk cache |
 | everything else | todo | Wave-3 lessons: egress = googleapis only; fixture-first + env-gated smokes; e2e on dedicated ports; never git stash in worktrees |
 
 ---
@@ -225,7 +236,8 @@ graph TD
   - [ ] Normalizes to `MediaRef`/`Item` contract; response cached (LRU + HTTP headers)
   - [ ] Graceful degradation: provider down → typed error, UI-safe
   - [ ] *tmdb only:* watch-providers (US) + `now_playing` endpoints included
-  - [ ] *podcasts only:* resolves Spotify show URL + Apple Podcasts URL per show
+  - [ ] *podcasts only:* resolves a Spotify show URL per show; Apple's keyless
+        iTunes API is metadata-only, never an Apple Podcasts destination
 
 ### E2.4 `resolver` — cross-provider identity
 - **deps:** E2.1–E2.3 · **owns:** `lib/resolve/*`
@@ -348,6 +360,11 @@ graph TD
   - [ ] Official logos bundled locally, sourced from each service's brand/press kit,
         with a `BRANDS.md` noting source + guideline constraints per mark
   - [ ] Adding a service = one registry entry + one asset, nothing else
+- **2026-08-01 rescope:** E5.2 and E5.3 share a temporary lease because asset
+  provenance controls button rendering. The registry now allows `logoAsset: null`
+  as the safe text fallback. The official-logo AC remains open for 13 providers
+  after Apple Podcasts was removed from the product per Jeremy's preference;
+  their provider-specific blockers are recorded in `public/brands/BRANDS.md`.
 
 ### E5.3 `branded-buttons` — the ProviderButton
 - **deps:** E5.2 · **owns:** `components/provider-button/*`
@@ -355,13 +372,23 @@ graph TD
   - [ ] One component renders any registry service with correct logo, color, clear-space
   - [ ] Meets each brand's minimum-size and contrast rules in both themes
   - [ ] Deep links open the native app when installed, web fallback otherwise (iOS tested)
+- **2026-08-01 status:** URL overrides are restricted to explicit per-provider
+  hosts and Overcast uses its working homepage instead of the broken `/+itunes`
+  route. Automated checks cannot close the remaining physical-iPhone AC.
 
 ### E5.4 `theaters` — Fandango showtimes
 - **deps:** E5.1 · **owns:** `lib/availability/theaters.ts`, zip-code setting
 - **AC:**
   - [ ] Theatrical titles show a Fandango button deep-linking to that title's showtimes
-  - [ ] Zip stored once in settings; optional geolocation with permission prompt
-  - [ ] Recommendations tab exposes a "movies in theaters now" chip fed by `now_playing`
+  - [x] Zip stored once in settings; optional geolocation with permission prompt
+  - [x] Recommendations tab exposes a "movies in theaters now" chip fed by `now_playing`
+- **2026-08-01 status:** Jeremy approved BigDataCloud's free client-side reverse
+  geocoder after disclosure of its approximate-coordinate plus requesting-IP data
+  exchange. The reviewed implementation requests current HTML5 location only after
+  an explicit click, calls BigDataCloud directly from that browser, rejects IP
+  fallback, and persists nothing until the user separately saves the validated US
+  ZIP. The remaining AC stays open because Fandango publishes no stable title-plus-
+  ZIP deep-link contract; see `docs/FANDANGO-LINK-EVIDENCE.md`.
 
 ### E5.5 `getit-order` — what to offer, in what order
 - **deps:** E5.1, E5.3 · **owns:** `lib/getit/*`

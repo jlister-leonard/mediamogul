@@ -21,7 +21,7 @@ import {
   type Rec,
   type Situation,
 } from "../types";
-import { DB_NAME, NightstandDB, schemaV1 } from "./schema";
+import { DB_NAME, NightstandDB, schemaV1, schemaV2, schemaV3 } from "./schema";
 
 /**
  * Every fixture below goes through its contract schema's `.parse()` — the
@@ -249,15 +249,17 @@ let db: Dexie;
 afterEach(() => db.close());
 
 describe("NightstandDB shape", () => {
-  it("opens at version 1 with exactly the eight contract tables", async () => {
+  it("opens at version 3 with durable manual-match and refresh-marker tables", async () => {
     const ndb = (db = openDb());
     await ndb.open();
-    expect(ndb.verno).toBe(1);
+    expect(ndb.verno).toBe(3);
     expect(ndb.tables.map((t) => t.name).sort()).toEqual([
       "availability",
+      "availabilityRefreshes",
       "comparisons",
       "entries",
       "items",
+      "manualMatches",
       "portrait",
       "queue",
       "recs",
@@ -474,5 +476,50 @@ describe("versioned migrations", () => {
       await v2.table("items").where("medium").equals("podcast").count(),
     ).toBe(1);
     v2.close();
+  });
+
+  it("migrates a real v1 library to the shipped v2 manual-match table", async () => {
+    const indexedDB = new IDBFactory();
+    const v1 = new Dexie(DB_NAME, { indexedDB, IDBKeyRange });
+    v1.version(1).stores(schemaV1);
+    await v1.table("items").add(book);
+    v1.close();
+
+    const v2 = new Dexie(DB_NAME, { indexedDB, IDBKeyRange });
+    v2.version(1).stores(schemaV1);
+    v2.version(2).stores(schemaV2);
+    await v2.open();
+
+    expect(v2.verno).toBe(2);
+    expect(await v2.table("items").get(book.id)).toEqual(book);
+    expect(await v2.table("manualMatches").toArray()).toEqual([]);
+    v2.close();
+  });
+
+  it("migrates v2 data to v3 and can persist an empty-result refresh marker", async () => {
+    const indexedDB = new IDBFactory();
+    const v2 = new Dexie(DB_NAME, { indexedDB, IDBKeyRange });
+    v2.version(1).stores(schemaV1);
+    v2.version(2).stores(schemaV2);
+    await v2.table("items").add(book);
+    v2.close();
+
+    const v3 = new Dexie(DB_NAME, { indexedDB, IDBKeyRange });
+    v3.version(1).stores(schemaV1);
+    v3.version(2).stores(schemaV2);
+    v3.version(3).stores(schemaV3);
+    await v3.open();
+    await v3.table("availabilityRefreshes").add({
+      itemId: book.id,
+      fetchedAt: "2026-08-01T16:00:00.000Z",
+    });
+
+    expect(v3.verno).toBe(3);
+    expect(await v3.table("items").get(book.id)).toEqual(book);
+    expect(await v3.table("availabilityRefreshes").get(book.id)).toEqual({
+      itemId: book.id,
+      fetchedAt: "2026-08-01T16:00:00.000Z",
+    });
+    v3.close();
   });
 });

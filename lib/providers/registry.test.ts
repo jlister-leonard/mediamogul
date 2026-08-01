@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import {
   KNOWN_PROVIDER_IDS,
   getProvider,
@@ -82,10 +84,10 @@ function buildSampleUrls(deepLink: DeepLink): { app: string[]; web: string[] } {
 }
 
 describe("registry completeness", () => {
-  it("holds all fifteen services from PLAN §5", () => {
+  it("holds all fourteen services from PLAN §5", () => {
     // The ten subscriptions on file + Kindle, Bookshop.org, Fandango,
-    // Apple Podcasts, Overcast.
-    expect(KNOWN_PROVIDER_IDS).toHaveLength(15);
+    // and Overcast. Apple Podcasts is deliberately not a destination.
+    expect(KNOWN_PROVIDER_IDS).toHaveLength(14);
     expect([...KNOWN_PROVIDER_IDS].sort()).toEqual(
       [
         "netflix",
@@ -101,7 +103,6 @@ describe("registry completeness", () => {
         "kindle",
         "bookshop",
         "fandango",
-        "apple-podcasts",
         "overcast",
       ].sort(),
     );
@@ -120,6 +121,19 @@ describe("registry completeness", () => {
     for (const entry of providerEntries) {
       expect(entry.name.length, entry.id).toBeGreaterThan(0);
       expect(entry.wordmark.length, entry.id).toBeGreaterThan(0);
+    }
+  });
+
+  it("binds direct availability URLs to explicit provider-owned hosts", () => {
+    for (const entry of providerEntries) {
+      expect(entry.allowedHosts.length, entry.id).toBeGreaterThan(0);
+      for (const host of entry.allowedHosts) {
+        expect(host, entry.id).toBe(host.toLowerCase());
+        expect(host, entry.id).toMatch(/^[a-z0-9.-]+$/);
+      }
+      expect(new Set(entry.allowedHosts).size, entry.id).toBe(
+        entry.allowedHosts.length,
+      );
     }
   });
 
@@ -157,11 +171,22 @@ describe("brand colors", () => {
 });
 
 describe("logo assets", () => {
-  it("is null (wordmark rendering) or exactly the entry's /brands/{id}.svg slot", () => {
+  it("retains only Hulu's verified-context official asset and uses text elsewhere", () => {
+    const verified = new Set(["hulu"]);
     for (const entry of providerEntries) {
-      if (entry.logoAsset !== null) {
-        expect(entry.logoAsset, entry.id).toBe(`/brands/${entry.id}.svg`);
+      if (!verified.has(entry.id)) {
+        expect(entry.logoAsset, entry.id).toBeNull();
+        expect(entry.logoHeightPx, entry.id).toBeNull();
+        continue;
       }
+      expect(entry.logoAsset, entry.id).toMatch(
+        new RegExp(`^/brands/${entry.id}\\.(?:svg|png)$`),
+      );
+      expect(entry.logoHeightPx, entry.id).toBeGreaterThanOrEqual(21);
+      expect(
+        existsSync(join(process.cwd(), "public", entry.logoAsset!.slice(1))),
+        entry.id,
+      ).toBe(true);
     }
   });
 });
@@ -185,14 +210,24 @@ describe("deep links", () => {
         const parsed = new URL(webUrl);
         expect(parsed.protocol, entry.id).toBe("https:");
         expect(parsed.hostname, entry.id).toMatch(/\./);
+        expect(entry.allowedHosts, `${entry.id}: ${parsed.hostname}`).toContain(
+          parsed.hostname,
+        );
       }
     }
   });
 
-  it("URL-encodes title params for every title-taking provider — spaces, ampersands, colons survive round-trip", () => {
+  it("URL-encodes title params for every title-search fallback", () => {
     for (const entry of providerEntries) {
       if (entry.deepLink.params !== "title") continue;
       const url = new URL(entry.deepLink.web(sampleTitle));
+      // HBO Max, Peacock, and Disney+ have no verified working public search
+      // path; their honest homepage fallbacks intentionally carry no query.
+      if (["hbo-max", "peacock", "disney-plus"].includes(entry.id)) {
+        expect(url.pathname, entry.id).toBe("/");
+        expect(url.search, entry.id).toBe("");
+        continue;
+      }
       // Query key varies per provider (q/phrase/term); the round-tripped
       // value must come back exactly.
       expect([...url.searchParams.values()], entry.id).toContain(
@@ -211,12 +246,12 @@ describe("deep links", () => {
     expect(withoutIsbn.searchParams.get("k")).toBe("Piranesi Susanna Clarke");
   });
 
-  it("fandango: carries the zip only when provided", () => {
+  it("fandango: keeps ZIP local until a title+location contract is documented", () => {
     const { deepLink } = providerRegistry.fandango;
     if (deepLink.params !== "showtimes")
       throw new Error("fandango takes ShowtimesParams");
     const zipped = new URL(deepLink.web(sampleShowtimes));
-    expect(zipped.searchParams.get("zip")).toBe("94110");
+    expect(zipped.searchParams.get("zip")).toBeNull();
     expect(zipped.searchParams.get("q")).toBe(sampleShowtimes.title);
     const unzipped = new URL(deepLink.web({ title: "Dune: Part Two" }));
     expect(unzipped.searchParams.get("zip")).toBeNull();
@@ -234,17 +269,11 @@ describe("deep links", () => {
     );
   });
 
-  it("apple podcasts and overcast: appleId-keyed deep links", () => {
-    const apple = providerRegistry["apple-podcasts"].deepLink;
+  it("overcast remains an appleId-keyed fallback without Apple Podcasts", () => {
     const overcast = providerRegistry.overcast.deepLink;
-    if (apple.params !== "applePodcast" || overcast.params !== "applePodcast")
+    if (overcast.params !== "applePodcast")
       throw new Error("podcast targets take ApplePodcastParams");
-    expect(apple.web(samplePodcast)).toBe(
-      "https://podcasts.apple.com/us/podcast/id1671669052",
-    );
-    expect(overcast.web(samplePodcast)).toBe(
-      "https://overcast.fm/itunes1671669052",
-    );
+    expect(overcast.web(samplePodcast)).toBe("https://overcast.fm/");
   });
 });
 
@@ -285,7 +314,6 @@ describe("TMDB provider-id join (E5.1)", () => {
       "kindle",
       "bookshop",
       "fandango",
-      "apple-podcasts",
       "overcast",
     ] as const) {
       expect(providerRegistry[id].tmdbProviderIds).toEqual([]);

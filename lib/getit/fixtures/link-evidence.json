@@ -1,0 +1,27 @@
+{
+  "capturedAt": "2026-08-01T16:55:44-04:00",
+  "captureMethod": "Sequential polite probes with curl -L -sS -A Nightstand-link-audit/1.0 --connect-timeout 8 --max-time 18; 200ms between requests; final HTTP status, redirect count, and effective URL recorded",
+  "scope": "Twenty unique known movie titles with no availability offers. composeGetIt honestly renders exactly one Prime Video action labeled 'check rentals'; this fixture verifies that rendered fallback rather than claiming any title is available.",
+  "cases": [
+    { "title": "Dune: Part Two", "tmdbId": 693134, "requestedUrl": "https://www.primevideo.com/search?phrase=Dune%3A%20Part%20Two", "status": 200, "redirects": 0, "effectiveUrl": "https://www.primevideo.com/search?phrase=Dune%3A%20Part%20Two" },
+    { "title": "Past Lives", "tmdbId": 666277, "requestedUrl": "https://www.primevideo.com/search?phrase=Past%20Lives", "status": 200, "redirects": 0, "effectiveUrl": "https://www.primevideo.com/search?phrase=Past%20Lives" },
+    { "title": "The Godfather", "tmdbId": 238, "requestedUrl": "https://www.primevideo.com/search?phrase=The%20Godfather", "status": 200, "redirects": 0, "effectiveUrl": "https://www.primevideo.com/search?phrase=The%20Godfather" },
+    { "title": "Arrival", "tmdbId": 329865, "requestedUrl": "https://www.primevideo.com/search?phrase=Arrival", "status": 200, "redirects": 0, "effectiveUrl": "https://www.primevideo.com/search?phrase=Arrival" },
+    { "title": "Moonlight", "tmdbId": 376867, "requestedUrl": "https://www.primevideo.com/search?phrase=Moonlight", "status": 200, "redirects": 0, "effectiveUrl": "https://www.primevideo.com/search?phrase=Moonlight" },
+    { "title": "Aftersun", "tmdbId": 965150, "requestedUrl": "https://www.primevideo.com/search?phrase=Aftersun", "status": 200, "redirects": 0, "effectiveUrl": "https://www.primevideo.com/search?phrase=Aftersun" },
+    { "title": "Tár", "tmdbId": 817758, "requestedUrl": "https://www.primevideo.com/search?phrase=T%C3%A1r", "status": 200, "redirects": 0, "effectiveUrl": "https://www.primevideo.com/search?phrase=T%C3%A1r" },
+    { "title": "Parasite", "tmdbId": 496243, "requestedUrl": "https://www.primevideo.com/search?phrase=Parasite", "status": 200, "redirects": 0, "effectiveUrl": "https://www.primevideo.com/search?phrase=Parasite" },
+    { "title": "Portrait of a Lady on Fire", "tmdbId": 531428, "requestedUrl": "https://www.primevideo.com/search?phrase=Portrait%20of%20a%20Lady%20on%20Fire", "status": 200, "redirects": 0, "effectiveUrl": "https://www.primevideo.com/search?phrase=Portrait%20of%20a%20Lady%20on%20Fire" },
+    { "title": "The Worst Person in the World", "tmdbId": 660120, "requestedUrl": "https://www.primevideo.com/search?phrase=The%20Worst%20Person%20in%20the%20World", "status": 200, "redirects": 0, "effectiveUrl": "https://www.primevideo.com/search?phrase=The%20Worst%20Person%20in%20the%20World" },
+    { "title": "Anatomy of a Fall", "tmdbId": 915935, "requestedUrl": "https://www.primevideo.com/search?phrase=Anatomy%20of%20a%20Fall", "status": 200, "redirects": 0, "effectiveUrl": "https://www.primevideo.com/search?phrase=Anatomy%20of%20a%20Fall" },
+    { "title": "Everything Everywhere All at Once", "tmdbId": 545611, "requestedUrl": "https://www.primevideo.com/search?phrase=Everything%20Everywhere%20All%20at%20Once", "status": 200, "redirects": 0, "effectiveUrl": "https://www.primevideo.com/search?phrase=Everything%20Everywhere%20All%20at%20Once" },
+    { "title": "The Zone of Interest", "tmdbId": 467244, "requestedUrl": "https://www.primevideo.com/search?phrase=The%20Zone%20of%20Interest", "status": 200, "redirects": 0, "effectiveUrl": "https://www.primevideo.com/search?phrase=The%20Zone%20of%20Interest" },
+    { "title": "Perfect Days", "tmdbId": 976893, "requestedUrl": "https://www.primevideo.com/search?phrase=Perfect%20Days", "status": 200, "redirects": 0, "effectiveUrl": "https://www.primevideo.com/search?phrase=Perfect%20Days" },
+    { "title": "Drive My Car", "tmdbId": 758866, "requestedUrl": "https://www.primevideo.com/search?phrase=Drive%20My%20Car", "status": 200, "redirects": 0, "effectiveUrl": "https://www.primevideo.com/search?phrase=Drive%20My%20Car" },
+    { "title": "The Banshees of Inisherin", "tmdbId": 674324, "requestedUrl": "https://www.primevideo.com/search?phrase=The%20Banshees%20of%20Inisherin", "status": 200, "redirects": 0, "effectiveUrl": "https://www.primevideo.com/search?phrase=The%20Banshees%20of%20Inisherin" },
+    { "title": "Decision to Leave", "tmdbId": 705996, "requestedUrl": "https://www.primevideo.com/search?phrase=Decision%20to%20Leave", "status": 200, "redirects": 0, "effectiveUrl": "https://www.primevideo.com/search?phrase=Decision%20to%20Leave" },
+    { "title": "All of Us Strangers", "tmdbId": 994108, "requestedUrl": "https://www.primevideo.com/search?phrase=All%20of%20Us%20Strangers", "status": 200, "redirects": 0, "effectiveUrl": "https://www.primevideo.com/search?phrase=All%20of%20Us%20Strangers" },
+    { "title": "The Holdovers", "tmdbId": 840430, "requestedUrl": "https://www.primevideo.com/search?phrase=The%20Holdovers", "status": 200, "redirects": 0, "effectiveUrl": "https://www.primevideo.com/search?phrase=The%20Holdovers" },
+    { "title": "Oppenheimer", "tmdbId": 872585, "requestedUrl": "https://www.primevideo.com/search?phrase=Oppenheimer", "status": 200, "redirects": 0, "effectiveUrl": "https://www.primevideo.com/search?phrase=Oppenheimer" }
+  ]
+}

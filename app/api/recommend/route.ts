@@ -1,11 +1,26 @@
 import { z } from "zod";
 import { situationSchema } from "../../../lib/types";
 import { recommendBudget } from "../../../lib/llm/budget";
-import { LLM_MODELS, MAX_TOOL_ROUNDS } from "../../../lib/llm/config";
+import {
+  LLM_MODELS,
+  MAX_AVAILABILITY_CONTEXT_CHARS,
+  MAX_MODEL_TURNS,
+  MAX_REQUEST_MESSAGES,
+  MAX_REQUEST_TEXT_CHARS,
+  MAX_TOOL_CALLS_PER_REQUEST,
+  MAX_TOOL_CALLS_PER_ROUND,
+  MAX_TOOL_ROUNDS,
+} from "../../../lib/llm/config";
 import { type ApiErrorEnvelope, errorEnvelope } from "../../../lib/llm/envelope";
 import { checkPassphrase, PASSPHRASE_HEADER } from "../../../lib/llm/guard";
 import { encodeSseEvent, type RecommendSseEvent } from "../../../lib/llm/sse";
-import { executeTool, TOOL_DEFINITIONS } from "../../../lib/llm/tools";
+import {
+  availabilityContextSchema,
+  executeTool,
+  providersLoaderWithAvailability,
+  serializeToolOutcome,
+  TOOL_DEFINITIONS,
+} from "../../../lib/llm/tools";
 import {
   getTransport,
   type LlmMessage,
@@ -35,11 +50,9 @@ export const runtime = "nodejs";
  * builder (E6.2) — far below any model limit, far above any legitimate
  * payload.
  */
-const MAX_TEXT_LENGTH = 200_000;
-
 const chatMessageSchema = z.object({
   role: z.enum(["user", "assistant"]),
-  content: z.string().min(1).max(MAX_TEXT_LENGTH),
+  content: z.string().min(1).max(MAX_REQUEST_TEXT_CHARS),
 });
 
 const requestSchema = z.discriminatedUnion("mode", [
@@ -47,8 +60,9 @@ const requestSchema = z.discriminatedUnion("mode", [
     .object({
       mode: z.literal("hand"),
       situation: situationSchema.optional(),
-      messages: z.array(chatMessageSchema).min(1).optional(),
-      tasteContext: z.string().max(MAX_TEXT_LENGTH),
+      messages: z.array(chatMessageSchema).min(1).max(MAX_REQUEST_MESSAGES).optional(),
+      tasteContext: z.string().max(MAX_REQUEST_TEXT_CHARS),
+      availabilityContext: availabilityContextSchema.optional().default([]),
     })
     .refine((body) => (body.situation !== undefined) !== (body.messages !== undefined), {
       message: "hand mode takes exactly one of `situation` or `messages`",
@@ -59,8 +73,9 @@ const requestSchema = z.discriminatedUnion("mode", [
   z
     .object({
       mode: z.literal("chat"),
-      messages: z.array(chatMessageSchema).min(1),
-      tasteContext: z.string().max(MAX_TEXT_LENGTH),
+      messages: z.array(chatMessageSchema).min(1).max(MAX_REQUEST_MESSAGES),
+      tasteContext: z.string().max(MAX_REQUEST_TEXT_CHARS),
+      availabilityContext: availabilityContextSchema.optional().default([]),
     })
     .refine((body) => body.messages[0].role === "user", {
       message: "chat `messages` must start with a user turn",
@@ -89,6 +104,21 @@ export async function POST(request: Request): Promise<Response> {
       );
     }
     parsed = result.data;
+    const availabilityCharacters = parsed.availabilityContext.length === 0
+      ? 0
+      : JSON.stringify(parsed.availabilityContext).length;
+    if (
+      availabilityCharacters > MAX_AVAILABILITY_CONTEXT_CHARS ||
+      requestTextCharacters(parsed, availabilityCharacters) > MAX_REQUEST_TEXT_CHARS
+    ) {
+      return jsonError(
+        errorEnvelope(
+          "bad-request",
+          "This request is too large. Shorten the conversation or taste context and try again.",
+        ),
+        400,
+      );
+    }
   } catch {
     return jsonError(errorEnvelope("bad-request", "Request body must be JSON."), 400);
   }
@@ -164,8 +194,16 @@ export async function POST(request: Request): Promise<Response> {
 
       try {
         let messages = initialMessages(parsed);
+        let modelTurns = 0;
         let toolRounds = 0;
-        for (;;) {
+        let totalToolCalls = 0;
+        modelLoop: for (;;) {
+          if (abort.signal.aborted) break;
+          if (modelTurns >= MAX_MODEL_TURNS) {
+            sendSafetyExhaustion(send, "model-turns-exhausted");
+            break;
+          }
+          modelTurns += 1;
           const turn = await transport.streamTurn(
             { ...base, messages, signal: abort.signal },
             (delta) => {
@@ -185,15 +223,30 @@ export async function POST(request: Request): Promise<Response> {
             break;
           }
           if (toolRounds >= MAX_TOOL_ROUNDS) {
-            send({ event: "done", data: { stopReason: "tool-rounds-exhausted" } });
+            sendSafetyExhaustion(send, "tool-rounds-exhausted");
+            break;
+          }
+          if (
+            toolUses.length > MAX_TOOL_CALLS_PER_ROUND ||
+            totalToolCalls + toolUses.length > MAX_TOOL_CALLS_PER_REQUEST
+          ) {
+            sendSafetyExhaustion(send, "tool-calls-exhausted");
             break;
           }
           toolRounds += 1;
+          totalToolCalls += toolUses.length;
 
           const resultBlocks: LlmUserBlock[] = [];
           for (const toolUse of toolUses) {
+            if (abort.signal.aborted) break modelLoop;
             send({ event: "tool", data: { name: toolUse.name, phase: "start" } });
-            const outcome = await executeTool(toolUse.name, toolUse.input);
+            const outcome = await executeTool(
+              toolUse.name,
+              toolUse.input,
+              providersLoaderWithAvailability(parsed.availabilityContext),
+              abort.signal,
+            );
+            if (abort.signal.aborted) break modelLoop;
             send({
               event: "tool",
               data: { name: toolUse.name, phase: "result", status: outcome.status },
@@ -201,7 +254,7 @@ export async function POST(request: Request): Promise<Response> {
             resultBlocks.push({
               type: "tool_result",
               toolUseId: toolUse.id,
-              content: JSON.stringify(outcome),
+              content: serializeToolOutcome(outcome),
             });
           }
           messages = [
@@ -215,10 +268,12 @@ export async function POST(request: Request): Promise<Response> {
         // responses, delivered as a terminal SSE event. Never carries
         // upstream detail (secrets stay server-side); if the consumer has
         // already gone, `send` drops it.
-        send({
-          event: "error",
-          data: errorEnvelope("upstream-error", "The engine hit a problem — try again."),
-        });
+        if (!abort.signal.aborted) {
+          send({
+            event: "error",
+            data: errorEnvelope("upstream-error", "The engine hit a problem — try again."),
+          });
+        }
       } finally {
         close();
       }
@@ -236,6 +291,37 @@ export async function POST(request: Request): Promise<Response> {
       "Cache-Control": "no-store",
     },
   });
+}
+
+function requestTextCharacters(
+  body: RecommendRequest,
+  availabilityCharacters: number,
+): number {
+  const prompt =
+    body.mode === "hand" && body.situation !== undefined
+      ? body.situation.prompt.length
+      : (body.messages ?? []).reduce(
+          (total, message) => total + message.content.length,
+          0,
+        );
+  return body.tasteContext.length + prompt + availabilityCharacters;
+}
+
+function sendSafetyExhaustion(
+  send: (event: RecommendSseEvent) => void,
+  stopReason:
+    | "model-turns-exhausted"
+    | "tool-rounds-exhausted"
+    | "tool-calls-exhausted",
+): void {
+  send({
+    event: "text",
+    data: {
+      delta:
+        "I couldn't finish safely within this request. Please try a narrower question.",
+    },
+  });
+  send({ event: "done", data: { stopReason } });
 }
 
 function initialMessages(body: RecommendRequest): LlmMessage[] {

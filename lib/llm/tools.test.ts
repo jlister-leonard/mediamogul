@@ -1,8 +1,24 @@
 // @vitest-environment node
-import { describe, expect, it } from "vitest";
-import { executeTool, TOOL_DEFINITIONS } from "./tools";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const movieRef = { medium: "movie", tmdbId: 603 };
+const { resolveMock } = vi.hoisted(() => ({
+  resolveMock: vi.fn(),
+}));
+
+vi.mock("../resolve", () => ({
+  resolve: resolveMock,
+}));
+
+import {
+  checkAvailabilityInputSchema,
+  executeTool,
+  providersLoaderWithAvailability,
+  searchCatalogInputSchema,
+  serializeToolOutcome,
+  TOOL_DEFINITIONS,
+} from "./tools";
+
+const movieRef = { medium: "movie", tmdbId: 603 } as const;
 
 describe("tool definitions", () => {
   it("defines exactly check_availability and search_catalog with object schemas", () => {
@@ -17,8 +33,12 @@ describe("tool definitions", () => {
   });
 });
 
-describe("executeTool without lib/providers (E2.x not yet merged)", () => {
+describe("executeTool default wiring", () => {
   const absentLoader = () => Promise.reject(new Error("Cannot find module"));
+
+  beforeEach(() => {
+    resolveMock.mockReset();
+  });
 
   it("degrades check_availability to a typed unavailable result", async () => {
     const outcome = await executeTool(
@@ -29,18 +49,73 @@ describe("executeTool without lib/providers (E2.x not yet merged)", () => {
     expect(outcome.status).toBe("unavailable");
   });
 
-  it("degrades search_catalog to a typed unavailable result", async () => {
+  it("degrades search_catalog when an injected provider loader is unavailable", async () => {
     const outcome = await executeTool("search_catalog", { query: "lighthouse" }, absentLoader);
     expect(outcome.status).toBe("unavailable");
   });
 
-  it("degrades via the DEFAULT loader too — the real current state of the repo", async () => {
+  it("returns a checked-false result instead of a deliberately unavailable production default", async () => {
     const outcome = await executeTool("check_availability", { itemRefs: [movieRef] });
-    expect(outcome.status).toBe("unavailable");
+    expect(outcome).toEqual({
+      status: "ok",
+      result: [{ ref: movieRef, checked: false, offers: [] }],
+    });
+  });
+
+  it("answers from the client-supplied minimal availability context", async () => {
+    const offers = [{
+      kind: "subscription" as const,
+      providerId: "netflix" as never,
+      region: "US" as const,
+      fetchedAt: "2026-08-01T16:00:00.000Z" as never,
+    }];
+    const outcome = await executeTool(
+      "check_availability",
+      { itemRefs: [movieRef] },
+      providersLoaderWithAvailability([{ ref: movieRef, offers }]),
+    );
+    expect(outcome).toEqual({
+      status: "ok",
+      result: [{ ref: movieRef, checked: true, offers }],
+    });
+  });
+
+  it("statically routes search_catalog through the existing resolver", async () => {
+    const resolved = {
+      ok: true,
+      groups: { book: [], movie: [], tv: [], podcast: [] },
+      searched: ["book"],
+      degraded: [],
+    };
+    resolveMock.mockResolvedValue(resolved);
+
+    const outcome = await executeTool("search_catalog", {
+      query: "lighthouse keeper",
+      medium: "book",
+    });
+
+    expect(resolveMock).toHaveBeenCalledOnce();
+    expect(resolveMock).toHaveBeenCalledWith("lighthouse keeper", {
+      media: ["book"],
+    });
+    expect(outcome).toEqual({ status: "ok", result: resolved });
+  });
+
+  it("lets an unscoped catalog search fan out across every medium", async () => {
+    resolveMock.mockResolvedValue({
+      ok: true,
+      groups: { book: [], movie: [], tv: [], podcast: [] },
+      searched: ["book", "movie", "tv", "podcast"],
+      degraded: [],
+    });
+
+    await executeTool("search_catalog", { query: "dune" });
+
+    expect(resolveMock).toHaveBeenCalledWith("dune", {});
   });
 });
 
-describe("executeTool with lib/providers present (post wave-4 state)", () => {
+describe("executeTool with injected providers", () => {
   it("routes check_availability to the provider function with parsed refs", async () => {
     const calls: unknown[] = [];
     const outcome = await executeTool("check_availability", { itemRefs: [movieRef] }, () =>
@@ -125,5 +200,79 @@ describe("executeTool input validation", () => {
   it("rejects an unknown tool name", async () => {
     const outcome = await executeTool("delete_library", {}, providers);
     expect(outcome.status).toBe("invalid-input");
+  });
+
+  it("accepts a 500-character catalog query and rejects 501", () => {
+    expect(
+      searchCatalogInputSchema.safeParse({ query: "q".repeat(500) }).success,
+    ).toBe(true);
+    expect(
+      searchCatalogInputSchema.safeParse({ query: "q".repeat(501) }).success,
+    ).toBe(false);
+  });
+
+  it("accepts 50 availability refs and rejects 51", () => {
+    expect(
+      checkAvailabilityInputSchema.safeParse({ itemRefs: Array(50).fill(movieRef) })
+        .success,
+    ).toBe(true);
+    expect(
+      checkAvailabilityInputSchema.safeParse({ itemRefs: Array(51).fill(movieRef) })
+        .success,
+    ).toBe(false);
+  });
+});
+
+describe("tool execution safety", () => {
+  it("caps every serialized tool result at 64,000 characters", () => {
+    expect(serializeToolOutcome({ status: "ok", result: "small" })).toBe(
+      JSON.stringify({ status: "ok", result: "small" }),
+    );
+    const serialized = serializeToolOutcome({
+      status: "ok",
+      result: "x".repeat(100_000),
+    });
+    expect(serialized.length).toBeLessThanOrEqual(64_000);
+    expect(JSON.parse(serialized)).toMatchObject({ status: "unavailable" });
+    expect(serialized).not.toContain("x".repeat(1_000));
+  });
+
+  it("rejects before loading a provider when already aborted", async () => {
+    const controller = new AbortController();
+    controller.abort();
+    const loader = vi.fn(() => Promise.resolve({}));
+    await expect(
+      executeTool("search_catalog", { query: "x" }, loader, controller.signal),
+    ).rejects.toMatchObject({ name: "AbortError" });
+    expect(loader).not.toHaveBeenCalled();
+  });
+
+  it("passes the signal to a provider and stops waiting when it aborts", async () => {
+    const controller = new AbortController();
+    let observedSignal: AbortSignal | undefined;
+    let markStarted!: () => void;
+    const started = new Promise<void>((resolve) => {
+      markStarted = resolve;
+    });
+    const never = new Promise<unknown>(() => {});
+    const pending = executeTool(
+      "search_catalog",
+      { query: "x" },
+      () =>
+        Promise.resolve({
+          searchCatalog: (_query, _medium, signal) => {
+            observedSignal = signal;
+            markStarted();
+            return never;
+          },
+        }),
+      controller.signal,
+    );
+    await started;
+    controller.abort();
+
+    await expect(pending).rejects.toMatchObject({ name: "AbortError" });
+    expect(observedSignal).toBe(controller.signal);
+    expect(observedSignal?.aborted).toBe(true);
   });
 });

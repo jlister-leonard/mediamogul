@@ -18,14 +18,8 @@ import { itemSeedSchema, type ItemSeed } from "../types";
 export type PodcastSeed = Extract<ItemSeed, { medium: "podcast" }>;
 
 // ---------------------------------------------------------------------------
-// Deep links (consumed by E5.5's action row; exported here so the URL shape
-// has exactly one owner)
+// Spotify destination link (consumed by E5.5's action row).
 // ---------------------------------------------------------------------------
-
-/** Apple Podcasts deep link for a show — derivable from any seed carrying an appleId. */
-export function applePodcastsUrl(appleId: number): string {
-  return `https://podcasts.apple.com/podcast/id${appleId}`;
-}
 
 /** Spotify deep link for a show — the Spotify-first link of PLAN §5. */
 export function spotifyShowUrl(spotifyShowId: string): string {

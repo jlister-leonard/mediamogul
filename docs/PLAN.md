@@ -242,8 +242,9 @@ gives the recommender a new move: *"anything actually worth leaving the house fo
 week?"* is a question it can now answer.
 
 **Podcasts** — **Spotify deep links first** (`open.spotify.com/show/…`, resolved via
-Spotify's public search API — no login needed for lookup), then Apple Podcasts and
-Overcast.
+Spotify's public search API — no login needed for lookup), then Overcast as a generic
+fallback. Apple Podcasts is intentionally not a listening destination; Apple's keyless
+iTunes Search API remains metadata-only.
 
 ### Branded buttons
 

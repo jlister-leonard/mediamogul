@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { recommendBudget } from "../../../lib/llm/budget";
-import { LLM_MODELS, MAX_TOOL_ROUNDS, REQUEST_BUDGET } from "../../../lib/llm/config";
+import { LLM_MODELS, REQUEST_BUDGET } from "../../../lib/llm/config";
 import { parseSseStream, type RecommendSseEvent } from "../../../lib/llm/sse";
 import {
   type LlmRequest,
@@ -143,22 +143,112 @@ describe("POST /api/recommend", () => {
       const mock = new MockLlmTransport([]);
       setTransportForTesting(mock);
       const response = await POST(
-        makeRequest({ ...handBody, tasteContext: "x".repeat(200_001) }),
+        makeRequest({ ...handBody, tasteContext: "x".repeat(256_001) }),
       );
       expect(response.status).toBe(400);
       expect((await response.json()).error.code).toBe("bad-request");
       expect(mock.requests).toHaveLength(0);
     });
 
-    it("rejects an oversized chat message content", async () => {
+    it("accepts exactly 256,000 aggregate model-bound characters", async () => {
+      const mock = new MockLlmTransport([{ deltas: [], turn: endTurn("ok") }]);
+      setTransportForTesting(mock);
       const response = await POST(
         makeRequest({
           mode: "chat",
-          messages: [{ role: "user", content: "y".repeat(200_001) }],
+          messages: [{ role: "user", content: "y" }],
+          tasteContext: "x".repeat(255_999),
+        }),
+      );
+      await readSse(response);
+      expect(response.status).toBe(200);
+      expect(mock.requests).toHaveLength(1);
+    });
+
+    it("rejects 256,001 aggregate characters before any model spend", async () => {
+      const mock = new MockLlmTransport([]);
+      setTransportForTesting(mock);
+      const response = await POST(
+        makeRequest({
+          mode: "chat",
+          messages: [{ role: "user", content: "y" }],
+          tasteContext: "x".repeat(256_000),
+        }),
+      );
+      expect(response.status).toBe(400);
+      expect((await response.json()).error.message).toMatch(/too large/i);
+      expect(mock.requests).toHaveLength(0);
+    });
+
+    it("rejects oversized serialized availability before any model spend", async () => {
+      const mock = new MockLlmTransport([]);
+      setTransportForTesting(mock);
+      const url = "https://example.com/".padEnd(2_048, "x");
+      const availabilityContext = Array.from({ length: 32 }, (_, index) => ({
+        ref: { medium: "movie" as const, tmdbId: index + 1 },
+        offers: [{
+          kind: "subscription" as const,
+          providerId: "provider",
+          region: "US" as const,
+          fetchedAt: "2026-08-01T16:00:00.000Z",
+          url,
+        }],
+      }));
+      const response = await POST(makeRequest({ ...handBody, availabilityContext }));
+      expect(response.status).toBe(400);
+      expect((await response.json()).error.message).toMatch(/too large/i);
+      expect(mock.requests).toHaveLength(0);
+    });
+
+    it.each([
+      ["provider id", { providerId: "p".repeat(101) }],
+      ["offer URL", { url: "https://example.com/".padEnd(2_049, "x") }],
+    ])("rejects an overlong availability %s before any model spend", async (_label, override) => {
+      const mock = new MockLlmTransport([]);
+      setTransportForTesting(mock);
+      const response = await POST(makeRequest({
+        ...handBody,
+        availabilityContext: [{
+          ref: { medium: "movie", tmdbId: 603 },
+          offers: [{
+            kind: "subscription",
+            providerId: "provider",
+            region: "US",
+            fetchedAt: "2026-08-01T16:00:00.000Z",
+            ...override,
+          }],
+        }],
+      }));
+      expect(response.status).toBe(400);
+      expect((await response.json()).error.code).toBe("bad-request");
+      expect(mock.requests).toHaveLength(0);
+    });
+
+    it("accepts 40 messages and rejects 41 before any model spend", async () => {
+      const accepted = new MockLlmTransport([{ deltas: [], turn: endTurn("ok") }]);
+      setTransportForTesting(accepted);
+      const forty = Array.from({ length: 40 }, () => ({
+        role: "user" as const,
+        content: "x",
+      }));
+      const acceptedResponse = await POST(
+        makeRequest({ mode: "chat", messages: forty, tasteContext: "" }),
+      );
+      await readSse(acceptedResponse);
+      expect(acceptedResponse.status).toBe(200);
+      expect(accepted.requests).toHaveLength(1);
+
+      const rejected = new MockLlmTransport([]);
+      setTransportForTesting(rejected);
+      const response = await POST(
+        makeRequest({
+          mode: "chat",
+          messages: [...forty, { role: "user", content: "x" }],
           tasteContext: "",
         }),
       );
       expect(response.status).toBe(400);
+      expect(rejected.requests).toHaveLength(0);
     });
   });
 
@@ -183,11 +273,13 @@ describe("POST /api/recommend", () => {
       );
     });
 
-    it("caps the model spend per request via config max_tokens", async () => {
+    it("fixes every model turn at no more than 2,048 configured output tokens", async () => {
       const mock = new MockLlmTransport([{ deltas: [], turn: endTurn("ok") }]);
       setTransportForTesting(mock);
-      await POST(makeRequest(handBody));
-      expect(mock.requests[0].maxTokens).toBe(LLM_MODELS.hand.maxTokens);
+      await readSse(await POST(makeRequest(handBody)));
+      expect(LLM_MODELS.hand.maxTokens).toBe(2_048);
+      expect(LLM_MODELS.chat.maxTokens).toBe(2_048);
+      expect(mock.requests[0].maxTokens).toBe(2_048);
     });
   });
 
@@ -296,16 +388,25 @@ describe("POST /api/recommend", () => {
       ]);
       setTransportForTesting(mock);
 
-      const response = await POST(makeRequest(handBody));
+      const response = await POST(makeRequest({
+        ...handBody,
+        availabilityContext: [{
+          ref: { medium: "movie", tmdbId: 603 },
+          offers: [{
+            kind: "subscription",
+            providerId: "netflix",
+            region: "US",
+            fetchedAt: "2026-08-01T16:00:00.000Z",
+          }],
+        }],
+      }));
       const events = await readSse(response);
       expect(events).toEqual([
         { event: "text", data: { delta: "Checking availability…" } },
         { event: "tool", data: { name: "check_availability", phase: "start" } },
-        // lib/providers has not merged (E2.x runs in parallel) — the executor
-        // degrades to the typed unavailable result.
         {
           event: "tool",
-          data: { name: "check_availability", phase: "result", status: "unavailable" },
+          data: { name: "check_availability", phase: "result", status: "ok" },
         },
         { event: "text", data: { delta: "The Matrix it is." } },
         { event: "done", data: { stopReason: "end_turn" } },
@@ -336,10 +437,16 @@ describe("POST /api/recommend", () => {
         throw new Error("expected a tool_result block");
       }
       expect(resultBlock.toolUseId).toBe("toolu_1");
-      expect(JSON.parse(resultBlock.content)).toMatchObject({ status: "unavailable" });
+      expect(JSON.parse(resultBlock.content)).toMatchObject({
+        status: "ok",
+        result: [{
+          checked: true,
+          offers: [{ providerId: "netflix", kind: "subscription" }],
+        }],
+      });
     });
 
-    it("stops with tool-rounds-exhausted when the model never stops calling tools", async () => {
+    it("stops after four total model turns with text plus a machine reason", async () => {
       const toolTurn: LlmTurn = {
         stopReason: "tool_use",
         content: [
@@ -347,7 +454,7 @@ describe("POST /api/recommend", () => {
         ],
       };
       const mock = new MockLlmTransport(
-        Array.from({ length: MAX_TOOL_ROUNDS + 1 }, () => ({ deltas: [], turn: toolTurn })),
+        Array.from({ length: 5 }, () => ({ deltas: [], turn: toolTurn })),
       );
       setTransportForTesting(mock);
 
@@ -357,7 +464,62 @@ describe("POST /api/recommend", () => {
         event: "done",
         data: { stopReason: "tool-rounds-exhausted" },
       });
-      expect(mock.requests).toHaveLength(MAX_TOOL_ROUNDS + 1);
+      expect(events.at(-2)).toMatchObject({ event: "text", data: { delta: expect.any(String) } });
+      expect(mock.requests).toHaveLength(4);
+      expect(mock.requests.every((request) => request.maxTokens === 2_048)).toBe(true);
+    });
+
+    it("executes at most eight tool calls in one round", async () => {
+      const tooMany: LlmTurn = {
+        stopReason: "tool_use",
+        content: Array.from({ length: 9 }, (_, index) => ({
+          type: "tool_use" as const,
+          id: `toolu_${index}`,
+          name: "search_catalog",
+          input: { query: "x" },
+        })),
+      };
+      const mock = new MockLlmTransport([{ deltas: [], turn: tooMany }]);
+      setTransportForTesting(mock);
+
+      const events = await readSse(await POST(makeRequest(handBody)));
+      expect(events.filter((event) => event.event === "tool")).toHaveLength(0);
+      expect(events.at(-2)).toMatchObject({ event: "text" });
+      expect(events.at(-1)).toEqual({
+        event: "done",
+        data: { stopReason: "tool-calls-exhausted" },
+      });
+    });
+
+    it("executes at most sixteen tool calls across the request", async () => {
+      const toolTurn = (count: number, prefix: string): LlmTurn => ({
+        stopReason: "tool_use",
+        content: Array.from({ length: count }, (_, index) => ({
+          type: "tool_use" as const,
+          id: `${prefix}_${index}`,
+          name: "unknown_tool",
+          input: {},
+        })),
+      });
+      const mock = new MockLlmTransport([
+        { deltas: [], turn: toolTurn(8, "a") },
+        { deltas: [], turn: toolTurn(8, "b") },
+        { deltas: [], turn: toolTurn(1, "c") },
+      ]);
+      setTransportForTesting(mock);
+
+      const events = await readSse(await POST(makeRequest(handBody)));
+      expect(
+        events.filter(
+          (event) => event.event === "tool" && event.data.phase === "start",
+        ),
+      ).toHaveLength(16);
+      expect(events.at(-2)).toMatchObject({ event: "text" });
+      expect(events.at(-1)).toEqual({
+        event: "done",
+        data: { stopReason: "tool-calls-exhausted" },
+      });
+      expect(mock.requests).toHaveLength(3);
     });
   });
 

@@ -658,9 +658,10 @@ export async function getTmdbWatchProviders(
  *
  * HANDOFF (E5.4): `availability.fandangoUrl` is deliberately absent — TMDB
  * knows a film is in theaters, not where it's showing. The theaters
- * resolver (E5.4) builds the Fandango showtimes deep link (title + zip) and
- * fills the field; until then the theater state renders without a showtimes
- * button.
+ * resolver (E5.4) builds the verified Fandango exact-title search and fills
+ * the field; the local ZIP stays local until Fandango documents a stable
+ * title+location contract. Until then the theater state renders without a
+ * showtimes button.
  */
 export interface TmdbNowPlayingEntry {
   seed: MovieSeed;

@@ -3,16 +3,20 @@
 import type { z } from "zod";
 import {
   availabilitySchema,
+  availabilityRefreshSchema,
   comparisonSchema,
   entrySchema,
+  goodreadsManualMatchSchema,
   itemSchema,
   portraitSchema,
   queueItemSchema,
   recSchema,
   situationSchema,
   type Availability,
+  type AvailabilityRefresh,
   type Comparison,
   type Entry,
+  type GoodreadsManualMatch,
   type Item,
   type Portrait,
   type QueueItem,
@@ -44,6 +48,8 @@ export interface RepoSnapshot {
   availability: readonly Availability[];
   recs: readonly Rec[];
   portrait: readonly Portrait[];
+  manualMatches: readonly GoodreadsManualMatch[];
+  availabilityRefreshes: readonly AvailabilityRefresh[];
 }
 
 /**
@@ -68,6 +74,8 @@ export async function readSnapshot(): Promise<RepoSnapshot> {
     availability: await db.availability.toArray(),
     recs: await db.recs.toArray(),
     portrait: await db.portrait.toArray(),
+    manualMatches: await db.manualMatches.toArray(),
+    availabilityRefreshes: await db.availabilityRefreshes.toArray(),
   }));
 }
 
@@ -96,7 +104,8 @@ export async function readSnapshot(): Promise<RepoSnapshot> {
  * graph between records. An entry whose `itemId` matches no item, or a rec
  * citing a deleted situation, restores cleanly. Verifying that a backup's
  * cross-references resolve is E1.3's job, on the whole snapshot, before it
- * calls this.
+ * calls this. A rec's situation id is durable provenance and is deliberately
+ * exempt because deleting a situation does not rewrite historical recs.
  *
  * Consumers: E1.3 import (the whole snapshot), E1.4 Goodreads import (items
  * and their finished entries — historical `startedAt`/`finishedAt`, gradients
@@ -106,7 +115,41 @@ export async function readSnapshot(): Promise<RepoSnapshot> {
 export async function restoreSnapshot(
   snapshot: Partial<RepoSnapshot>,
 ): Promise<void> {
-  const verb = "restoreSnapshot";
+  const records = validateSnapshot(snapshot, "restoreSnapshot");
+
+  await db.transaction("rw", db.tables, async () => {
+    await insertSnapshot(records);
+  });
+}
+
+/**
+ * Restore only if every table is empty, checking and inserting inside the
+ * same read-write transaction. IndexedDB serializes competing writers before
+ * this transaction's reads, closing the check-then-write race that a caller
+ * cannot close with a separate `readSnapshot()`.
+ */
+export async function restoreSnapshotIfEmpty(
+  snapshot: Partial<RepoSnapshot>,
+): Promise<void> {
+  const records = validateSnapshot(snapshot, "restoreSnapshotIfEmpty");
+
+  await db.transaction("rw", db.tables, async () => {
+    for (const table of db.tables) {
+      if ((await table.count()) > 0) {
+        throw new RepoConflictError(
+          table.name as RepoTable,
+          "restoreSnapshotIfEmpty: restore targets a fresh install",
+        );
+      }
+    }
+    await insertSnapshot(records);
+  });
+}
+
+function validateSnapshot(
+  snapshot: Partial<RepoSnapshot>,
+  verb: string,
+): RepoSnapshot {
   const items = validateAll(itemSchema, snapshot.items, "items", verb);
   const entries = validateAll(entrySchema, snapshot.entries, "entries", verb);
   const comparisons = validateAll(
@@ -135,16 +178,57 @@ export async function restoreSnapshot(
     "portrait",
     verb,
   );
+  const manualMatches = validateAll(
+    goodreadsManualMatchSchema,
+    snapshot.manualMatches,
+    "manualMatches",
+    verb,
+  );
+  const availabilityRefreshes = validateAll(
+    availabilityRefreshSchema,
+    snapshot.availabilityRefreshes,
+    "availabilityRefreshes",
+    verb,
+  );
 
+  return { items, entries, comparisons, queue, situations, availability, recs, portrait, manualMatches, availabilityRefreshes };
+}
+
+async function insertSnapshot(records: RepoSnapshot): Promise<void> {
+  await insertAll("items", records.items, db.items);
+  await insertAll("entries", records.entries, db.entries);
+  await insertAll("comparisons", records.comparisons, db.comparisons);
+  await insertAll("queue", records.queue, db.queue);
+  await insertAll("situations", records.situations, db.situations);
+  await insertAll("availability", records.availability, db.availability);
+  await insertAll("recs", records.recs, db.recs);
+  await insertAll("portrait", records.portrait, db.portrait);
+  await insertAll("manualMatches", records.manualMatches, db.manualMatches);
+  await insertAll(
+    "availabilityRefreshes",
+    records.availabilityRefreshes,
+    db.availabilityRefreshes,
+  );
+}
+
+/**
+ * Consume one persisted manual match and add its resolved records as one
+ * IndexedDB commit. A missing pending row fails before any library write.
+ */
+export async function resolveManualMatch(
+  matchId: string,
+  snapshot: Pick<RepoSnapshot, "items" | "entries" | "queue">,
+): Promise<void> {
+  const records = validateSnapshot(snapshot, "resolveManualMatch");
   await db.transaction("rw", db.tables, async () => {
-    await insertAll("items", items, db.items);
-    await insertAll("entries", entries, db.entries);
-    await insertAll("comparisons", comparisons, db.comparisons);
-    await insertAll("queue", queue, db.queue);
-    await insertAll("situations", situations, db.situations);
-    await insertAll("availability", availability, db.availability);
-    await insertAll("recs", recs, db.recs);
-    await insertAll("portrait", portrait, db.portrait);
+    if ((await db.manualMatches.get(matchId)) === undefined) {
+      throw new RepoConflictError(
+        "manualMatches",
+        `resolveManualMatch: ${matchId} is no longer pending`,
+      );
+    }
+    await insertSnapshot(records);
+    await db.manualMatches.delete(matchId);
   });
 }
 

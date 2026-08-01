@@ -1,0 +1,2786 @@
+{
+  "provenance": {
+    "provider": "Open Library Search API",
+    "searchMode": "union",
+    "upstreams": [
+      {
+        "provider": "openlibrary",
+        "audited": true,
+        "status": 200
+      },
+      {
+        "provider": "googlebooks",
+        "audited": false,
+        "status": 429
+      }
+    ],
+    "capturedAt": "2026-08-01T19:57:36.002Z",
+    "corpus": "data/goodreads_library_export.csv",
+    "requestedIsbnCount": 179,
+    "note": "Actual response-derived first documents; Google Books was not replayed because its live API returned HTTP 429 during audit."
+  },
+  "records": [
+    {
+      "isbn": "9781101667095",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781101667095&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 0
+    },
+    {
+      "isbn": "9780593230084",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780593230084&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "David Brooks"
+        ],
+        "cover_i": 14445297,
+        "first_publish_year": 2023,
+        "key": "/works/OL35724161W",
+        "number_of_pages_median": 432,
+        "title": "How to Know a Person"
+      }
+    },
+    {
+      "isbn": "9780060745813",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780060745813&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Geoffrey A. Moore"
+        ],
+        "cover_i": 34158,
+        "first_publish_year": 1995,
+        "key": "/works/OL30693W",
+        "number_of_pages_median": 244,
+        "title": "Inside the Tornado"
+      }
+    },
+    {
+      "isbn": "9781591396192",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781591396192&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 2,
+      "doc": {
+        "author_name": [
+          "W. Chan Kim"
+        ],
+        "cover_i": 8219313,
+        "first_publish_year": 2005,
+        "key": "/works/OL8980380W",
+        "number_of_pages_median": 298,
+        "title": "Blue ocean strategy"
+      }
+    },
+    {
+      "isbn": "9781422196588",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781422196588&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 0
+    },
+    {
+      "isbn": "9780071373586",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780071373586&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Al Ries",
+          "Jack Trout"
+        ],
+        "cover_i": 57434,
+        "first_publish_year": 2000,
+        "key": "/works/OL19895825W",
+        "number_of_pages_median": 213,
+        "title": "Positioning"
+      }
+    },
+    {
+      "isbn": "9780998116310",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780998116310&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Hamilton Helmer"
+        ],
+        "cover_i": 10208801,
+        "first_publish_year": 2016,
+        "key": "/works/OL20883142W",
+        "number_of_pages_median": 210,
+        "title": "7 Powers"
+      }
+    },
+    {
+      "isbn": "9780060891541",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780060891541&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "William Zinsser"
+        ],
+        "cover_i": 20450,
+        "first_publish_year": 1976,
+        "key": "/works/OL2742235W",
+        "number_of_pages_median": 288,
+        "subtitle": "An Informal Guide to Writing Nonfiction",
+        "title": "On Writing Well"
+      }
+    },
+    {
+      "isbn": "9780593086124",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780593086124&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Shane Parrish"
+        ],
+        "cover_i": 15208264,
+        "first_publish_year": 2023,
+        "key": "/works/OL34374688W",
+        "number_of_pages_median": 288,
+        "title": "Clear Thinking"
+      }
+    },
+    {
+      "isbn": "9781941758557",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781941758557&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Charlie Guo"
+        ],
+        "first_publish_year": 2016,
+        "key": "/works/OL35734892W",
+        "title": "Unscalable"
+      }
+    },
+    {
+      "isbn": "9780691149134",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780691149134&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Noam Wasserman",
+          "Noam Wasserman"
+        ],
+        "cover_i": 12893128,
+        "first_publish_year": 2012,
+        "key": "/works/OL16152741W",
+        "number_of_pages_median": 488,
+        "title": "The founder's dilemmas"
+      }
+    },
+    {
+      "isbn": "9780834827660",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780834827660&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 0
+    },
+    {
+      "isbn": "9785067567444",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9785067567444&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 0
+    },
+    {
+      "isbn": "9781625396877",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781625396877&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 0
+    },
+    {
+      "isbn": "9781608820498",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781608820498&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Michael A. Singer"
+        ],
+        "cover_i": 10630553,
+        "first_publish_year": 2007,
+        "key": "/works/OL15845722W",
+        "number_of_pages_median": 200,
+        "title": "The untethered soul"
+      }
+    },
+    {
+      "isbn": "9780525541875",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780525541875&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Ryan Holiday",
+          "Stephen Hanselman"
+        ],
+        "cover_i": 10491929,
+        "first_publish_year": 2020,
+        "key": "/works/OL21690596W",
+        "number_of_pages_median": 352,
+        "title": "Lives of the Stoics"
+      }
+    },
+    {
+      "isbn": "9780486435503",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780486435503&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Arthur Schopenhauer"
+        ],
+        "cover_i": 2010228,
+        "first_publish_year": 1888,
+        "key": "/works/OL1183449W",
+        "number_of_pages_median": 190,
+        "title": "Aphorismen zur Lebensweisheit"
+      }
+    },
+    {
+      "isbn": "9780385421317",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780385421317&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Baltasar Gracián y Morales",
+          "Aurora Egido",
+          "Benito Pelegrín"
+        ],
+        "cover_i": 3756465,
+        "first_publish_year": 1649,
+        "key": "/works/OL913448W",
+        "number_of_pages_median": 208,
+        "title": "Agudeza y arte de ingenio, en que se explican todos los modos y differencias de conceptos, con ejemplares escogidos de todo lo más bien dicho, assi facto, como hymano"
+      }
+    },
+    {
+      "isbn": "9780486452913",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780486452913&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Adam Smith"
+        ],
+        "cover_i": 2962984,
+        "first_publish_year": 1986,
+        "key": "/works/OL4905700W",
+        "number_of_pages_median": 368,
+        "title": "The Theory of Moral Sentiments"
+      }
+    },
+    {
+      "isbn": "9781250196637",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781250196637&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Donald Robertson"
+        ],
+        "cover_i": 8802189,
+        "first_publish_year": 2019,
+        "key": "/works/OL20157096W",
+        "number_of_pages_median": 304,
+        "title": "How to Think Like a Roman Emperor"
+      }
+    },
+    {
+      "isbn": "9781594201929",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781594201929&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Niall Ferguson"
+        ],
+        "cover_i": 6327852,
+        "first_publish_year": 2008,
+        "key": "/works/OL792952W",
+        "number_of_pages_median": 445,
+        "title": "The ascent of money"
+      }
+    },
+    {
+      "isbn": "9780809230419",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780809230419&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "John R. Wooden",
+          "John Wooden"
+        ],
+        "cover_i": 593983,
+        "first_publish_year": 1997,
+        "key": "/works/OL682796W",
+        "number_of_pages_median": 201,
+        "subtitle": "a lifetime of observations and reflections on and off the court",
+        "title": "Wooden"
+      }
+    },
+    {
+      "isbn": "9781250267603",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781250267603&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Colin Bryar",
+          "Bill Carr"
+        ],
+        "cover_i": 10297403,
+        "first_publish_year": 2021,
+        "key": "/works/OL20924654W",
+        "number_of_pages_median": 304,
+        "title": "Working Backwards"
+      }
+    },
+    {
+      "isbn": "9780743277457",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780743277457&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Josh Waitzkin"
+        ],
+        "cover_i": 475008,
+        "first_publish_year": 2007,
+        "key": "/works/OL16028366W",
+        "number_of_pages_median": 288,
+        "title": "The art of learning"
+      }
+    },
+    {
+      "isbn": "9781734654820",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781734654820&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 0
+    },
+    {
+      "isbn": "9781578643660",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781578643660&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Charles T. Munger",
+          "Charles T. Munger"
+        ],
+        "cover_i": 8337563,
+        "first_publish_year": 2005,
+        "key": "/works/OL8928012W",
+        "number_of_pages_median": 512,
+        "title": "Poor Charlie's Almanack"
+      }
+    },
+    {
+      "isbn": "9780578599298",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780578599298&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 0
+    },
+    {
+      "isbn": "9780525536475",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780525536475&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 0
+    },
+    {
+      "isbn": "9780199681143",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780199681143&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Andrew W. Lo",
+          "Ruixun Zhang"
+        ],
+        "first_publish_year": 2023,
+        "key": "/works/OL34030102W",
+        "title": "Adaptive Markets Hypothesis"
+      }
+    },
+    {
+      "isbn": "9780471295631",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780471295631&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 2,
+      "doc": {
+        "author_name": [
+          "Peter L. Bernstein"
+        ],
+        "cover_i": 300823,
+        "first_publish_year": 1996,
+        "key": "/works/OL3294011W",
+        "number_of_pages_median": 383,
+        "subtitle": "The Remarkable Story of Risk",
+        "title": "Against the gods"
+      }
+    },
+    {
+      "isbn": "9780670022755",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780670022755&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "David Deutsch"
+        ],
+        "cover_i": 8622269,
+        "first_publish_year": 2008,
+        "key": "/works/OL4325174W",
+        "number_of_pages_median": 487,
+        "title": "The Beginning of Infinity"
+      }
+    },
+    {
+      "isbn": "9780375705106",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780375705106&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Alan Watts"
+        ],
+        "cover_i": 228623,
+        "first_publish_year": 1957,
+        "key": "/works/OL266160W",
+        "number_of_pages_median": 245,
+        "title": "The Way of Zen"
+      }
+    },
+    {
+      "isbn": "9780465081455",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780465081455&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Thomas Sowell"
+        ],
+        "cover_i": 1468594,
+        "first_publish_year": 2000,
+        "key": "/works/OL1935800W",
+        "number_of_pages_median": 627,
+        "title": "Basic economics"
+      }
+    },
+    {
+      "isbn": "9781529405026",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781529405026&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 0
+    },
+    {
+      "isbn": "9780008354657",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780008354657&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Will Storr"
+        ],
+        "cover_i": 14296323,
+        "first_publish_year": 2021,
+        "key": "/works/OL25342553W",
+        "number_of_pages_median": 416,
+        "title": "Status Game"
+      }
+    },
+    {
+      "isbn": "9781594204111",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781594204111&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Nate Silver"
+        ],
+        "cover_i": 7256893,
+        "first_publish_year": 2012,
+        "key": "/works/OL16700318W",
+        "number_of_pages_median": 552,
+        "title": "The Signal and the Noise"
+      }
+    },
+    {
+      "isbn": "9781938289972",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781938289972&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Chris Niebauer PhD"
+        ],
+        "cover_i": 10296989,
+        "first_publish_year": 2019,
+        "key": "/works/OL20924361W",
+        "number_of_pages_median": 192,
+        "title": "No Self, No Problem"
+      }
+    },
+    {
+      "isbn": "9780062935755",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780062935755&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Tara Swart"
+        ],
+        "cover_i": 13179492,
+        "first_publish_year": 2019,
+        "key": "/works/OL21859570W",
+        "number_of_pages_median": 280,
+        "title": "De bron :"
+      }
+    },
+    {
+      "isbn": "9781119610922",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781119610922&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "McKinsey & Company Inc."
+        ],
+        "cover_i": 15226647,
+        "first_publish_year": 2010,
+        "key": "/works/OL21649236W",
+        "number_of_pages_median": 960,
+        "title": "Valuation"
+      }
+    },
+    {
+      "isbn": "9780593491638",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780593491638&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Nate Silver"
+        ],
+        "cover_i": 14658251,
+        "first_publish_year": 2024,
+        "key": "/works/OL37768334W",
+        "number_of_pages_median": 568,
+        "title": "On the Edge"
+      }
+    },
+    {
+      "isbn": "9780136078975",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780136078975&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Frank J. Fabozzi"
+        ],
+        "cover_i": 6970197,
+        "first_publish_year": 1989,
+        "key": "/works/OL16288100W",
+        "number_of_pages_median": 670,
+        "title": "Bond Markets, Analysis, and Strategies"
+      }
+    },
+    {
+      "isbn": "9781603580557",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781603580557&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Donella H. Meadows",
+          "Diana Wright"
+        ],
+        "cover_i": 14420637,
+        "first_publish_year": 2008,
+        "key": "/works/OL3737036W",
+        "number_of_pages_median": 240,
+        "title": "Thinking in systems"
+      }
+    },
+    {
+      "isbn": "9780226264219",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780226264219&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Milton Friedman"
+        ],
+        "cover_i": 140808,
+        "first_publish_year": 1962,
+        "key": "/works/OL2747782W",
+        "number_of_pages_median": 202,
+        "title": "Capitalism and freedom"
+      }
+    },
+    {
+      "isbn": "9798466327175",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9798466327175&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Gregory Hays",
+          "Marcus Aurelius"
+        ],
+        "first_publish_year": 2021,
+        "key": "/works/OL30984960W",
+        "title": "Meditations : a New Translation"
+      }
+    },
+    {
+      "isbn": "9780593653142",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780593653142&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Adam Grant"
+        ],
+        "cover_i": 14445208,
+        "first_publish_year": 2023,
+        "key": "/works/OL35858291W",
+        "number_of_pages_median": 304,
+        "title": "Hidden Potential"
+      }
+    },
+    {
+      "isbn": "9780887306150",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780887306150&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Peter F. Drucker"
+        ],
+        "cover_i": 684170,
+        "first_publish_year": 1973,
+        "key": "/works/OL274335W",
+        "number_of_pages_median": 576,
+        "title": "Management"
+      }
+    },
+    {
+      "isbn": "9781250276933",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781250276933&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Rob Copeland"
+        ],
+        "cover_i": 14546046,
+        "first_publish_year": 2023,
+        "key": "/works/OL34338779W",
+        "title": "Fund"
+      }
+    },
+    {
+      "isbn": "9781455509102",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781455509102&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Cal Newport",
+          "Diego Pereda Sancho"
+        ],
+        "cover_i": 9215292,
+        "first_publish_year": 2012,
+        "key": "/works/OL16283407W",
+        "number_of_pages_median": 272,
+        "subtitle": "Why Skills Trump Passion in the Quest for Work You Love",
+        "title": "So Good They Can't Ignore You"
+      }
+    },
+    {
+      "isbn": "9780452287587",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780452287587&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Eckhart Tolle"
+        ],
+        "cover_i": 10858608,
+        "first_publish_year": 2005,
+        "key": "/works/OL5727685W",
+        "number_of_pages_median": 316,
+        "title": "A New Earth"
+      }
+    },
+    {
+      "isbn": "9781567926859",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781567926859&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 2,
+      "doc": {
+        "author_name": [
+          "Ward Farnsworth"
+        ],
+        "cover_i": 12421607,
+        "first_publish_year": 2021,
+        "key": "/works/OL25489247W",
+        "number_of_pages_median": 264,
+        "title": "Socratic Method"
+      }
+    },
+    {
+      "isbn": "9781250120847",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781250120847&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Mary Childs"
+        ],
+        "first_publish_year": 2022,
+        "key": "/works/OL25464967W",
+        "number_of_pages_median": 328,
+        "title": "Bond King"
+      }
+    },
+    {
+      "isbn": "9780226763743",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780226763743&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Adam Smith"
+        ],
+        "cover_i": 12816911,
+        "first_publish_year": 1776,
+        "key": "/works/OL76827W",
+        "number_of_pages_median": 581,
+        "title": "The Wealth of Nations"
+      }
+    },
+    {
+      "isbn": "9781591840534",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781591840534&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Bethany McLean",
+          "Peter Elkind"
+        ],
+        "cover_i": 6968592,
+        "first_publish_year": 2003,
+        "key": "/works/OL13294327W",
+        "number_of_pages_median": 464,
+        "title": "The Smartest Guys in the Room"
+      }
+    },
+    {
+      "isbn": "9781118968079",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781118968079&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Alexander Osterwalder"
+        ],
+        "cover_i": 10196709,
+        "first_publish_year": 2014,
+        "key": "/works/OL19990609W",
+        "number_of_pages_median": 320,
+        "title": "Value proposition design"
+      }
+    },
+    {
+      "isbn": "9781324074335",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781324074335&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Michael Lewis"
+        ],
+        "cover_i": 14559785,
+        "first_publish_year": 2023,
+        "key": "/works/OL35710736W",
+        "number_of_pages_median": 258,
+        "title": "Going Infinite"
+      }
+    },
+    {
+      "isbn": "9780394720241",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780394720241&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Robert A. Caro"
+        ],
+        "cover_i": 253659,
+        "first_publish_year": 1974,
+        "key": "/works/OL4195860W",
+        "number_of_pages_median": 1263,
+        "title": "The power broker: Robert Moses and the fall of New York"
+      }
+    },
+    {
+      "isbn": "9781523516971",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781523516971&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Mike Allen",
+          "Jim VandeHei",
+          "Roy Schwartz"
+        ],
+        "cover_i": 12499578,
+        "first_publish_year": 2022,
+        "key": "/works/OL26603849W",
+        "number_of_pages_median": 192,
+        "title": "Smart Brevity"
+      }
+    },
+    {
+      "isbn": "9780553351392",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780553351392&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Thích Nhất Hạnh"
+        ],
+        "cover_i": 369473,
+        "first_publish_year": 1990,
+        "key": "/works/OL15373819W",
+        "number_of_pages_median": 134,
+        "title": "Peace is every step"
+      }
+    },
+    {
+      "isbn": "9781982181284",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781982181284&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Walter Isaacson"
+        ],
+        "cover_i": 14420016,
+        "first_publish_year": 2023,
+        "key": "/works/OL35720357W",
+        "number_of_pages_median": 688,
+        "title": "Elon Musk"
+      }
+    },
+    {
+      "isbn": "9780593191699",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780593191699&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Ryan Holiday"
+        ],
+        "cover_i": 13153179,
+        "first_publish_year": 2022,
+        "key": "/works/OL27023502W",
+        "number_of_pages_median": 304,
+        "title": "Discipline is Destiny"
+      }
+    },
+    {
+      "isbn": "9780307265432",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780307265432&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Cormac McCarthy"
+        ],
+        "cover_i": 198120,
+        "first_publish_year": 2006,
+        "key": "/works/OL40873W",
+        "number_of_pages_median": 256,
+        "title": "The Road"
+      }
+    },
+    {
+      "isbn": "9780593236598",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780593236598&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Peter Attia",
+          "Bill Gifford"
+        ],
+        "cover_i": 13191259,
+        "first_publish_year": 2023,
+        "key": "/works/OL28148070W",
+        "number_of_pages_median": 448,
+        "title": "Outlive"
+      }
+    },
+    {
+      "isbn": "9780071448208",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780071448208&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Benjamin Graham",
+          "David Dodd",
+          "David Dodd",
+          "Seth Klarman"
+        ],
+        "cover_i": 60206,
+        "first_publish_year": 1934,
+        "key": "/works/OL273188W",
+        "number_of_pages_median": 766,
+        "title": "Security Analysis"
+      }
+    },
+    {
+      "isbn": "9781607747307",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781607747307&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Marie Kondo",
+          "Yuko Uramoto",
+          "Marie Kondo"
+        ],
+        "cover_i": 7367218,
+        "first_publish_year": 2014,
+        "key": "/works/OL17080845W",
+        "number_of_pages_median": 192,
+        "title": "The Life-Changing Magic of Tidying Up"
+      }
+    },
+    {
+      "isbn": "9781633691018",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781633691018&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 0
+    },
+    {
+      "isbn": "9780060833459",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780060833459&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Peter F. Drucker",
+          "Joseph A. Maciariello",
+          "Jim Collins",
+          "Tim Andres Pabon",
+          "Zachary First"
+        ],
+        "cover_i": 4941284,
+        "first_publish_year": 1967,
+        "key": "/works/OL272920W",
+        "number_of_pages_median": 178,
+        "subtitle": "How to Acquire the Effectiveness Habit",
+        "title": "Effective Executive"
+      }
+    },
+    {
+      "isbn": "9781119604150",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781119604150&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Donald R. Chambers",
+          "Mark J. P. Anson",
+          "Keith H. Black",
+          "Hossein Kazemi",
+          "CAIA Association"
+        ],
+        "cover_i": 9388444,
+        "first_publish_year": 2015,
+        "key": "/works/OL20709823W",
+        "number_of_pages_median": 960,
+        "title": "Alternative Investments"
+      }
+    },
+    {
+      "isbn": "9781400077304",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781400077304&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Ron Chernow"
+        ],
+        "cover_i": 12373738,
+        "first_publish_year": 1998,
+        "key": "/works/OL2665190W",
+        "number_of_pages_median": 832,
+        "title": "Titan"
+      }
+    },
+    {
+      "isbn": "9780743269513",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780743269513&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Stephen R. Covey",
+          "Sean Covey"
+        ],
+        "cover_i": 10079937,
+        "first_publish_year": 1989,
+        "key": "/works/OL2629977W",
+        "number_of_pages_median": 374,
+        "title": "The 7 Habits of Highly Effective People"
+      }
+    },
+    {
+      "isbn": "9780670024964",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780670024964&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Robert Greene"
+        ],
+        "cover_i": 7561012,
+        "first_publish_year": 2012,
+        "key": "/works/OL17429337W",
+        "number_of_pages_median": 344,
+        "title": "Mastery"
+      }
+    },
+    {
+      "isbn": "9782839906173",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9782839906173&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Alexander Osterwalder",
+          "Yves Pigneur"
+        ],
+        "cover_i": 6306800,
+        "first_publish_year": 2009,
+        "key": "/works/OL29249246W",
+        "number_of_pages_median": 288,
+        "title": "Business Model Generation"
+      }
+    },
+    {
+      "isbn": "9780735222458",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780735222458&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 0
+    },
+    {
+      "isbn": "9781797119212",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781797119212&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Pete Buttigieg"
+        ],
+        "cover_i": 10302909,
+        "first_publish_year": 2020,
+        "key": "/works/OL20935370W",
+        "number_of_pages_median": 224,
+        "title": "Trust"
+      }
+    },
+    {
+      "isbn": "9783030145330",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9783030145330&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 0
+    },
+    {
+      "isbn": "9780316296939",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780316296939&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Malcolm Gladwell"
+        ],
+        "cover_i": 10716338,
+        "first_publish_year": 2021,
+        "key": "/works/OL24235902W",
+        "number_of_pages_median": 256,
+        "title": "The Bomber Mafia"
+      }
+    },
+    {
+      "isbn": "9780553214826",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780553214826&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 2,
+      "doc": {
+        "author_name": [
+          "United States"
+        ],
+        "cover_i": 5809018,
+        "first_publish_year": 1776,
+        "key": "/works/OL76208W",
+        "number_of_pages_median": 58,
+        "title": "Declaration of Independence"
+      }
+    },
+    {
+      "isbn": "9781250307187",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781250307187&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Alex George"
+        ],
+        "cover_i": 9411678,
+        "first_publish_year": 2020,
+        "key": "/works/OL20726841W",
+        "number_of_pages_median": 272,
+        "title": "The Paris Hours"
+      }
+    },
+    {
+      "isbn": "9781476753850",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781476753850&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Samin Nosrat"
+        ],
+        "cover_i": 8315567,
+        "first_publish_year": 2017,
+        "key": "/works/OL18147901W",
+        "number_of_pages_median": 475,
+        "subtitle": "Mastering the Elements of Good Cooking",
+        "title": "Salt, Fat, Acid, Heat"
+      }
+    },
+    {
+      "isbn": "9781501144332",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781501144332&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Matthew P. Walker",
+          "Matthew Walker"
+        ],
+        "cover_i": 8814155,
+        "first_publish_year": 2017,
+        "key": "/works/OL20168133W",
+        "number_of_pages_median": 360,
+        "title": "Why We Sleep"
+      }
+    },
+    {
+      "isbn": "9780593332221",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780593332221&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Scott Galloway"
+        ],
+        "cover_i": 10517430,
+        "first_publish_year": 2020,
+        "key": "/works/OL23613011W",
+        "number_of_pages_median": 256,
+        "title": "Post Corona"
+      }
+    },
+    {
+      "isbn": "9781501130816",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781501130816&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Edith Eger",
+          "Jorge Paredes"
+        ],
+        "cover_i": 14814936,
+        "first_publish_year": 1900,
+        "key": "/works/OL19715210W",
+        "number_of_pages_median": 400,
+        "title": "The choice"
+      }
+    },
+    {
+      "isbn": "9780143038252",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780143038252&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Greg Mortenson",
+          "David Oliver Relin",
+          "Sarah Thomson",
+          "Natxo Morera de la Vall Antón"
+        ],
+        "cover_i": 6425044,
+        "first_publish_year": 2006,
+        "key": "/works/OL5702375W",
+        "number_of_pages_median": 365,
+        "subtitle": "one man's mission to promote peace … one school at a time",
+        "title": "Three cups of tea"
+      }
+    },
+    {
+      "isbn": "9780062878823",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780062878823&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "David Enrich",
+          "David Enrich"
+        ],
+        "cover_i": 9362582,
+        "first_publish_year": 2020,
+        "key": "/works/OL20646928W",
+        "number_of_pages_median": 401,
+        "title": "Dark Towers"
+      }
+    },
+    {
+      "isbn": "9781631496424",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781631496424&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Jill Lepore"
+        ],
+        "cover_i": 10190560,
+        "first_publish_year": 2019,
+        "key": "/works/OL20870876W",
+        "number_of_pages_median": 160,
+        "title": "This America"
+      }
+    },
+    {
+      "isbn": "9780812995800",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780812995800&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Sheelah Kolhatkar"
+        ],
+        "cover_i": 8821956,
+        "first_publish_year": 2017,
+        "key": "/works/OL20046482W",
+        "number_of_pages_median": 368,
+        "title": "Black edge"
+      }
+    },
+    {
+      "isbn": "9780393324815",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780393324815&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Michael Lewis"
+        ],
+        "cover_i": 467718,
+        "first_publish_year": 2003,
+        "key": "/works/OL7944813W",
+        "number_of_pages_median": 317,
+        "subtitle": "The Art of Winning an Unfair Game",
+        "title": "Moneyball"
+      }
+    },
+    {
+      "isbn": "9780374480097",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780374480097&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Natalie Babbitt"
+        ],
+        "cover_i": 1471164,
+        "first_publish_year": 1975,
+        "key": "/works/OL2775698W",
+        "number_of_pages_median": 144,
+        "title": "Tuck Everlasting"
+      }
+    },
+    {
+      "isbn": "9781250153272",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781250153272&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Madeleine L'Engle"
+        ],
+        "cover_i": 8709146,
+        "first_publish_year": 1962,
+        "key": "/works/OL41495W",
+        "number_of_pages_median": 212,
+        "title": "A Wrinkle in Time"
+      }
+    },
+    {
+      "isbn": "9780064410939",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780064410939&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "E. B. White"
+        ],
+        "cover_i": 8461797,
+        "first_publish_year": 1952,
+        "key": "/works/OL483391W",
+        "number_of_pages_median": 184,
+        "title": "Charlotte's Web"
+      }
+    },
+    {
+      "isbn": "9780679745587",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780679745587&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Truman Capote"
+        ],
+        "cover_i": 228066,
+        "first_publish_year": 1965,
+        "key": "/works/OL1992198W",
+        "number_of_pages_median": 352,
+        "title": "In Cold Blood"
+      }
+    },
+    {
+      "isbn": "9780679879244",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780679879244&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Philip Pullman"
+        ],
+        "cover_i": 8747028,
+        "first_publish_year": 1995,
+        "key": "/works/OL28988W",
+        "number_of_pages_median": 410,
+        "title": "Northern Lights"
+      }
+    },
+    {
+      "isbn": "9780143131847",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780143131847&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Mary Shelley"
+        ],
+        "cover_i": 7267770,
+        "first_publish_year": 1818,
+        "key": "/works/OL25595002W",
+        "number_of_pages_median": 261,
+        "title": "Mary Shelley's Frankenstein; or, the Modern Prometheus (1818 text)"
+      }
+    },
+    {
+      "isbn": "9780143039563",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780143039563&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Mark Twain"
+        ],
+        "cover_i": 12043351,
+        "first_publish_year": 1817,
+        "key": "/works/OL53919W",
+        "number_of_pages_median": 253,
+        "title": "The Adventures of Tom Sawyer"
+      }
+    },
+    {
+      "isbn": "9780142437179",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780142437179&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Mark Twain"
+        ],
+        "cover_i": 8157718,
+        "first_publish_year": 1876,
+        "key": "/works/OL53908W",
+        "number_of_pages_median": 346,
+        "title": "Adventures of Huckleberry Finn"
+      }
+    },
+    {
+      "isbn": "9780142000670",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780142000670&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "John Steinbeck"
+        ],
+        "cover_i": 14319003,
+        "first_publish_year": 1937,
+        "key": "/works/OL23204W",
+        "number_of_pages_median": 119,
+        "title": "Of Mice and Men"
+      }
+    },
+    {
+      "isbn": "9780060517120",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780060517120&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Geoffrey A. Moore"
+        ],
+        "cover_i": 684159,
+        "first_publish_year": 1991,
+        "key": "/works/OL30695W",
+        "number_of_pages_median": 234,
+        "title": "Crossing the Chasm"
+      }
+    },
+    {
+      "isbn": "9780140283334",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780140283334&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "William Golding"
+        ],
+        "cover_i": 8684447,
+        "first_publish_year": 1954,
+        "key": "/works/OL455327W",
+        "number_of_pages_median": 243,
+        "title": "Lord of the Flies"
+      }
+    },
+    {
+      "isbn": "9780446676786",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780446676786&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Donald T. Phillips"
+        ],
+        "cover_i": 288132,
+        "first_publish_year": 2000,
+        "key": "/works/OL14993856W",
+        "number_of_pages_median": 320,
+        "subtitle": "Coach K's Successful Strategies for Basketball, Business, and Life",
+        "title": "Leading with the Heart"
+      }
+    },
+    {
+      "isbn": "9780451526342",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780451526342&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "George Orwell"
+        ],
+        "cover_i": 11261770,
+        "first_publish_year": 1945,
+        "key": "/works/OL1168007W",
+        "number_of_pages_median": 128,
+        "title": "Animal Farm"
+      }
+    },
+    {
+      "isbn": "9780062316103",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780062316103&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 0
+    },
+    {
+      "isbn": "9781542097529",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781542097529&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 0
+    },
+    {
+      "isbn": "9780544947221",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780544947221&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "K. Anders Ericsson"
+        ],
+        "cover_i": 8138393,
+        "first_publish_year": 2016,
+        "key": "/works/OL17842333W",
+        "number_of_pages_median": 336,
+        "title": "Peak"
+      }
+    },
+    {
+      "isbn": "9780802138293",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780802138293&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Ron Chernow"
+        ],
+        "cover_i": 11521264,
+        "first_publish_year": 1990,
+        "key": "/works/OL2665180W",
+        "number_of_pages_median": 812,
+        "title": "The House of Morgan"
+      }
+    },
+    {
+      "isbn": "9781451629163",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781451629163&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 2,
+      "doc": {
+        "author_name": [
+          "Brent Cole"
+        ],
+        "cover_i": 7978335,
+        "first_publish_year": 2011,
+        "key": "/works/OL16360930W",
+        "number_of_pages_median": 245,
+        "title": "How to win friends and influence people in the digital age"
+      }
+    },
+    {
+      "isbn": "9780062407801",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780062407801&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Chris Voss",
+          "Tahl Raz"
+        ],
+        "cover_i": 8365942,
+        "first_publish_year": 2016,
+        "key": "/works/OL18819818W",
+        "number_of_pages_median": 288,
+        "title": "Never Split the Difference"
+      }
+    },
+    {
+      "isbn": "9780767908184",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780767908184&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Bill Bryson"
+        ],
+        "cover_i": 12725620,
+        "first_publish_year": 2003,
+        "key": "/works/OL74128W",
+        "number_of_pages_median": 592,
+        "title": "A short history of nearly everything"
+      }
+    },
+    {
+      "isbn": "9780062749505",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780062749505&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Jerry Colonna"
+        ],
+        "first_publish_year": 2019,
+        "key": "/works/OL21199538W",
+        "number_of_pages_median": 288,
+        "title": "Reboot"
+      }
+    },
+    {
+      "isbn": "9780804139298",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780804139298&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Peter A. Thiel",
+          "Blake Masters"
+        ],
+        "cover_i": 9002334,
+        "first_publish_year": 2001,
+        "key": "/works/OL17078706W",
+        "number_of_pages_median": 253,
+        "subtitle": "Notes on Startups, or How to Build the Future",
+        "title": "Zero to One"
+      }
+    },
+    {
+      "isbn": "9780140255263",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780140255263&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Edward L. Deci",
+          "Richard Flaste"
+        ],
+        "cover_i": 99355,
+        "first_publish_year": 1996,
+        "key": "/works/OL26211665W",
+        "number_of_pages_median": 240,
+        "title": "Why we do what we do"
+      }
+    },
+    {
+      "isbn": "9780375758256",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780375758256&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Roger Lowenstein",
+          "Roger Lowenstein"
+        ],
+        "cover_i": 885122,
+        "first_publish_year": 2000,
+        "key": "/works/OL3268118W",
+        "number_of_pages_median": 282,
+        "title": "When Genius Failed"
+      }
+    },
+    {
+      "isbn": "9781476755717",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781476755717&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Bill Browder"
+        ],
+        "cover_i": 11341648,
+        "first_publish_year": 2015,
+        "key": "/works/OL19999600W",
+        "number_of_pages_median": 410,
+        "title": "Red Notice"
+      }
+    },
+    {
+      "isbn": "9780679778318",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780679778318&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "W. Timothy Gallwey"
+        ],
+        "cover_i": 5413630,
+        "first_publish_year": 1834,
+        "key": "/works/OL2619508W",
+        "number_of_pages_median": 141,
+        "title": "The Inner Game of Tennis"
+      }
+    },
+    {
+      "isbn": "9780470442203",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780470442203&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Joshua Rosenbaum"
+        ],
+        "cover_i": 8665852,
+        "first_publish_year": 2009,
+        "key": "/works/OL13683581W",
+        "number_of_pages_median": 304,
+        "title": "Investment banking"
+      }
+    },
+    {
+      "isbn": "9781473637467",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781473637467&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Hans Rosling",
+          "Ola Rosling",
+          "Anna Rosling Rönnlund"
+        ],
+        "cover_i": 8186237,
+        "first_publish_year": 2018,
+        "key": "/works/OL17877260W",
+        "number_of_pages_median": 352,
+        "title": "Factfulness"
+      }
+    },
+    {
+      "isbn": "9780060775858",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780060775858&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Margaret Wise Brown"
+        ],
+        "cover_i": 35556,
+        "first_publish_year": 1947,
+        "key": "/works/OL151798W",
+        "number_of_pages_median": 32,
+        "title": "Goodnight Moon"
+      }
+    },
+    {
+      "isbn": "9780316015844",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780316015844&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Stephenie Meyer"
+        ],
+        "cover_i": 12641977,
+        "first_publish_year": 2005,
+        "key": "/works/OL5720023W",
+        "number_of_pages_median": 498,
+        "title": "Twilight"
+      }
+    },
+    {
+      "isbn": "9780156030083",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780156030083&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Daniel Keyes"
+        ],
+        "cover_i": 12947700,
+        "first_publish_year": 1966,
+        "key": "/works/OL515754W",
+        "number_of_pages_median": 274,
+        "title": "Flowers for Algernon"
+      }
+    },
+    {
+      "isbn": "9780679805274",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780679805274&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Dr. Seuss"
+        ],
+        "cover_i": 5020952,
+        "first_publish_year": 1990,
+        "key": "/works/OL261196W",
+        "number_of_pages_median": 48,
+        "title": "Oh, the Places You'll Go!"
+      }
+    },
+    {
+      "isbn": "9780099408390",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780099408390&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Maurice Sendak"
+        ],
+        "cover_i": 50842,
+        "first_publish_year": 1963,
+        "key": "/works/OL2568879W",
+        "number_of_pages_median": 42,
+        "title": "Where the Wild Things Are"
+      }
+    },
+    {
+      "isbn": "9780143039952",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780143039952&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Όμηρος"
+        ],
+        "cover_i": 9045853,
+        "first_publish_year": 1488,
+        "key": "/works/OL61982W",
+        "number_of_pages_median": 374,
+        "title": "Ὀδύσσεια"
+      }
+    },
+    {
+      "isbn": "9780394800011",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780394800011&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Dr. Seuss",
+          "Simon Mugford"
+        ],
+        "cover_i": 11342,
+        "first_publish_year": 1957,
+        "key": "/works/OL1898309W",
+        "number_of_pages_median": 63,
+        "title": "The Cat in the Hat"
+      }
+    },
+    {
+      "isbn": "9780394800165",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780394800165&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Dr. Seuss"
+        ],
+        "cover_i": 231746,
+        "first_publish_year": 1960,
+        "key": "/works/OL1898308W",
+        "number_of_pages_median": 62,
+        "title": "Green Eggs and Ham"
+      }
+    },
+    {
+      "isbn": "9780060555665",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780060555665&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 2,
+      "doc": {
+        "author_name": [
+          "Benjamin Graham",
+          "Jason Zweig",
+          "Atsuhiro Dokō",
+          "Kazumi Masuzawa",
+          "Miwa Niimi",
+          "Warren Buffett",
+          "Yonatan Bar"
+        ],
+        "cover_i": 36434,
+        "first_publish_year": 1949,
+        "key": "/works/OL273184W",
+        "number_of_pages_median": 352,
+        "title": "The Intelligent Investor"
+      }
+    },
+    {
+      "isbn": "9780307887894",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780307887894&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Eric Ries"
+        ],
+        "cover_i": 7104760,
+        "first_publish_year": 2011,
+        "key": "/works/OL16086010W",
+        "number_of_pages_median": 336,
+        "title": "The Lean Startup"
+      }
+    },
+    {
+      "isbn": "9781400064168",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781400064168&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Laura Hillenbrand"
+        ],
+        "cover_i": 6668103,
+        "first_publish_year": 2010,
+        "key": "/works/OL15455841W",
+        "number_of_pages_median": 500,
+        "title": "Unbroken"
+      }
+    },
+    {
+      "isbn": "9780804137393",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780804137393&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 0
+    },
+    {
+      "isbn": "9780199565849",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780199565849&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Reinier Kraakman"
+        ],
+        "cover_i": 12850560,
+        "first_publish_year": 2009,
+        "key": "/works/OL18629044W",
+        "number_of_pages_median": 322,
+        "title": "The anatomy of corporate law"
+      }
+    },
+    {
+      "isbn": "9781451686579",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781451686579&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Jonah Berger"
+        ],
+        "cover_i": 9039370,
+        "first_publish_year": 2013,
+        "key": "/works/OL19711031W",
+        "number_of_pages_median": 244,
+        "title": "Contagious"
+      }
+    },
+    {
+      "isbn": "9780062301239",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780062301239&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Ashlee Vance"
+        ],
+        "cover_i": 8463846,
+        "first_publish_year": 2013,
+        "key": "/works/OL17184556W",
+        "number_of_pages_median": 396,
+        "subtitle": "Tesla, SpaceX, and the Quest for a Fantastic Future",
+        "title": "Elon Musk"
+      }
+    },
+    {
+      "isbn": "9780812976144",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780812976144&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Caleb Carr"
+        ],
+        "cover_i": 417627,
+        "first_publish_year": 1994,
+        "key": "/works/OL2671485W",
+        "number_of_pages_median": 588,
+        "title": "The Alienist"
+      }
+    },
+    {
+      "isbn": "9780385349369",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780385349369&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Tom Kelley",
+          "David Kelley",
+          "David Kelley",
+          "Tom Kelley",
+          "David Kelley"
+        ],
+        "cover_i": 10534005,
+        "first_publish_year": 2013,
+        "key": "/works/OL16814100W",
+        "number_of_pages_median": 295,
+        "subtitle": "Unleashing the Creative Potential Within Us All",
+        "title": "Creative Confidence"
+      }
+    },
+    {
+      "isbn": "9781633691056",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781633691056&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 0
+    },
+    {
+      "isbn": "9781451648539",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781451648539&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Walter Isaacson"
+        ],
+        "cover_i": 12374726,
+        "first_publish_year": 2011,
+        "key": "/works/OL16085155W",
+        "number_of_pages_median": 665,
+        "subtitle": "Lecciones de liderazgo",
+        "title": "Steve Jobs"
+      }
+    },
+    {
+      "isbn": "9780060929879",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780060929879&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Aldous Huxley"
+        ],
+        "cover_i": 8231823,
+        "first_publish_year": 1932,
+        "key": "/works/OL64365W",
+        "number_of_pages_median": 240,
+        "title": "Brave New World"
+      }
+    },
+    {
+      "isbn": "9781476729084",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781476729084&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Graeme Simsion"
+        ],
+        "cover_i": 10186221,
+        "first_publish_year": 2013,
+        "key": "/works/OL16813583W",
+        "number_of_pages_median": 326,
+        "title": "The Rosie Project"
+      }
+    },
+    {
+      "isbn": "9780814414033",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780814414033&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Mark Goulston"
+        ],
+        "cover_i": 8082622,
+        "first_publish_year": 2009,
+        "key": "/works/OL2933286W",
+        "number_of_pages_median": 245,
+        "title": "Just listen"
+      }
+    },
+    {
+      "isbn": "9780887305108",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780887305108&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Seth A. Klarman"
+        ],
+        "cover_i": 8042651,
+        "first_publish_year": 1991,
+        "key": "/works/OL4108209W",
+        "number_of_pages_median": 249,
+        "title": "Margin of safety"
+      }
+    },
+    {
+      "isbn": "9780070534483",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780070534483&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Ethan M. Rasiel"
+        ],
+        "cover_i": 55263,
+        "first_publish_year": 1999,
+        "key": "/works/OL2003217W",
+        "number_of_pages_median": 187,
+        "title": "The McKinsey way"
+      }
+    },
+    {
+      "isbn": "9780062009265",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780062009265&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "William Knoedelseder"
+        ],
+        "cover_i": 13087015,
+        "first_publish_year": 2012,
+        "key": "/works/OL19957300W",
+        "number_of_pages_median": 396,
+        "title": "Bitter brew"
+      }
+    },
+    {
+      "isbn": "9781598878738",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781598878738&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Daniel Coyle"
+        ],
+        "cover_i": 11948223,
+        "first_publish_year": 2009,
+        "key": "/works/OL19702508W",
+        "number_of_pages_median": 256,
+        "title": "The talent code"
+      }
+    },
+    {
+      "isbn": "9780316769174",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780316769174&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "J. D. Salinger",
+          "Shao jia yun"
+        ],
+        "cover_i": 9273490,
+        "first_publish_year": 1945,
+        "key": "/works/OL3335245W",
+        "number_of_pages_median": 240,
+        "title": "The Catcher in the Rye"
+      }
+    },
+    {
+      "isbn": "9780553381900",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780553381900&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Pat Conroy"
+        ],
+        "cover_i": 227169,
+        "first_publish_year": 2002,
+        "key": "/works/OL2908762W",
+        "number_of_pages_median": 402,
+        "subtitle": "The Point Guard's Way to Knowledge",
+        "title": "My Losing Season"
+      }
+    },
+    {
+      "isbn": "9781406309355",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781406309355&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Anthony Horowitz"
+        ],
+        "cover_i": 1199539,
+        "first_publish_year": 2007,
+        "key": "/works/OL14952358W",
+        "number_of_pages_median": 406,
+        "title": "Snakehead"
+      }
+    },
+    {
+      "isbn": "9780142407387",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780142407387&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Anthony Horowitz"
+        ],
+        "cover_i": 260117,
+        "first_publish_year": 2005,
+        "key": "/works/OL84766W",
+        "number_of_pages_median": 331,
+        "title": "Ark Angel"
+      }
+    },
+    {
+      "isbn": "9780142405789",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780142405789&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Anthony Horowitz"
+        ],
+        "cover_i": 9285749,
+        "first_publish_year": 2004,
+        "key": "/works/OL80761W",
+        "number_of_pages_median": 364,
+        "title": "Scorpia"
+      }
+    },
+    {
+      "isbn": "9780142406137",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780142406137&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Anthony Horowitz"
+        ],
+        "cover_i": 6420816,
+        "first_publish_year": 2003,
+        "key": "/works/OL84767W",
+        "number_of_pages_median": 328,
+        "title": "Eagle Strike"
+      }
+    },
+    {
+      "isbn": "9780142406144",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780142406144&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Anthony Horowitz"
+        ],
+        "cover_i": 6402129,
+        "first_publish_year": 1999,
+        "key": "/works/OL84774W",
+        "number_of_pages_median": 327,
+        "title": "Skeleton Key"
+      }
+    },
+    {
+      "isbn": "9780142406120",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780142406120&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Anthony Horowitz"
+        ],
+        "cover_i": 259930,
+        "first_publish_year": 2001,
+        "key": "/works/OL84778W",
+        "number_of_pages_median": 274,
+        "title": "Point Blanc"
+      }
+    },
+    {
+      "isbn": "9780142401651",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780142401651&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Anthony Horowitz"
+        ],
+        "cover_i": 5081706,
+        "first_publish_year": 2000,
+        "key": "/works/OL80763W",
+        "number_of_pages_median": 234,
+        "title": "Stormbreaker"
+      }
+    },
+    {
+      "isbn": "9780684833392",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780684833392&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Joseph Heller"
+        ],
+        "cover_i": 6468653,
+        "first_publish_year": 1961,
+        "key": "/works/OL276798W",
+        "number_of_pages_median": 463,
+        "title": "Catch-22"
+      }
+    },
+    {
+      "isbn": "9780767902892",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780767902892&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Tim O'Brien"
+        ],
+        "cover_i": 12639079,
+        "first_publish_year": 1990,
+        "key": "/works/OL2919959W",
+        "number_of_pages_median": 256,
+        "title": "The Things They Carried"
+      }
+    },
+    {
+      "isbn": "9780439686525",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780439686525&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 0
+    },
+    {
+      "isbn": "9780439139595",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780439139595&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "J. K. Rowling"
+        ],
+        "cover_i": 12059372,
+        "first_publish_year": 2000,
+        "key": "/works/OL82560W",
+        "number_of_pages_median": 672,
+        "title": "Harry Potter and the Goblet of Fire"
+      }
+    },
+    {
+      "isbn": "9780439655484",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780439655484&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "J. K. Rowling"
+        ],
+        "cover_i": 10580435,
+        "first_publish_year": 1999,
+        "key": "/works/OL82536W",
+        "number_of_pages_median": 416,
+        "title": "Harry Potter and the Prisoner of Azkaban"
+      }
+    },
+    {
+      "isbn": "9780439554930",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780439554930&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "J. K. Rowling"
+        ],
+        "cover_i": 15155833,
+        "first_publish_year": 1997,
+        "key": "/works/OL82563W",
+        "number_of_pages_median": 302,
+        "title": "Harry Potter and the Philosopher's Stone"
+      }
+    },
+    {
+      "isbn": "9780803730755",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780803730755&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Alan Gratz"
+        ],
+        "cover_i": 575590,
+        "first_publish_year": 2006,
+        "key": "/works/OL5830057W",
+        "number_of_pages_median": 280,
+        "title": "Samurai shortstop"
+      }
+    },
+    {
+      "isbn": "9780198320272",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780198320272&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "William Shakespeare"
+        ],
+        "cover_i": 7901303,
+        "first_publish_year": 1656,
+        "key": "/works/OL362702W",
+        "number_of_pages_median": 135,
+        "title": "Julius Caesar"
+      }
+    },
+    {
+      "isbn": "9780140424386",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780140424386&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Geoffrey Chaucer",
+          "John E. Cunningham",
+          "Peter Ackroyd",
+          "Ted Stearn",
+          "V. A. Kolve",
+          "Glending Olson"
+        ],
+        "cover_i": 5767180,
+        "first_publish_year": 1478,
+        "key": "/works/OL531767W",
+        "number_of_pages_median": 427,
+        "title": "The Canterbury Tales"
+      }
+    },
+    {
+      "isbn": "9780099910107",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780099910107&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Ernest Hemingway"
+        ],
+        "cover_i": 7226599,
+        "first_publish_year": 1929,
+        "key": "/works/OL63072W",
+        "number_of_pages_median": 332,
+        "title": "A Farewell to Arms"
+      }
+    },
+    {
+      "isbn": "9781892295491",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781892295491&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Joseph Conrad"
+        ],
+        "cover_i": 12307847,
+        "first_publish_year": 1899,
+        "key": "/works/OL38663W",
+        "number_of_pages_median": 136,
+        "title": "Heart of Darkness"
+      }
+    },
+    {
+      "isbn": "9780385486804",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780385486804&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Jon Krakauer"
+        ],
+        "cover_i": 1377482,
+        "first_publish_year": 1996,
+        "key": "/works/OL1974546W",
+        "number_of_pages_median": 284,
+        "title": "Into the Wild"
+      }
+    },
+    {
+      "isbn": "9780435233075",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780435233075&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Arthur Miller"
+        ],
+        "cover_i": 9254686,
+        "first_publish_year": 1940,
+        "key": "/works/OL66346W",
+        "number_of_pages_median": 139,
+        "title": "Death of a Salesman"
+      }
+    },
+    {
+      "isbn": "9780743477109",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780743477109&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "William Shakespeare"
+        ],
+        "cover_i": 872432,
+        "first_publish_year": 1508,
+        "key": "/works/OL258902W",
+        "number_of_pages_median": 135,
+        "title": "Macbeth"
+      }
+    },
+    {
+      "isbn": "9780521618748",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780521618748&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "William Shakespeare"
+        ],
+        "cover_i": 8281954,
+        "first_publish_year": 1603,
+        "key": "/works/OL9170454W",
+        "number_of_pages_median": 192,
+        "title": "Hamlet"
+      }
+    },
+    {
+      "isbn": "9780743477116",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780743477116&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 2,
+      "doc": {
+        "author_name": [
+          "William Shakespeare"
+        ],
+        "cover_i": 8257991,
+        "first_publish_year": 1597,
+        "key": "/works/OL362427W",
+        "number_of_pages_median": 169,
+        "title": "Romeo and Juliet"
+      }
+    },
+    {
+      "isbn": "9780060935467",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780060935467&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Harper Lee"
+        ],
+        "cover_i": 14351077,
+        "first_publish_year": 1960,
+        "key": "/works/OL3140822W",
+        "number_of_pages_median": 320,
+        "title": "To Kill a Mockingbird"
+      }
+    },
+    {
+      "isbn": "9780811214049",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780811214049&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Tennessee Williams"
+        ],
+        "cover_i": 8417699,
+        "first_publish_year": 1945,
+        "key": "/works/OL30293W",
+        "number_of_pages_median": 105,
+        "title": "The Glass Menagerie"
+      }
+    },
+    {
+      "isbn": "9780822210894",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780822210894&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Tennessee Williams"
+        ],
+        "cover_i": 8422967,
+        "first_publish_year": 1947,
+        "key": "/works/OL30294W",
+        "number_of_pages_median": 142,
+        "title": "A Streetcar Named Desire"
+      }
+    },
+    {
+      "isbn": "9780316204361",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780316204361&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Malcolm Gladwell"
+        ],
+        "cover_i": 7276285,
+        "first_publish_year": 2013,
+        "key": "/works/OL16809805W",
+        "number_of_pages_median": 305,
+        "title": "David and Goliath"
+      }
+    },
+    {
+      "isbn": "9781599951614",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781599951614&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Josh Hamilton"
+        ],
+        "cover_i": 7146922,
+        "first_publish_year": 2008,
+        "key": "/works/OL13410877W",
+        "number_of_pages_median": 257,
+        "title": "Beyond belief"
+      }
+    },
+    {
+      "isbn": "9780151013043",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780151013043&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Mohsin Hamid",
+          "Satya Bhabha",
+          "Hamid Yoshin"
+        ],
+        "cover_i": 2010955,
+        "first_publish_year": 2007,
+        "key": "/works/OL489097W",
+        "number_of_pages_median": 192,
+        "title": "The Reluctant Fundamentalist"
+      }
+    },
+    {
+      "isbn": "9780547251271",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780547251271&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Linda Sue Park",
+          "Ginger Knowlton"
+        ],
+        "cover_i": 7350927,
+        "first_publish_year": 2008,
+        "key": "/works/OL17113467W",
+        "number_of_pages_median": 136,
+        "title": "A Long Walk to Water( Linda Sue Park)"
+      }
+    },
+    {
+      "isbn": "9780446580496",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780446580496&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Mike Krzyzewski",
+          "Jamie K. Spatola"
+        ],
+        "cover_i": 7372661,
+        "first_publish_year": 2006,
+        "key": "/works/OL8135247W",
+        "number_of_pages_median": 182,
+        "title": "Beyond basketball"
+      }
+    },
+    {
+      "isbn": "9780142437261",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780142437261&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Nathaniel Hawthorne"
+        ],
+        "cover_i": 5654516,
+        "first_publish_year": 1800,
+        "key": "/works/OL455305W",
+        "number_of_pages_median": 272,
+        "title": "The Scarlet Letter"
+      }
+    },
+    {
+      "isbn": "9780991331314",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780991331314&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Debby Irving"
+        ],
+        "first_publish_year": 2014,
+        "key": "/works/OL36842137W",
+        "title": "Waking up White"
+      }
+    },
+    {
+      "isbn": "9780966446111",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780966446111&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Warren Buffett",
+          "Lawrence A. Cunningham"
+        ],
+        "cover_i": 6497216,
+        "first_publish_year": 1997,
+        "key": "/works/OL18072192W",
+        "number_of_pages_median": 291,
+        "title": "The essays of Warren Buffett"
+      }
+    },
+    {
+      "isbn": "9781888451412",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9781888451412&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Nina Revoyr"
+        ],
+        "cover_i": 936314,
+        "first_publish_year": 2003,
+        "key": "/works/OL2751814W",
+        "number_of_pages_median": 477,
+        "title": "Southland"
+      }
+    },
+    {
+      "isbn": "9780743273565",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780743273565&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 2,
+      "doc": {
+        "author_name": [
+          "F. Scott Fitzgerald"
+        ],
+        "cover_i": 10590366,
+        "first_publish_year": 1920,
+        "key": "/works/OL468431W",
+        "number_of_pages_median": 185,
+        "title": "The Great Gatsby"
+      }
+    },
+    {
+      "isbn": "9780802123442",
+      "url": "https://openlibrary.org/search.json?q=isbn%3A9780802123442&fields=key%2Ctitle%2Csubtitle%2Cauthor_name%2Cfirst_publish_year%2Ccover_i%2Cnumber_of_pages_median&limit=1",
+      "status": 200,
+      "numFound": 1,
+      "doc": {
+        "author_name": [
+          "Schenkkan, Robert"
+        ],
+        "cover_i": 12178718,
+        "first_publish_year": 2014,
+        "key": "/works/OL20020261W",
+        "number_of_pages_median": 125,
+        "title": "All the way"
+      }
+    }
+  ]
+}

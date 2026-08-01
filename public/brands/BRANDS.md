@@ -1,45 +1,53 @@
-# Brand assets — sourcing, slots, and constraints (E5.2)
+# Provider marks — E5.2/E5.3 provenance and rescope
 
-No brand-asset host is reachable from the build environment, and hand-drawing
-logo geometry produces off-brand marks — so **no logo files ship yet**. Until a
-provider's official kit SVG lands in its slot below and its registry entry's
-`logoAsset` is set, **ProviderButton (E5.3) renders the provider's wordmark
-(exact official casing) on its brand colors** from
-`lib/providers/registry.ts`. That registry is the single source of truth for
-colors, wordmarks, and deep links; this file is the sourcing manifest for the
-art.
+Reviewed 2026-08-01. E5.2 and E5.3 are deliberately treated as one lease:
+the registry decides whether an asset is lawful and usable, and the button
+renders only that decision. A logo appears only when its provider publishes an
+official asset (or sanctioned badge) plus enough display guidance for this
+context. Otherwise `logoAsset` is `null` and the button uses exact-casing text.
 
-**Swap-in procedure (per provider):** download the mark from the official kit
-URL below → save as the exact slot path → set `logoAsset: "/brands/{id}.svg"`
-in `lib/providers/registry.ts` → done. No component or test changes.
+No file or button claims trademark authorization, sponsorship, partnership, or
+endorsement. Community logo collections and redrawn marks are not acceptable
+provenance for this feature.
 
-**Universal constraints** (each kit states variants of the same rules): use the
-mark unaltered — no recoloring, stretching, effects, or redrawing; keep the
-kit's minimum clear space and minimum size; only brand-approved background
-colors behind the mark; never imply endorsement or partnership. E5.3 encodes
-clear-space and minimum-size handling; per-mark specifics below.
+## Retained mark with verified official context
 
-| Provider | Slot (drop file here) | Official kit / source | Constraint notes |
+| Provider | Local file | Primary source | Constraint applied |
 | --- | --- | --- | --- |
-| Netflix | `public/brands/netflix.svg` | brand.netflix.com | Use full NETFLIX wordmark or "N" symbol as provided; Netflix Red #E50914; no alteration of letterforms; dark backgrounds preferred. |
-| HBO Max | `public/brands/hbo-max.svg` | press.wbd.com (Warner Bros. Discovery press site) | 2025 identity is black/white; use current HBO Max lockup, not legacy Max-era purple/blue art. |
-| Prime Video | `public/brands/prime-video.svg` | Amazon brand usage guidelines (advertising.amazon.com/resources/ad-policy/brand-usage) | Lowercase "prime video" lockup with smile arc; Prime blue #00A8E1; Amazon marks need Amazon's usage approval. |
-| Hulu | `public/brands/hulu.svg` | press.hulu.com | Lowercase wordmark; Hulu green #1CE783 on black/white only. |
-| Apple TV+ | `public/brands/apple-tv-plus.svg` | tools.applemediaservices.com (Apple Media Services marketing tools) | Use Apple-generated badge/lockup only; Apple logo glyph must never be recreated; white-on-black. |
-| Peacock | `public/brands/peacock.svg` | NBCUniversal press (press.nbcuniversal.com) | Lowercase wordmark; multicolor feather may not be recolored or reordered. |
-| Paramount+ | `public/brands/paramount-plus.svg` | Paramount Press Express (paramountpressexpress.com) | Mountain-and-stars lockup; brand blue #0064FF; keep the "+" as drawn. |
-| Disney+ | `public/brands/disney-plus.svg` | press.disneyplus.com | Wordmark with arc; white on Disney+ navy; do not separate arc from wordmark. |
-| Spotify | `public/brands/spotify.svg` | developer.spotify.com/documentation/design (official design & branding guidelines) | The most prescriptive kit: Spotify Green #1ED760 only with black or white; minimum size 21px digital; icon never modified; guidelines explicitly cover third-party app usage. |
-| Audible | `public/brands/audible.svg` | Audible newsroom / Amazon brand usage guidelines | Lowercase wordmark with origin-arrow; Audible orange; Amazon-family approval rules apply. |
-| Kindle | `public/brands/kindle.svg` | Amazon brand usage guidelines | Lowercase wordmark; Amazon-family approval rules apply. |
-| Bookshop.org | `public/brands/bookshop.svg` | bookshop.org/pages/press | All-caps wordmark with pennant glyph; affiliate program has its own asset pack — we use clean non-affiliate links (PLAN §5). |
-| Fandango | `public/brands/fandango.svg` | Fandango corporate press office | All-caps wordmark; orange field; ticket glyph as provided. |
-| Apple Podcasts | `public/brands/apple-podcasts.svg` | Apple Podcasts identity guidelines + tools.applemediaservices.com | Use Apple-generated "Listen on Apple Podcasts" badge or icon exactly as exported; purple gradient icon never redrawn. |
-| Overcast | `public/brands/overcast.svg` | overcast.fm (no formal kit; icon/wordmark used by app-linking convention) | No published kit — request permission or use plain wordmark rendering indefinitely. |
+| Hulu | `hulu.svg` | [Hulu official brand kit](https://www.thisishulu.com/app/uploads/2023/11/Hulu-Logos.zip) | Official black secondary digital wordmark on Hulu green, 24px high and unmodified. Hulu's safe zone is the height of the `u`; the uninterrupted green pill field supplies that zone from other graphics (no suffix is used with this lockup). No numeric minimum is published in the kit. |
 
-Brand *colors* used meanwhile are recorded per entry in
-`lib/providers/registry.ts` with a `source` note grading each value
-`official` (published in the kit/guidelines) or `observed` (read off the
-service's own surfaces, to be confirmed when the kit is pulled). That registry
-file is the one sanctioned raw-hex location outside `styles/tokens.css`
-(EPICS.md E0.2 discipline) — brand colors are external facts, not tokens.
+This sole retained mark is bundled locally. Runtime code never hotlinks it.
+
+## Text fallbacks and blockers
+
+These providers remain fully functional links, but display exact-casing text
+instead of unverified art. That is intentional, not a missing-file failure.
+
+| Provider | Primary-source check | Precise blocker |
+| --- | --- | --- |
+| Netflix | [Netflix Brand Site logos](https://brand.netflix.com/en/assets/logos/) and [terms](https://brand.netflix.com/en/terms/) | Official artwork is available, but the review did not establish that this compact third-party outbound-link use is within the granted context. Exact-casing text remains until that usage is confirmed. |
+| HBO Max | [Warner Bros. Discovery press asset](https://press.wbd.com/us/image/hbomaxlogo?language_content_entity=en) | The official download requires press-account login; no public external-use license, minimum size, and clear-space rule were established. |
+| Prime Video | [Amazon brand usage policy](https://advertising.amazon.com/resources/ad-policy/brand-usage) | Amazon-family logos require express approval. The sanctioned “Available at Amazon” badge has a 90px/140px minimum and would falsely label a Prime Video-specific handoff. |
+| Apple TV+ | [Apple trademark guidelines](https://www.apple.com/legal/intellectual-property/guidelinesfor3rdparties.html) | No sanctioned badge for a third-party link to the service, with applicable size and clear-space rules, was found. App Store badges license promotion of the developer's own app and are not a substitute. |
+| Peacock | [Peacock press site](https://www.peacocktv.com/press) | No public external-use kit with license, minimum size, and clear-space rules was found. |
+| Paramount+ | [Paramount brand page](https://www.paramount.com/brand/paramount-plus) | The page identifies the current mark but did not provide a reusable external-link asset with applicable display constraints. |
+| Disney+ | [Disney+ Press logo page](https://press.disneyplus.com/about/disney-plus-logo-2024) | Press artwork is downloadable, but no external product-link usage grant, minimum size, or clear-space rule was established for this context. The downloaded review copy is therefore not shipped. |
+| Spotify | [Spotify Design Guidelines](https://developer.spotify.com/documentation/design) | Official artwork and sizing rules are published, but the reviewed documentation did not establish this compact third-party service-link context. Exact-casing text remains until that use is confirmed. |
+| Audible | [Amazon brand usage policy](https://advertising.amazon.com/resources/ad-policy/brand-usage) | Amazon-family logo use requires express approval; the generic Amazon badge would misidentify the Audible destination. |
+| Kindle | [Amazon brand usage policy](https://advertising.amazon.com/resources/ad-policy/brand-usage) | Amazon-family logo use requires express approval; the generic Amazon badge would misidentify the Kindle destination. |
+| Bookshop.org | [Bookshop.org Terms of Use](https://bookshop.org/info/terms-of-use) | The terms reserve logo use absent permission; no approved external-link badge and display rules were found. |
+| Fandango | [Fandango](https://www.fandango.com/) | No public official external-use kit with minimum size and clear-space guidance was found. |
+| Overcast | [Overcast](https://overcast.fm/) | No formal public brand kit or sanctioned external-link badge with display constraints was found. |
+
+## Rendering and remaining acceptance work
+
+- Assets keep intrinsic aspect ratio and are never filtered, recolored,
+  stretched, shadowed, or animated independently.
+- The accessible provider name remains present in both image and text branches.
+- E5.2's “official asset for every provider” acceptance item remains blocked for
+  13 providers: the original 11 blockers plus Netflix and Spotify. Exact text
+  is the safe operational fallback.
+- E5.3's physical-iPhone acceptance item is still pending. Desktop/headless
+  tests cannot prove whether each exact HTTPS path transfers to an installed
+  app. Test with each relevant app installed and absent before calling any path
+  a universal link.

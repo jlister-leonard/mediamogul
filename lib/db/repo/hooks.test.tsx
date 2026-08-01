@@ -116,11 +116,11 @@ describe("useItems / useItemsByMedium / useItemsByGenre", () => {
 
   it("tracks a ladder's pool as items are assigned", async () => {
     const book = await addItem(bookSeed);
-    const { result } = renderHook(() => useItemsByGenre("money-markets"));
+    const { result } = renderHook(() => useItemsByGenre("lives"));
     await waitFor(() => expect(result.current).toEqual([]));
 
     await act(async () => {
-      await setItemGenre(book.id, { genre: "money-markets", source: "auto" });
+      await setItemGenre(book.id, { genre: "lives", source: "manual" });
     });
 
     await waitFor(() => expect(result.current).toHaveLength(1));
@@ -160,14 +160,14 @@ describe("useEntriesByStatus / useEntriesByItemId / useOpenEntry", () => {
       entry = await startEntry(book.id);
     });
     await waitFor(() => expect(openOne.result.current?.id).toBe(entry.id));
-    expect(all.result.current).toHaveLength(1);
+    await waitFor(() => expect(all.result.current).toHaveLength(1));
 
     await act(async () => {
       await finishEntry(entry.id);
     });
     // The log survives; only the "open" read goes empty.
     await waitFor(() => expect(openOne.result.current).toBeNull());
-    expect(all.result.current).toHaveLength(1);
+    await waitFor(() => expect(all.result.current).toHaveLength(1));
   });
 });
 

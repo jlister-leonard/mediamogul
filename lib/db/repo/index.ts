@@ -25,6 +25,7 @@ export {
   itemsByGenre,
   itemsByMedium,
   listItems,
+  setAutoItemGenreIfAllowed,
   setItemGenre,
 } from "./items";
 
@@ -67,8 +68,12 @@ export {
 
 export {
   availabilityByItemId,
+  availabilityRefreshByItemId,
   availabilityStaleBefore,
   refreshAvailabilityForItem,
+  refreshAvailabilityState,
+  readAvailabilityState,
+  type AvailabilityState,
 } from "./availability";
 
 export {
@@ -85,4 +90,10 @@ export {
   type PortraitInput,
 } from "./portrait";
 
-export { readSnapshot, restoreSnapshot, type RepoSnapshot } from "./snapshot";
+export {
+  readSnapshot,
+  resolveManualMatch,
+  restoreSnapshot,
+  restoreSnapshotIfEmpty,
+  type RepoSnapshot,
+} from "./snapshot";

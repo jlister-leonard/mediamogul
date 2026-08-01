@@ -1,36 +1,66 @@
 import { z } from "zod";
-import { type MediaRef, mediaRefSchema, type Medium, mediumSchema } from "../types";
+import { resolve } from "../resolve";
+import {
+  buyAvailabilitySchema,
+  type MediaRef,
+  mediaRefSchema,
+  type Medium,
+  mediumSchema,
+  rentAvailabilitySchema,
+  subscriptionAvailabilitySchema,
+  theaterAvailabilitySchema,
+} from "../types";
+import {
+  MAX_AVAILABILITY_REFS,
+  MAX_AVAILABILITY_PROVIDER_ID_CHARS,
+  MAX_AVAILABILITY_URL_CHARS,
+  MAX_CATALOG_QUERY_CHARS,
+  MAX_SERIALIZED_TOOL_RESULT_CHARS,
+} from "./config";
 import type { LlmToolDefinition } from "./transport";
 
 /**
  * The tools the model may call while dealing a hand or chatting: check what
  * the user can actually access tonight, and search the world's catalog.
  *
- * ## The lib/providers seam (wave-4 wiring)
- *
- * E2.x builds the provider modules in parallel with this bead, so the
- * executor must not hard-depend on them. It expects `lib/providers` (barrel)
- * to export:
- *
- *   checkAvailability(itemRefs: MediaRef[]): Promise<unknown>
- *   searchCatalog(query: string, medium?: Medium): Promise<unknown>
- *
- * The default loader dynamic-imports that barrel with a non-literal specifier
- * (so the bundler doesn't fail the build while the module is absent) and any
- * failure degrades to a typed `unavailable` tool result the model can work
- * around. Once E2.x lands, wave-4 wiring replaces `defaultProvidersLoader`'s
- * body with a static `import("@/lib/providers")` — a one-line change — and
- * the `unavailable` path remains as the graceful degradation for genuinely
- * broken providers.
+ * Catalog search is statically wired to E2.4's resolver so the production
+ * bundle includes the real provider fan-out and identity-deduplication path.
+ * Availability remains optional until E5.1 supplies it; its absence degrades
+ * to the typed `unavailable` result below rather than claiming it was checked.
  */
 
 export const checkAvailabilityInputSchema = z.object({
-  itemRefs: z.array(mediaRefSchema).min(1),
+  itemRefs: z.array(mediaRefSchema).min(1).max(MAX_AVAILABILITY_REFS),
 });
 export type CheckAvailabilityInput = z.infer<typeof checkAvailabilityInputSchema>;
 
+const boundedProviderIdSchema = z.string().min(1).max(MAX_AVAILABILITY_PROVIDER_ID_CHARS);
+const boundedUrlSchema = z.url().max(MAX_AVAILABILITY_URL_CHARS);
+const contextOfferSchema = z.discriminatedUnion("kind", [
+  subscriptionAvailabilitySchema
+    .omit({ itemId: true, providerId: true, url: true })
+    .extend({ providerId: boundedProviderIdSchema, url: boundedUrlSchema.optional() }),
+  rentAvailabilitySchema
+    .omit({ itemId: true, providerId: true, url: true })
+    .extend({ providerId: boundedProviderIdSchema, url: boundedUrlSchema.optional() }),
+  buyAvailabilitySchema
+    .omit({ itemId: true, providerId: true, url: true })
+    .extend({ providerId: boundedProviderIdSchema, url: boundedUrlSchema.optional() }),
+  theaterAvailabilitySchema
+    .omit({ itemId: true, fandangoUrl: true })
+    .extend({ fandangoUrl: boundedUrlSchema.optional() }),
+]);
+export const availabilityContextEntrySchema = z.object({
+  ref: mediaRefSchema,
+  offers: z.array(contextOfferSchema).max(50),
+});
+export const availabilityContextSchema = z.array(availabilityContextEntrySchema).max(
+  MAX_AVAILABILITY_REFS,
+);
+export type AvailabilityContext = z.infer<typeof availabilityContextSchema>;
+
 export const searchCatalogInputSchema = z.object({
-  query: z.string().min(1),
+  query: z.string().min(1).max(MAX_CATALOG_QUERY_CHARS),
   medium: mediumSchema.optional(),
 });
 export type SearchCatalogInput = z.infer<typeof searchCatalogInputSchema>;
@@ -57,21 +87,61 @@ export type ToolOutcome =
   | { status: "unavailable"; message: string };
 
 interface ProvidersModule {
-  checkAvailability?: (itemRefs: MediaRef[]) => Promise<unknown>;
-  searchCatalog?: (query: string, medium?: Medium) => Promise<unknown>;
+  checkAvailability?: (itemRefs: MediaRef[], signal?: AbortSignal) => Promise<unknown>;
+  searchCatalog?: (
+    query: string,
+    medium?: Medium,
+    signal?: AbortSignal,
+  ) => Promise<unknown>;
 }
 
-export type ProvidersLoader = () => Promise<ProvidersModule>;
+export type ProvidersLoader = (signal?: AbortSignal) => Promise<ProvidersModule>;
+
+/** Adapt the model's optional single-medium input to the resolver's scope. */
+async function searchResolvedCatalog(
+  query: string,
+  medium?: Medium,
+  signal?: AbortSignal,
+): Promise<unknown> {
+  throwIfAborted(signal);
+  const result = await waitForOrAbort(
+    resolve(query, medium === undefined ? {} : { media: [medium] }),
+    signal,
+  );
+  throwIfAborted(signal);
+  return result;
+}
 
 /**
- * Non-literal specifier defeats bundler static resolution: `lib/providers`
- * does not exist until E2.x merges, and a literal `import("@/lib/providers")`
- * would fail `next build` today. See the seam note above.
+ * This static adapter is deliberately a loader-shaped value: production gets
+ * bundle-safe imports while tests can still inject deterministic tool fakes.
  */
-const providersSpecifier = ["@", "lib", "providers"].join("/");
+const defaultProvidersLoader: ProvidersLoader = async () => ({
+  searchCatalog: searchResolvedCatalog,
+  checkAvailability: async (itemRefs) =>
+    itemRefs.map((ref) => ({ ref, checked: false, offers: [] })),
+});
 
-const defaultProvidersLoader: ProvidersLoader = () =>
-  import(providersSpecifier) as Promise<ProvidersModule>;
+/** Bind the browser-supplied, availability-only snapshot to one request. */
+export function providersLoaderWithAvailability(
+  context: AvailabilityContext,
+): ProvidersLoader {
+  const byRef = new Map(context.map((entry) => [refKey(entry.ref), entry]));
+  return async () => ({
+    searchCatalog: searchResolvedCatalog,
+    checkAvailability: async (itemRefs) =>
+      itemRefs.map((ref) => {
+        const entry = byRef.get(refKey(ref));
+        return entry === undefined
+          ? { ref, checked: false, offers: [] }
+          : { ref, checked: true, offers: entry.offers };
+      }),
+  });
+}
+
+function refKey(ref: MediaRef): string {
+  return JSON.stringify(ref);
+}
 
 const UNAVAILABLE_MESSAGE =
   "This capability is not available right now; recommend without it and say availability was not checked.";
@@ -85,11 +155,15 @@ export async function executeTool(
   name: string,
   input: unknown,
   loadProviders: ProvidersLoader = defaultProvidersLoader,
+  signal?: AbortSignal,
 ): Promise<ToolOutcome> {
   let providers: ProvidersModule;
   try {
-    providers = await loadProviders();
+    throwIfAborted(signal);
+    providers = await waitForOrAbort(loadProviders(signal), signal);
+    throwIfAborted(signal);
   } catch {
+    if (signal?.aborted) throw abortReason(signal);
     return { status: "unavailable", message: UNAVAILABLE_MESSAGE };
   }
 
@@ -103,8 +177,14 @@ export async function executeTool(
         return { status: "unavailable", message: UNAVAILABLE_MESSAGE };
       }
       try {
-        return { status: "ok", result: await providers.checkAvailability(parsed.data.itemRefs) };
+        const result = await waitForOrAbort(
+          providers.checkAvailability(parsed.data.itemRefs, signal),
+          signal,
+        );
+        throwIfAborted(signal);
+        return { status: "ok", result };
       } catch {
+        if (signal?.aborted) throw abortReason(signal);
         return { status: "unavailable", message: UNAVAILABLE_MESSAGE };
       }
     }
@@ -117,12 +197,61 @@ export async function executeTool(
         return { status: "unavailable", message: UNAVAILABLE_MESSAGE };
       }
       try {
-        return { status: "ok", result: await providers.searchCatalog(parsed.data.query, parsed.data.medium) };
+        const result = await waitForOrAbort(
+          providers.searchCatalog(parsed.data.query, parsed.data.medium, signal),
+          signal,
+        );
+        throwIfAborted(signal);
+        return { status: "ok", result };
       } catch {
+        if (signal?.aborted) throw abortReason(signal);
         return { status: "unavailable", message: UNAVAILABLE_MESSAGE };
       }
     }
     default:
       return { status: "invalid-input", message: `Unknown tool: ${name}` };
   }
+}
+
+/**
+ * Tool results are replayed into the next billed model turn. Keep one result
+ * below 64,000 characters so a surprising provider payload cannot dominate
+ * context or memory. Oversize/circular results degrade to a small typed result.
+ */
+export function serializeToolOutcome(outcome: ToolOutcome): string {
+  try {
+    const serialized = JSON.stringify(outcome);
+    if (serialized.length <= MAX_SERIALIZED_TOOL_RESULT_CHARS) {
+      return serialized;
+    }
+  } catch {
+    // Fall through to the small typed result below.
+  }
+  return JSON.stringify({
+    status: "unavailable",
+    message: "The tool result was too large to use safely; continue without it.",
+  } satisfies ToolOutcome);
+}
+
+function abortReason(signal: AbortSignal): unknown {
+  return signal.reason ?? new DOMException("The operation was aborted.", "AbortError");
+}
+
+function throwIfAborted(signal: AbortSignal | undefined): void {
+  if (signal?.aborted) throw abortReason(signal);
+}
+
+async function waitForOrAbort<T>(
+  promise: Promise<T>,
+  signal: AbortSignal | undefined,
+): Promise<T> {
+  if (signal === undefined) return await promise;
+  throwIfAborted(signal);
+  return await new Promise<T>((resolvePromise, rejectPromise) => {
+    const onAbort = (): void => rejectPromise(abortReason(signal));
+    signal.addEventListener("abort", onAbort, { once: true });
+    promise.then(resolvePromise, rejectPromise).finally(() => {
+      signal.removeEventListener("abort", onAbort);
+    });
+  });
 }

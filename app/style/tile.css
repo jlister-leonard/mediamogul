@@ -1,0 +1,363 @@
+/*
+ * E0.7 style tile — local styles, scoped to `app/style/`.
+ *
+ * Two jobs only, both of which need real CSS rather than utilities:
+ *
+ * 1. THE PLACEHOLDER COVERS. Nothing may fetch cover art here — egress is
+ *    blocked and hotlinking is out — so each cover is a pure-CSS composition:
+ *    title and author set in Fraunces on a deep color field, in the austere
+ *    Penguin manner. They are STAND-INS. When E2.x resolves real artwork,
+ *    every one of these disappears; the point they make is the framing, the
+ *    proportion, and the shadow, not the drawing.
+ *
+ * 2. THE DYNAMIC ACCENT (PLAN §6, E8.4). `--art` is the color "extracted"
+ *    from a cover; `--accent` is that same color tuned per theme so it stays
+ *    legible on ink and on paper. A card that carries a cover carries its
+ *    accent class, and every control inside it — the primary button, the
+ *    focus rings, the tint on its own surface — repaints. Hand-tuned here;
+ *    E8.4 computes the same two values from the real image.
+ *
+ * All values are oklch so lightness is the dial: every field below clears
+ * 5.8:1 against its type, and every accent clears 5.5:1 on its own ground.
+ */
+
+/* ------------------------------------------------------------------ covers */
+
+.ns-art {
+  --art-type: oklch(0.95 0.015 85); /* cream, the type on the field */
+  --art-deep: color-mix(in oklab, var(--art) 45%, var(--color-ink));
+  --art-rule: color-mix(in oklab, var(--art-type) 60%, transparent);
+
+  container-type: inline-size;
+  position: relative;
+  display: block;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border-radius: 2px;
+  color: var(--art-type);
+  font-family: var(--font-display);
+  background:
+    linear-gradient(
+      163deg,
+      color-mix(in oklab, var(--art) 88%, var(--color-paper)) 0%,
+      var(--art) 46%,
+      color-mix(in oklab, var(--art) 84%, var(--color-ink)) 100%
+    );
+  /* The spine edge: a book is an object, and it catches the lamp. */
+  box-shadow:
+    inset 3cqi 0 4cqi -3cqi color-mix(in oklab, var(--color-ink) 45%, transparent),
+    inset -1px 0 0 color-mix(in oklab, var(--color-ink) 25%, transparent);
+}
+
+.ns-art__title {
+  display: block;
+  font-size: 12cqi;
+  line-height: 1.06;
+  font-weight: 600;
+  letter-spacing: -0.012em;
+  text-wrap: balance;
+}
+
+.ns-art__author {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 4.3cqi;
+  line-height: 1.3;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* -- layout: band — a cream panel struck across a deep field ---------------- */
+.ns-art--band .ns-art__panel {
+  position: absolute;
+  inset-inline: 7cqi;
+  top: 25%;
+  padding: 6cqi 6cqi 7cqi;
+  background: var(--art-type);
+  color: var(--art-deep);
+}
+.ns-art--band .ns-art__author {
+  position: absolute;
+  inset-inline: 7cqi;
+  bottom: 9cqi;
+  text-align: center;
+}
+.ns-art--band .ns-art__rule {
+  position: absolute;
+  inset-inline: 7cqi;
+  top: 9cqi;
+  height: 1px;
+  background: var(--art-rule);
+}
+
+/* -- layout: classic — band at the head, colophon at the foot --------------- */
+.ns-art--classic .ns-art__panel {
+  position: absolute;
+  inset: 6cqi 6cqi auto;
+  padding: 6cqi 5cqi 7cqi;
+  background: var(--art-type);
+  color: var(--art-deep);
+}
+.ns-art--classic .ns-art__author {
+  position: absolute;
+  inset-inline: 6cqi;
+  top: 54%;
+  text-align: center;
+}
+.ns-art--classic .ns-art__mark {
+  position: absolute;
+  bottom: 8cqi;
+  left: 50%;
+  translate: -50% 0;
+  width: 11cqi;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1px solid var(--art-rule);
+}
+.ns-art--classic .ns-art__mark::after {
+  content: "";
+  position: absolute;
+  inset: 3.2cqi;
+  border-radius: 50%;
+  background: var(--art-rule);
+}
+
+/* -- layout: horizon — empty weather above the rule, type below it ---------- */
+.ns-art--horizon::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 56%;
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--art) 58%, var(--color-paper)) 0%,
+    transparent 100%
+  );
+}
+.ns-art--horizon .ns-art__rule {
+  position: absolute;
+  inset-inline: 8cqi;
+  top: 56%;
+  height: 1px;
+  background: var(--art-rule);
+}
+/* Both title and author stay below the horizon, on the deep half of the
+   field — cream type never lands on the pale sky. */
+.ns-art--horizon .ns-art__panel {
+  position: absolute;
+  inset: 61% 8cqi auto;
+}
+.ns-art--horizon .ns-art__author {
+  position: absolute;
+  inset-inline: 8cqi;
+  bottom: 9cqi;
+}
+
+/* -- layout: rule — a single cream spine, everything ranged off it ---------- */
+.ns-art--rule .ns-art__rule {
+  position: absolute;
+  top: 9cqi;
+  bottom: 9cqi;
+  left: 11cqi;
+  width: 1px;
+  background: var(--art-rule);
+}
+.ns-art--rule .ns-art__panel {
+  position: absolute;
+  top: 27%;
+  right: 8cqi;
+  left: 19cqi;
+}
+.ns-art--rule .ns-art__author {
+  position: absolute;
+  bottom: 9cqi;
+  left: 19cqi;
+  right: 8cqi;
+}
+
+/* -- layout: stack — dark bars stepping down a lit field -------------------- */
+.ns-art--stack {
+  --art-type: oklch(0.22 0.03 70); /* dark type: this field is the lit one */
+  --art-rule: color-mix(in oklab, var(--art-type) 55%, transparent);
+}
+.ns-art--stack .ns-art__bars {
+  position: absolute;
+  inset: 9cqi 9cqi auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2.4cqi;
+}
+.ns-art--stack .ns-art__bars span {
+  height: 2.4cqi;
+  background: var(--art-type);
+}
+.ns-art--stack .ns-art__bars span:nth-child(2) {
+  width: 64%;
+}
+.ns-art--stack .ns-art__bars span:nth-child(3) {
+  width: 34%;
+}
+.ns-art--stack .ns-art__panel {
+  position: absolute;
+  inset: 34% 9cqi auto;
+}
+.ns-art--stack .ns-art__author {
+  position: absolute;
+  inset-inline: 9cqi;
+  bottom: 9cqi;
+}
+
+/* -- layout: poster — the one film in the set, and it reads as one ---------- */
+/* A one-sheet is mostly image, and we have no image; a low sun keeps the
+   empty two-thirds from reading as a blank swatch. */
+.ns-art--poster::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    72% 42% at 50% 30%,
+    color-mix(in oklab, var(--art) 55%, var(--art-type)) 0%,
+    transparent 68%
+  );
+}
+.ns-art--poster .ns-art__panel {
+  position: absolute;
+  inset: auto 10cqi 26cqi;
+  text-align: center;
+}
+.ns-art--poster .ns-art__title {
+  font-size: 10cqi;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+/* A one-sheet's billing block: a hairline, then the credit in small caps. */
+.ns-art--poster .ns-art__rule {
+  position: absolute;
+  bottom: 21cqi;
+  left: 50%;
+  translate: -50% 0;
+  width: 22cqi;
+  height: 1px;
+  background: var(--art-rule);
+}
+.ns-art--poster .ns-art__author {
+  position: absolute;
+  inset-inline: 10cqi;
+  bottom: 13cqi;
+  font-size: 3.9cqi;
+  text-align: center;
+}
+
+/* -- layout: frame — a ruled border, the title alone inside it -------------- */
+.ns-art--frame .ns-art__rule {
+  position: absolute;
+  inset: 7cqi;
+  border: 1px solid var(--art-rule);
+}
+.ns-art--frame .ns-art__panel {
+  position: absolute;
+  inset: 22% 13cqi auto;
+  text-align: center;
+}
+.ns-art--frame .ns-art__title {
+  font-style: italic;
+  font-size: 13cqi;
+}
+.ns-art--frame .ns-art__author {
+  position: absolute;
+  inset-inline: 13cqi;
+  bottom: 13cqi;
+  text-align: center;
+}
+.ns-art--frame .ns-art__author::before {
+  content: "";
+  display: block;
+  width: 8cqi;
+  height: 1px;
+  margin: 0 auto 4cqi;
+  background: var(--art-rule);
+}
+
+/* ------------------------------------------- the six stand-ins, by artwork */
+
+.ns-art--prometheus {
+  --art: oklch(0.47 0.08 245);
+}
+.ns-art--morgan {
+  --art: oklch(0.42 0.135 25);
+}
+.ns-art--thin-air {
+  --art: oklch(0.44 0.075 175);
+}
+.ns-art--titan {
+  --art: oklch(0.42 0.105 330);
+}
+.ns-art--going-infinite {
+  --art: oklch(0.78 0.135 85);
+}
+.ns-art--catch-22 {
+  --art: oklch(0.45 0.055 120);
+}
+/* The film sits much darker than any of the books — a one-sheet, not a
+   jacket. Medium is legible before the label is read. */
+.ns-art--sicario {
+  --art: oklch(0.29 0.035 40);
+}
+
+/* ------------------------------------------------------- the dynamic accent
+ * One class per artwork, two values each: lit against ink, deep against
+ * paper. Set it on any container and everything below repaints.
+ */
+
+.ns-accent--prometheus {
+  --accent: oklch(0.8 0.09 240);
+  --accent-fg: var(--color-ink);
+}
+
+@media (prefers-color-scheme: light) {
+  .ns-accent--prometheus {
+    --accent: oklch(0.48 0.1 245);
+    --accent-fg: var(--color-paper);
+  }
+}
+
+/* The card wearing that accent takes a whisper of it into its own surface,
+ * and the art sits in a wash of it — the app takes on the color of what
+ * you're looking at (PLAN §6), without a single tinted border.
+ *
+ * ELEVATION MUST SURVIVE THE TINT. A raised surface is lighter than the
+ * ground in BOTH themes (ink→ink-raised, paper→paper-raised), and in light
+ * mode the accent is a dark value: mixing it into an already-near-ground
+ * surface pulled the card *below* the page and the hero lost its edge
+ * entirely. Light mode therefore tints the brightest surface token instead,
+ * so the card stays above the ground whichever pole we are on. The e2e spec
+ * asserts exactly that, in both themes.
+ */
+.ns-rec-card {
+  background: color-mix(in oklab, var(--accent) 5%, var(--surface));
+}
+
+@media (prefers-color-scheme: light) {
+  .ns-rec-card {
+    background: color-mix(in oklab, var(--accent) 4%, var(--overlay));
+  }
+}
+
+.ns-rec-art {
+  background:
+    radial-gradient(
+      118% 78% at 50% 2%,
+      color-mix(in oklab, var(--accent) 30%, transparent) 0%,
+      transparent 74%
+    );
+}
+
+/* The cover is the one thing on this screen allowed to cast a shadow. */
+.ns-rec-art .ns-art {
+  box-shadow:
+    inset 3cqi 0 4cqi -3cqi color-mix(in oklab, var(--color-ink) 45%, transparent),
+    inset -1px 0 0 color-mix(in oklab, var(--color-ink) 25%, transparent),
+    0 1.5rem 2.5rem -1rem color-mix(in oklab, var(--color-ink) 55%, transparent);
+}

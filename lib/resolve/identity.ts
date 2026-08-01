@@ -174,16 +174,10 @@ function toBookSeed(candidate: unknown): BookSeed | undefined {
  *   the histogram carrier prefers Open Library's rating without sniffing
  *   sources.
  *
- * Everything else is `primary ?? secondary`, which is what backfills Google
- * Books' description onto an Open Library seed (OL's search API returns no
- * descriptions at all) and its edition `isbn13` onto a ref that had only a
- * work id.
- *
- * There is deliberately no source-aware preference for art or year — the
- * books provider is primary→fallback, so a single search returns Open
- * Library's seeds or Google's, never both, and such a rule could not fire.
- * It belongs here the day the provider gains a union mode (bead filed), and
- * not a day earlier.
+ * Google Books' description and edition `isbn13` backfill an Open Library
+ * work, while Open Library owns art and first-publication year whenever one
+ * side carries a work id. This preference is explicit rather than relying on
+ * result ordering: union mode makes both sources meet in production.
  *
  * The result is re-validated against `itemSeedSchema`: a merge may never
  * emit something the rest of the app cannot parse.
@@ -201,8 +195,14 @@ export function mergeBookSeeds(
   const subtitle = primary.subtitle ?? secondary.subtitle;
   const creators =
     primary.creators.length > 0 ? primary.creators : secondary.creators;
-  const year = primary.year ?? secondary.year;
-  const artUrl = primary.artUrl ?? secondary.artUrl;
+  const openLibrarySeed =
+    primary.ref.openLibraryId !== undefined
+      ? primary
+      : secondary.ref.openLibraryId !== undefined
+        ? secondary
+        : undefined;
+  const year = openLibrarySeed?.year ?? primary.year ?? secondary.year;
+  const artUrl = openLibrarySeed?.artUrl ?? primary.artUrl ?? secondary.artUrl;
   const description = primary.description ?? secondary.description;
   const pages = primary.pages ?? secondary.pages;
   const communityRating =

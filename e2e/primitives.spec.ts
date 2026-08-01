@@ -26,7 +26,18 @@ for (const colorScheme of ["dark", "light"] as const) {
       await expect(
         page.getByRole("dialog", { name: "Log The Overstory" }),
       ).toBeVisible();
-      const results = await axeScan(page);
+      await page.waitForFunction(() => {
+        const dialog = document.querySelector("dialog");
+        return dialog && getComputedStyle(dialog).opacity === "1";
+      });
+      // A modal dialog makes the document behind it inert. Restrict this scan
+      // to the active surface so axe does not composite the translucent
+      // backdrop over inaccessible background controls and report false
+      // contrast failures. The preceding test scans that full page directly.
+      const results = await new AxeBuilder({ page })
+        .include("dialog")
+        .exclude("nextjs-portal")
+        .analyze();
       expect(results.violations).toEqual([]);
     });
   });

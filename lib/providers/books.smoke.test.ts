@@ -104,3 +104,49 @@ describe("live smoke: Google Books", () => {
     },
   );
 });
+
+describe("live smoke: both-up union", () => {
+  it(
+    "normalizes both live result sets through union mode",
+    { timeout: SMOKE_TIMEOUT_MS },
+    async (ctx) => {
+      const [openLibrary, googleBooks] = await Promise.all([
+        probe(openLibraryUrl(textQuery)),
+        probe(googleBooksUrl(textQuery)),
+      ]);
+      if (openLibrary.status === "unreachable") {
+        console.warn(`[smoke] skipping union: Open Library ${openLibrary.reason}`);
+        return ctx.skip();
+      }
+      if (googleBooks.status === "unreachable") {
+        console.warn(`[smoke] skipping union: Google Books ${googleBooks.reason}`);
+        return ctx.skip();
+      }
+
+      const provider = createBooksProvider({
+        fetchFn: async (input) => {
+          const body = String(input).startsWith("https://openlibrary.org/")
+            ? openLibrary.body
+            : googleBooks.body;
+          return new Response(JSON.stringify(body), {
+            status: 200,
+            headers: { "content-type": "application/json" },
+          });
+        },
+      });
+      const result = await provider.search(
+        { q: "the psychology of money", limit: 5 },
+        { mode: "union" },
+      );
+
+      if (!result.ok) throw new Error(result.error.message);
+      expect(result.source).toBe("union");
+      expect(
+        result.seeds.some((seed) => seed.ref.openLibraryId !== undefined),
+      ).toBe(true);
+      expect(
+        result.seeds.some((seed) => seed.ref.googleBooksId !== undefined),
+      ).toBe(true);
+    },
+  );
+});
