@@ -18,15 +18,18 @@ All beads start `todo`. Status lives here, in this file — single source of tru
 | E0.2 tokens | **done** ✅ | Review PASS "without reservation". 18/18 AA pairs. Merged + nit fixes (format strings, hue comment) |
 | E0.3 contracts | **done** ✅ | PASS + delta-verified amendments (ItemSeed, communityRating, ms-pinned timestamps). Merged; 40 unit tests |
 | E0.5 pwa-shell | **done** ✅ | FAIL (precache hole) → fixed → PASS. First-session offline proven. Merged |
-| E0.4 primitives | in-progress | |
 | E1.1 db-schema | **done** ✅ | PASS ("platonic infra bead"). Merged |
 | E2.1 books | **done** ✅ | PASS + amendments (per-doc resilience, no arbitrary-edition ISBNs, zoom=3 covers, ISBN-10→13). Merged |
 | E2.3 podcasts | **done** ✅ | FAIL (Unicode cache collisions, publisher no-veto — reproduced) → fixed → PASS. Merged |
 | E0.4 primitives | **done** ✅ | FAIL (tab wrap) → fixed → PASS "with real enthusiasm". Merged; RatingValue = contracts Gradient |
 | E5.2 registry | **done** ✅ | PASS + honesty amendments (search-scoped links documented, URL confidence grades). Merged. White-on-black triplet (HBO Max/Apple TV+/Peacock) awaits kit SVGs |
-| E2.2 tmdb | review | PASS + amendments (paginated now_playing, degraded marker) — delta-verify in flight |
-| E6.1 llm-route | in-progress | FAIL (client-disconnect abort propagation) → fixing. Wave-4 note: tools.ts dynamic-import seam can never resolve at runtime — static-import rewrite mandatory when wiring providers |
-| E0.7 style-tile 🚦 · E1.2 repo-layer · E5.3 branded-buttons | in-progress | E0.7 is the human gate — STOP for Jeremy when built + reviewed |
+| E1.2 repo-layer | **done** ✅ | Merged `d1f93de`; typed repo + live hooks. Reactive-hook verification made deterministic in continuation branch |
+| E2.2 tmdb | **done** ✅ | PASS + amendments (paginated now_playing, degraded marker). Merged `75143b7` |
+| E2.4 resolver | **done** ✅ | Merged `3a19c85`; grouped cross-provider resolution and identity dedupe |
+| E6.1 llm-route | review | Merged route repaired on continuation branch: abort propagation + production-safe static catalog-tool wiring; fresh review pending |
+| E0.7 style-tile 🚦 | in-progress | Blind review FAIL: unsupported ladder/community claims. Fix in flight; Jeremy gate follows delta verification |
+| E5.3 branded-buttons | in-progress | Blind review FAIL: missing official marks, unverified/broken handoffs, physical iOS pass pending. Fix in flight |
+| E1.3 export-import | in-progress | Builder active on versioned backup, validation, round-trip restore, and accessible settings UI |
 | everything else | todo | Wave-3 lessons: egress = googleapis only; fixture-first + env-gated smokes; e2e on dedicated ports; never git stash in worktrees |
 
 ---
