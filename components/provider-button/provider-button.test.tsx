@@ -68,14 +68,13 @@ describe("the registry, end to end", () => {
     }
   });
 
-  test("the wordmark is the registry's casing, verbatim and untransformed", () => {
+  test("every registry entry renders its bundled logo asset", () => {
     for (const entry of providerEntries) {
       cleanup();
       render(<ProviderButton provider={entry} link={sampleLink(entry)} />);
       const mark = screen.getByRole("img", { name: entry.name });
-      expect(mark.textContent).toBe(entry.wordmark);
-      // No CSS may re-case the mark — "hulu" is lowercase because Hulu is.
-      expect(mark.className).not.toMatch(/uppercase|lowercase|capitalize/);
+      expect(mark.tagName).toBe("IMG");
+      expect(mark.getAttribute("src")).toBe(entry.logoAsset);
     }
   });
 
@@ -154,7 +153,43 @@ describe("typed link building", () => {
         params: "applePodcast",
         appleId: 1200361736,
       }),
-    ).toBe("https://overcast.fm/itunes1200361736");
+    ).toBe("https://overcast.fm/+itunes1200361736");
+  });
+
+  test("uses honest homepages where generated search routes are broken", () => {
+    const args = { params: "title", title: TITLE } as const;
+    expect(providerWebUrl(providerRegistry["hbo-max"], args)).toBe(
+      "https://www.hbomax.com/",
+    );
+    expect(providerWebUrl(providerRegistry.peacock, args)).toBe(
+      "https://www.peacocktv.com/",
+    );
+    expect(providerWebUrl(providerRegistry["disney-plus"], args)).toBe(
+      "https://www.disneyplus.com/",
+    );
+  });
+
+  test("a provider-resolved availability URL overrides the generic fallback", () => {
+    render(
+      <ProviderButton
+        provider={providerRegistry.peacock}
+        href="https://www.peacocktv.com/watch/asset/movies/dune/abc123"
+      />,
+    );
+    expect(screen.getByRole("link").getAttribute("href")).toBe(
+      "https://www.peacocktv.com/watch/asset/movies/dune/abc123",
+    );
+  });
+
+  test("rejects unsafe provider-resolved destinations", () => {
+    expect(() =>
+      render(
+        <ProviderButton
+          provider={providerRegistry.peacock}
+          href="javascript:alert(document.cookie)"
+        />,
+      ),
+    ).toThrow(/must use https/);
   });
 
   test("an entry resolved at runtime rejects arguments of the wrong shape", () => {
@@ -168,7 +203,7 @@ describe("typed link building", () => {
 
   test("the custom app scheme is never what the anchor points at", () => {
     // Spotify is the one entry with a documented `app` URI; the button still
-    // uses the universal web link, which opens the app when it is installed.
+    // uses the safe HTTPS destination so an absent app never dead-ends.
     render(
       <ProviderButton
         provider={providerRegistry.spotify}

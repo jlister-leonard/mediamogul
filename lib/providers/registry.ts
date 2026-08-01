@@ -17,13 +17,8 @@ import { providerIdSchema, type ProviderId } from "../types";
  * future automated raw-hex grep must allowlist exactly `styles/tokens.css`
  * and `lib/providers/registry.ts`.
  *
- * LOGO ASSETS: no brand-asset host is reachable from the build environment,
- * and hand-drawn logo geometry is off-brand by definition — so `logoAsset` is
- * `null` for every entry until official press/brand-kit SVGs are dropped into
- * the slots documented in `public/brands/BRANDS.md`. Until then ProviderButton
- * (E5.3) renders the `wordmark` (exact official casing) on the brand colors.
- * Swapping in real art is: save the kit file to `public/brands/{id}.svg`, set
- * `logoAsset` — no component changes.
+ * LOGO ASSETS: locally bundled provider marks are provenance-locked in
+ * `public/brands/BRANDS.md`. ProviderButton never hotlinks or redraws them.
  */
 
 /** #RRGGBB, uppercase — the shape `registry.test.ts` enforces. */
@@ -44,9 +39,10 @@ export interface BrandColors {
 }
 
 /* ---------------------------------------------------------------- deep links
- * Each provider carries template(s) with typed params. `web` always exists —
- * the universal fallback, and on iOS most of these are universal links that
- * open the installed app anyway. `app` is a custom-scheme URL, present only
+ * Each provider carries template(s) with typed params. `web` always exists as
+ * an HTTPS fallback. Some destinations may transfer to installed apps through
+ * associated domains, but that is provider/path specific and must not be
+ * inferred merely from HTTPS. `app` is a custom-scheme URL, present only
  * where a scheme with a usable, publicly-known path syntax exists; a bare
  * scheme that can only open an app's home screen is worse than a universal
  * link, so those stay null (with the known scheme noted per entry).
@@ -133,12 +129,12 @@ export interface ProviderEntry {
   name: string;
   /**
    * The wordmark text in the brand's exact official casing (NETFLIX is
-   * all-caps, hulu is lowercase…). This is what ProviderButton renders until
-   * `logoAsset` is non-null.
+   * all-caps, hulu is lowercase…). ProviderButton uses this only as a safe
+   * fallback for a future entry without an approved local asset.
    */
   wordmark: string;
   brand: BrandColors;
-  /** `/brands/{id}.svg` once official kit art is bundled; null until then. */
+  /** Local bundled provider mark (`/brands/{id}.svg` or `.png`). */
   logoAsset: string | null;
   /**
    * TMDB watch-provider ids that resolve to this entry, so E5.1 can join
@@ -198,7 +194,7 @@ export const providerRegistry: Readonly<
       source:
         "official hexes — Netflix Red #E50914 and white per brand.netflix.com; the red-background PAIRING is our button choice, pending kit lockup rules",
     },
-    logoAsset: null,
+    logoAsset: "/brands/netflix.svg",
     tmdbProviderIds: [8],
     deepLink: {
       params: "title",
@@ -219,19 +215,16 @@ export const providerRegistry: Readonly<
       source:
         "official — the 2025 return-to-HBO-Max rebrand is a black-and-white identity (Warner Bros. Discovery press, press.wbd.com)",
     },
-    logoAsset: null,
+    logoAsset: "/brands/hbo-max.svg",
     // 1899 = current HBO Max (carried through the Max era); 384 = the legacy
     // HBO Max id still present in older cached payloads.
     tmdbProviderIds: [1899, 384],
     deepLink: {
       params: "title",
-      // No publicly documented search path survived the Max→HBO Max renames;
-      // the web URL is a universal link that opens the installed app on iOS.
-      // UNVERIFIED (~60% confidence): host and ?q= param are best-effort
-      // post-rebrand — egress-blocked env; verify on device in E5.3's
-      // iOS-tested pass.
+      // No verified public search route survived the Max→HBO Max renames.
+      // A direct availability.url should override this honest homepage.
       app: null,
-      web: (p) => `https://play.hbomax.com/search?q=${enc(p.title)}`,
+      web: () => "https://www.hbomax.com/",
     },
   },
 
@@ -245,14 +238,14 @@ export const providerRegistry: Readonly<
       source:
         "official/observed — Prime blue #00A8E1 per Amazon brand usage guidelines; #0F171E is the Prime Video app's dark canvas, observed, confirm against kit",
     },
-    logoAsset: null,
+    logoAsset: "/brands/prime-video.svg",
     // 9 = Prime Video (subscription); 10 = Amazon Video (rent/buy) — both
     // land on the same storefront, so both render the Prime Video button.
     tmdbProviderIds: [9, 10],
     deepLink: {
       params: "title",
-      // The historical aiv:// scheme's paths are undocumented; primevideo.com
-      // is a universal link into the app.
+      // The historical aiv:// scheme's paths are undocumented. This HTTPS
+      // search is the fallback; native-app transfer remains device-unverified.
       app: null,
       web: (p) => `https://www.primevideo.com/search?phrase=${enc(p.title)}`,
     },
@@ -268,12 +261,12 @@ export const providerRegistry: Readonly<
       source:
         "official — Hulu green #1CE783 with near-black #040405, per Hulu press/brand assets (press.hulu.com)",
     },
-    logoAsset: null,
+    logoAsset: "/brands/hulu.svg",
     tmdbProviderIds: [15],
     deepLink: {
       params: "title",
-      // hulu:// exists but its action paths are undocumented; web search is a
-      // universal link.
+      // hulu:// exists but its action paths are undocumented. Use the working
+      // HTTPS search without claiming associated-domain behavior.
       app: null,
       web: (p) => `https://www.hulu.com/search?q=${enc(p.title)}`,
     },
@@ -289,14 +282,14 @@ export const providerRegistry: Readonly<
       source:
         "official — Apple TV+ identity is white-on-black (Apple Media Services marketing badges, tools.applemediaservices.com)",
     },
-    logoAsset: null,
+    logoAsset: "/brands/apple-tv-plus.svg",
     // 350 = Apple TV+ (subscription); 2 = Apple TV (the rent/buy store) —
     // both open tv.apple.com.
     tmdbProviderIds: [350, 2],
     deepLink: {
       params: "title",
-      // tv.apple.com is a universal link that opens the TV app on Apple
-      // devices — strictly better than the undocumented com.apple.tv:// scheme.
+      // Use the working HTTPS search. Exact installed-app behavior for this
+      // path remains part of the physical-iOS acceptance pass.
       app: null,
       web: (p) => `https://tv.apple.com/us/search?term=${enc(p.title)}`,
     },
@@ -312,16 +305,15 @@ export const providerRegistry: Readonly<
       source:
         "official — Peacock's lowercase wordmark renders white-on-black in NBCUniversal press materials (the multicolor feather is the kit asset)",
     },
-    logoAsset: null,
+    logoAsset: "/brands/peacock.svg",
     // 386 = Peacock Premium; 387 = Peacock Premium Plus.
     tmdbProviderIds: [386, 387],
     deepLink: {
       params: "title",
-      // UNVERIFIED (~65% confidence): Peacock's search route/param are
-      // best-effort — egress-blocked env; verify on device in E5.3's
-      // iOS-tested pass.
+      // Peacock's former /search route now returns 404. Prefer a direct
+      // availability.url; without one, link only to the working homepage.
       app: null,
-      web: (p) => `https://www.peacocktv.com/search?q=${enc(p.title)}`,
+      web: () => "https://www.peacocktv.com/",
     },
   },
 
@@ -335,11 +327,11 @@ export const providerRegistry: Readonly<
       source:
         "official — Paramount+ launch-identity blue #0064FF with white wordmark (Paramount Press Express brand assets)",
     },
-    logoAsset: null,
+    logoAsset: "/brands/paramount-plus.svg",
     tmdbProviderIds: [531],
     deepLink: {
       params: "title",
-      // Query param is best-effort — the page opens the search UI regardless.
+      // This is a working web search, not an associated-domain app path.
       app: null,
       web: (p) => `https://www.paramountplus.com/search/?q=${enc(p.title)}`,
     },
@@ -355,17 +347,14 @@ export const providerRegistry: Readonly<
       source:
         "observed — Disney+ app/marketing midnight-navy canvas #040714 with white wordmark; confirm against press.disneyplus.com kit",
     },
-    logoAsset: null,
+    logoAsset: "/brands/disney-plus.svg",
     tmdbProviderIds: [337],
     deepLink: {
       params: "title",
-      // disneyplus:// exists but search paths are undocumented; the web URL
-      // is a universal link.
-      // UNVERIFIED (~75% confidence): ?q= param is best-effort (the /search
-      // route is real) — egress-blocked env; verify on device in E5.3's
-      // iOS-tested pass.
+      // The former generated /search?q= destination returns 404. Prefer a
+      // direct availability.url; otherwise use the working service homepage.
       app: null,
-      web: (p) => `https://www.disneyplus.com/search?q=${enc(p.title)}`,
+      web: () => "https://www.disneyplus.com/",
     },
   },
 
@@ -379,7 +368,7 @@ export const providerRegistry: Readonly<
       source:
         "official — Spotify Green #1ED760, logo in black, per Spotify Design & Branding Guidelines (developer.spotify.com/documentation/design)",
     },
-    logoAsset: null,
+    logoAsset: "/brands/spotify.svg",
     tmdbProviderIds: [],
     deepLink: {
       params: "spotifyShow",
@@ -399,7 +388,7 @@ export const providerRegistry: Readonly<
       source:
         "observed — Audible orange #F8991C with black lowercase wordmark, from Audible's own product surfaces; confirm against Amazon brand kit",
     },
-    logoAsset: null,
+    logoAsset: "/brands/audible.svg",
     tmdbProviderIds: [],
     deepLink: {
       params: "book",
@@ -418,7 +407,7 @@ export const providerRegistry: Readonly<
       source:
         "official hexes — Amazon palette Squid Ink #232F3E and Amazon Orange #FF9900 per Amazon brand usage guidelines; the PAIRING is our button choice, pending kit lockup rules",
     },
-    logoAsset: null,
+    logoAsset: "/brands/kindle.svg",
     tmdbProviderIds: [],
     deepLink: {
       params: "book",
@@ -441,7 +430,7 @@ export const providerRegistry: Readonly<
       source:
         "observed — Bookshop.org's all-caps wordmark renders near-black ink on white on its own storefront; confirm against bookshop.org/pages/press kit",
     },
-    logoAsset: null,
+    logoAsset: "/brands/bookshop.png",
     tmdbProviderIds: [],
     deepLink: {
       params: "book",
@@ -461,7 +450,7 @@ export const providerRegistry: Readonly<
       source:
         "observed — Fandango orange #FF7300 with white all-caps wordmark, from Fandango's own surfaces; confirm against corporate press kit",
     },
-    logoAsset: null,
+    logoAsset: "/brands/fandango.svg",
     tmdbProviderIds: [],
     deepLink: {
       params: "showtimes",
@@ -487,12 +476,12 @@ export const providerRegistry: Readonly<
       source:
         "official — dark stop of the Apple Podcasts icon gradient (#F452FF→#832BC1), per Apple Podcasts identity guidelines; solid form used for the button",
     },
-    logoAsset: null,
+    logoAsset: "/brands/apple-podcasts.svg",
     tmdbProviderIds: [],
     deepLink: {
       params: "applePodcast",
-      // podcasts.apple.com is a universal link that opens the Podcasts app on
-      // Apple devices.
+      // Official HTTPS show destination. Exact installed-app behavior remains
+      // part of the physical-iOS acceptance pass.
       app: null,
       web: (p) => `https://podcasts.apple.com/us/podcast/id${p.appleId}`,
     },
@@ -508,17 +497,17 @@ export const providerRegistry: Readonly<
       source:
         "observed — Overcast's app orange #FC7E0F with white wordmark, from the app's own identity; no formal kit published",
     },
-    logoAsset: null,
+    logoAsset: "/brands/overcast.svg",
     tmdbProviderIds: [],
     deepLink: {
       params: "applePodcast",
       // Overcast's documented URL scheme is overcast://x-callback-url/add?url=
       // — it takes an RSS feed URL, which Nightstand doesn't hold (show
       // identity is appleId/spotifyShowId/podcastIndexId, lib/types/media.ts),
-      // so it stays null. The overcast.fm/itunes{id} web deep link is the
-      // documented handoff and is intercepted by the installed app on iOS.
+      // so it stays null. Its associated-domain path is /+itunes{id}; the
+      // older /itunes{id} path now redirects to login instead of the show.
       app: null,
-      web: (p) => `https://overcast.fm/itunes${p.appleId}`,
+      web: (p) => `https://overcast.fm/+itunes${p.appleId}`,
     },
   },
 };

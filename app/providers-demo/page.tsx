@@ -34,23 +34,6 @@ function sampleLink(entry: ProviderEntry): ProviderLinkArgs {
   }
 }
 
-/**
- * Stands in for a kit SVG so the logo branch is visible and testable before any
- * official art exists. Deliberately abstract geometry — inventing letterforms
- * for a brand is exactly what BRANDS.md forbids.
- */
-const STUB_LOGO = `data:image/svg+xml,${encodeURIComponent(
-  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 24">` +
-    `<rect x="1" y="1" width="94" height="22" rx="6" fill="none" stroke="white" stroke-width="2" stroke-dasharray="7 5"/>` +
-    `<path d="M14 17 27 7M35 17 48 7M56 17 69 7" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"/>` +
-    `</svg>`,
-)}`;
-
-const withStubLogo: ProviderEntry = {
-  ...providerRegistry.netflix,
-  logoAsset: STUB_LOGO,
-};
-
 function Section({
   title,
   note,
@@ -84,9 +67,9 @@ export default function ProvidersDemoPage() {
       <header className="mb-12 flex flex-col gap-2">
         <h1 className="font-display text-3xl font-semibold">Provider buttons</h1>
         <p className="text-base text-fg-muted">
-          One component renders any entry in the provider registry. Links are
-          search-scoped — they open the service&rsquo;s search results for the
-          title, because Nightstand holds no provider-internal title ids.
+          One component renders any entry in the provider registry. A direct
+          provider URL wins when availability data has one; otherwise the
+          button uses a verified search or honest service-home fallback.
         </p>
       </header>
 
@@ -139,7 +122,7 @@ export default function ProvidersDemoPage() {
 
         <Section
           title="Every service"
-          note="All 15 registry entries, each in its own brand colors and its exact official casing. The white-on-black three — HBO Max, Apple TV+, Peacock — read as siblings until kit art lands; that is their shared identity, not a bug."
+          note="All 15 registry entries, each with a locally bundled provider mark, brand field, and the same clear-space geometry. No logo is fetched at runtime."
         >
           <ul className="flex flex-wrap gap-3">
             {providerEntries.map((entry) => (
@@ -148,23 +131,6 @@ export default function ProvidersDemoPage() {
               </li>
             ))}
           </ul>
-        </Section>
-
-        <Section
-          title="When the art lands"
-          note="Set logoAsset on a registry entry and the same component renders the SVG instead of the wordmark, with the identical accessible name. The mark below is an abstract stub standing in for a kit file."
-        >
-          <div className="flex flex-wrap items-center gap-3">
-            <ProviderButton
-              provider={withStubLogo}
-              link={{ params: "title", title: MOVIE }}
-            />
-            <ProviderButton
-              provider={withStubLogo}
-              link={{ params: "title", title: MOVIE }}
-              suffix="rent $3.99"
-            />
-          </div>
         </Section>
 
         <Section
@@ -219,11 +185,10 @@ export default function ProvidersDemoPage() {
             </table>
           </div>
           <p className="text-sm text-fg-muted">
-            Fandango and Overcast publish white lettering on orange — 2.73:1 and
-            2.58:1, both &ldquo;observed&rdquo; grade rather than from a kit.
-            Their orange field is what makes them recognizable and it is
-            untouched; the text stand-in beside it, which exists only because no
-            art has landed for either, goes black so it can be read.
+            Fandango and Overcast&rsquo;s recorded white-on-orange pairs measure
+            2.73:1 and 2.58:1. Their bundled marks and Nightstand-owned suffix
+            text use the readable black treatment documented in BRANDS.md; the
+            recognizable orange fields remain untouched.
           </p>
         </Section>
       </div>

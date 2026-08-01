@@ -8,14 +8,16 @@
  * types cannot cover — an entry resolved dynamically (e.g. from a stored
  * `Availability.providerId`) whose template shape disagrees with the arguments.
  *
- * WEB URL, NOT THE CUSTOM SCHEME. `deepLink.app` is deliberately unused. Every
- * registry `web` URL is a universal link on iOS: tapping it opens the installed
- * native app and falls back to the browser when the app is absent — the exact
- * behavior PLAN §5 asks for, with no failure mode. A custom scheme (`nflx://`,
- * `spotify:`) has the opposite failure mode: with the app missing it dead-ends
- * on an error, and there is no way to detect that from a web page. Device
- * verification of the app-opening behavior is deferred to a physical iOS pass
- * (EPICS E5.3 "iOS tested"); it cannot be exercised in a headless browser.
+ * HTTPS, NOT AN UNVERIFIED APP CLAIM. `deepLink.app` is deliberately unused:
+ * custom schemes (`nflx://`, `spotify:`) dead-end when the app is absent and a
+ * web page cannot reliably detect installation. Some registry HTTPS URLs are
+ * associated-domain links and some are ordinary web fallbacks; this module
+ * does not call all of them "universal links." When E5.1 supplies a provider's
+ * direct `availability.url`, ProviderButton accepts it as an explicit `href`
+ * override instead of rebuilding a weaker search destination here.
+ *
+ * Which HTTPS destinations actually transfer to an installed app remains a
+ * physical-iOS acceptance pass. Headless Chromium cannot prove it.
  */
 
 import type {
