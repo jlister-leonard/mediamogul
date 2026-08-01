@@ -1,8 +1,19 @@
 import { z } from "zod";
 import { resolve } from "../resolve";
-import { type MediaRef, mediaRefSchema, type Medium, mediumSchema } from "../types";
+import {
+  buyAvailabilitySchema,
+  type MediaRef,
+  mediaRefSchema,
+  type Medium,
+  mediumSchema,
+  rentAvailabilitySchema,
+  subscriptionAvailabilitySchema,
+  theaterAvailabilitySchema,
+} from "../types";
 import {
   MAX_AVAILABILITY_REFS,
+  MAX_AVAILABILITY_PROVIDER_ID_CHARS,
+  MAX_AVAILABILITY_URL_CHARS,
   MAX_CATALOG_QUERY_CHARS,
   MAX_SERIALIZED_TOOL_RESULT_CHARS,
 } from "./config";
@@ -22,6 +33,31 @@ export const checkAvailabilityInputSchema = z.object({
   itemRefs: z.array(mediaRefSchema).min(1).max(MAX_AVAILABILITY_REFS),
 });
 export type CheckAvailabilityInput = z.infer<typeof checkAvailabilityInputSchema>;
+
+const boundedProviderIdSchema = z.string().min(1).max(MAX_AVAILABILITY_PROVIDER_ID_CHARS);
+const boundedUrlSchema = z.url().max(MAX_AVAILABILITY_URL_CHARS);
+const contextOfferSchema = z.discriminatedUnion("kind", [
+  subscriptionAvailabilitySchema
+    .omit({ itemId: true, providerId: true, url: true })
+    .extend({ providerId: boundedProviderIdSchema, url: boundedUrlSchema.optional() }),
+  rentAvailabilitySchema
+    .omit({ itemId: true, providerId: true, url: true })
+    .extend({ providerId: boundedProviderIdSchema, url: boundedUrlSchema.optional() }),
+  buyAvailabilitySchema
+    .omit({ itemId: true, providerId: true, url: true })
+    .extend({ providerId: boundedProviderIdSchema, url: boundedUrlSchema.optional() }),
+  theaterAvailabilitySchema
+    .omit({ itemId: true, fandangoUrl: true })
+    .extend({ fandangoUrl: boundedUrlSchema.optional() }),
+]);
+export const availabilityContextEntrySchema = z.object({
+  ref: mediaRefSchema,
+  offers: z.array(contextOfferSchema).max(50),
+});
+export const availabilityContextSchema = z.array(availabilityContextEntrySchema).max(
+  MAX_AVAILABILITY_REFS,
+);
+export type AvailabilityContext = z.infer<typeof availabilityContextSchema>;
 
 export const searchCatalogInputSchema = z.object({
   query: z.string().min(1).max(MAX_CATALOG_QUERY_CHARS),
@@ -82,7 +118,30 @@ async function searchResolvedCatalog(
  */
 const defaultProvidersLoader: ProvidersLoader = async () => ({
   searchCatalog: searchResolvedCatalog,
+  checkAvailability: async (itemRefs) =>
+    itemRefs.map((ref) => ({ ref, checked: false, offers: [] })),
 });
+
+/** Bind the browser-supplied, availability-only snapshot to one request. */
+export function providersLoaderWithAvailability(
+  context: AvailabilityContext,
+): ProvidersLoader {
+  const byRef = new Map(context.map((entry) => [refKey(entry.ref), entry]));
+  return async () => ({
+    searchCatalog: searchResolvedCatalog,
+    checkAvailability: async (itemRefs) =>
+      itemRefs.map((ref) => {
+        const entry = byRef.get(refKey(ref));
+        return entry === undefined
+          ? { ref, checked: false, offers: [] }
+          : { ref, checked: true, offers: entry.offers };
+      }),
+  });
+}
+
+function refKey(ref: MediaRef): string {
+  return JSON.stringify(ref);
+}
 
 const UNAVAILABLE_MESSAGE =
   "This capability is not available right now; recommend without it and say availability was not checked.";

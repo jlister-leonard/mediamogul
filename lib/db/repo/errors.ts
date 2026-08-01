@@ -27,7 +27,9 @@ export type RepoTable =
   | "situations"
   | "availability"
   | "recs"
-  | "portrait";
+  | "portrait"
+  | "manualMatches"
+  | "availabilityRefreshes";
 
 export abstract class RepoError extends Error {
   abstract readonly code: RepoErrorCode;

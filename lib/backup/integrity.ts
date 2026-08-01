@@ -17,6 +17,13 @@ export function validateBackupIntegrity(backup: Backup): IntegrityIssue[] {
   checkUnique(backup.data.situations, "situations", (row) => row.id, issues);
   checkUnique(backup.data.recs, "recs", (row) => row.id, issues);
   checkUnique(backup.data.portrait, "portrait", (row) => row.version, issues);
+  checkUnique(backup.data.manualMatches, "manualMatches", (row) => row.id, issues);
+  checkUnique(
+    backup.data.availabilityRefreshes,
+    "availabilityRefreshes",
+    (row) => row.itemId,
+    issues,
+  );
 
   backup.data.entries.forEach((entry, index) => {
     requireItem(items, entry.itemId, `data.entries.${index}.itemId`, issues);
@@ -26,6 +33,9 @@ export function validateBackupIntegrity(backup: Backup): IntegrityIssue[] {
   });
   backup.data.availability.forEach((row, index) => {
     requireItem(items, row.itemId, `data.availability.${index}.itemId`, issues);
+  });
+  backup.data.availabilityRefreshes.forEach((row, index) => {
+    requireItem(items, row.itemId, `data.availabilityRefreshes.${index}.itemId`, issues);
   });
   backup.data.recs.forEach((rec, index) => {
     requireItem(items, rec.itemId, `data.recs.${index}.itemId`, issues);

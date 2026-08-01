@@ -3,6 +3,7 @@ import { situationSchema } from "../../../lib/types";
 import { recommendBudget } from "../../../lib/llm/budget";
 import {
   LLM_MODELS,
+  MAX_AVAILABILITY_CONTEXT_CHARS,
   MAX_MODEL_TURNS,
   MAX_REQUEST_MESSAGES,
   MAX_REQUEST_TEXT_CHARS,
@@ -14,7 +15,9 @@ import { type ApiErrorEnvelope, errorEnvelope } from "../../../lib/llm/envelope"
 import { checkPassphrase, PASSPHRASE_HEADER } from "../../../lib/llm/guard";
 import { encodeSseEvent, type RecommendSseEvent } from "../../../lib/llm/sse";
 import {
+  availabilityContextSchema,
   executeTool,
+  providersLoaderWithAvailability,
   serializeToolOutcome,
   TOOL_DEFINITIONS,
 } from "../../../lib/llm/tools";
@@ -59,6 +62,7 @@ const requestSchema = z.discriminatedUnion("mode", [
       situation: situationSchema.optional(),
       messages: z.array(chatMessageSchema).min(1).max(MAX_REQUEST_MESSAGES).optional(),
       tasteContext: z.string().max(MAX_REQUEST_TEXT_CHARS),
+      availabilityContext: availabilityContextSchema.optional().default([]),
     })
     .refine((body) => (body.situation !== undefined) !== (body.messages !== undefined), {
       message: "hand mode takes exactly one of `situation` or `messages`",
@@ -71,6 +75,7 @@ const requestSchema = z.discriminatedUnion("mode", [
       mode: z.literal("chat"),
       messages: z.array(chatMessageSchema).min(1).max(MAX_REQUEST_MESSAGES),
       tasteContext: z.string().max(MAX_REQUEST_TEXT_CHARS),
+      availabilityContext: availabilityContextSchema.optional().default([]),
     })
     .refine((body) => body.messages[0].role === "user", {
       message: "chat `messages` must start with a user turn",
@@ -99,7 +104,13 @@ export async function POST(request: Request): Promise<Response> {
       );
     }
     parsed = result.data;
-    if (requestTextCharacters(parsed) > MAX_REQUEST_TEXT_CHARS) {
+    const availabilityCharacters = parsed.availabilityContext.length === 0
+      ? 0
+      : JSON.stringify(parsed.availabilityContext).length;
+    if (
+      availabilityCharacters > MAX_AVAILABILITY_CONTEXT_CHARS ||
+      requestTextCharacters(parsed, availabilityCharacters) > MAX_REQUEST_TEXT_CHARS
+    ) {
       return jsonError(
         errorEnvelope(
           "bad-request",
@@ -232,7 +243,7 @@ export async function POST(request: Request): Promise<Response> {
             const outcome = await executeTool(
               toolUse.name,
               toolUse.input,
-              undefined,
+              providersLoaderWithAvailability(parsed.availabilityContext),
               abort.signal,
             );
             if (abort.signal.aborted) break modelLoop;
@@ -282,7 +293,10 @@ export async function POST(request: Request): Promise<Response> {
   });
 }
 
-function requestTextCharacters(body: RecommendRequest): number {
+function requestTextCharacters(
+  body: RecommendRequest,
+  availabilityCharacters: number,
+): number {
   const prompt =
     body.mode === "hand" && body.situation !== undefined
       ? body.situation.prompt.length
@@ -290,7 +304,7 @@ function requestTextCharacters(body: RecommendRequest): number {
           (total, message) => total + message.content.length,
           0,
         );
-  return body.tasteContext.length + prompt;
+  return body.tasteContext.length + prompt + availabilityCharacters;
 }
 
 function sendSafetyExhaustion(

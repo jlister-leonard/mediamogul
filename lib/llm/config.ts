@@ -46,4 +46,8 @@ export const MAX_REQUEST_MESSAGES = 40;
 /** Tool input and output circuit breakers. */
 export const MAX_CATALOG_QUERY_CHARS = 500;
 export const MAX_AVAILABILITY_REFS = 50;
+/** Browser-supplied availability is model-bound and therefore billed input. */
+export const MAX_AVAILABILITY_CONTEXT_CHARS = 64_000;
+export const MAX_AVAILABILITY_PROVIDER_ID_CHARS = 100;
+export const MAX_AVAILABILITY_URL_CHARS = 2_048;
 export const MAX_SERIALIZED_TOOL_RESULT_CHARS = 64_000;

@@ -6,6 +6,7 @@ import {
   genreAssignmentSchema,
   genreSchema,
   gradientSchema,
+  goodreadsManualMatchSchema,
   isoTimestampSchema,
   itemSchema,
   itemSeedSchema,
@@ -41,6 +42,37 @@ describe("ids and timestamps", () => {
     expect(isoTimestampSchema.safeParse("2026-07-28T09:00:00Z").success).toBe(
       false,
     );
+  });
+});
+
+describe("goodreadsManualMatchSchema", () => {
+  const pending = {
+    id: "goodreads:37485950",
+    source: {
+      rowNumber: 2,
+      bookId: "37485950",
+      title: "Reinventing Your Life",
+      authors: ["Jeffrey E. Young"],
+      invalidIsbns: [],
+      dateAdded: "2026-05-09T00:00:00.000Z",
+      shelves: [],
+      shelfPositions: {},
+      exclusiveShelf: "read",
+      readCount: 1,
+    },
+    reason: "no-match",
+    detail: "No confident catalog match was found",
+    suggestedQuery: { title: "Reinventing Your Life", author: "Jeffrey E. Young" },
+  };
+
+  it("accepts all durable context needed to resume a manual match", () => {
+    expect(goodreadsManualMatchSchema.safeParse(pending).success).toBe(true);
+  });
+
+  it("rejects a pending record with no stable Goodreads key or query", () => {
+    expect(goodreadsManualMatchSchema.safeParse({ ...pending, id: "37485950" }).success).toBe(false);
+    expect(goodreadsManualMatchSchema.safeParse({ ...pending, id: "goodreads:other" }).success).toBe(false);
+    expect(goodreadsManualMatchSchema.safeParse({ ...pending, suggestedQuery: {} }).success).toBe(false);
   });
 });
 

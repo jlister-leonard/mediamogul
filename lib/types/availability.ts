@@ -75,3 +75,14 @@ export const availabilitySchema = z.discriminatedUnion("kind", [
   theaterAvailabilitySchema,
 ]);
 export type Availability = z.infer<typeof availabilitySchema>;
+
+/**
+ * A successful full availability refresh, including the meaningful result
+ * of zero offers. Stored separately because an empty offer set has no row on
+ * which to retain `fetchedAt`.
+ */
+export const availabilityRefreshSchema = z.object({
+  itemId: itemIdSchema,
+  fetchedAt: isoTimestampSchema,
+});
+export type AvailabilityRefresh = z.infer<typeof availabilityRefreshSchema>;

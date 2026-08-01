@@ -104,6 +104,10 @@ function completeBackup(): Backup {
           corrections: [],
         },
       ],
+      manualMatches: [],
+      availabilityRefreshes: [
+        { itemId: "item-book", fetchedAt: "2026-07-12T11:00:00.000Z" },
+      ],
     },
   });
 }
@@ -170,6 +174,8 @@ describe("Nightstand backup", () => {
     expect(await readSnapshot()).toEqual({
       items: [], entries: [], comparisons: [], queue: [], situations: [],
       availability: [], recs: [], portrait: [],
+      manualMatches: [],
+      availabilityRefreshes: [],
     });
   });
 
@@ -190,6 +196,35 @@ describe("Nightstand backup", () => {
         expect.objectContaining({ path: "data.comparisons.0.winnerId" }),
       ]),
     );
+
+    const danglingRefresh = completeBackup();
+    danglingRefresh.data.availabilityRefreshes[0].itemId =
+      "missing-item" as typeof danglingRefresh.data.availabilityRefreshes[0]["itemId"];
+    expect(validateBackupIntegrity(danglingRefresh)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ path: "data.availabilityRefreshes.0.itemId" }),
+      ]),
+    );
+  });
+
+  it("rejects malformed availability offer and refresh-marker timestamps", () => {
+    const badMarker = JSON.parse(JSON.stringify(completeBackup())) as {
+      data: { availabilityRefreshes: Array<{ fetchedAt: string }> };
+    };
+    badMarker.data.availabilityRefreshes[0].fetchedAt = "yesterday";
+    expect(parseBackupText(JSON.stringify(badMarker))).toMatchObject({
+      ok: false,
+      result: { code: "invalid-backup" },
+    });
+
+    const badOffer = JSON.parse(JSON.stringify(completeBackup())) as {
+      data: { availability: Array<{ kind: string }> };
+    };
+    badOffer.data.availability[0].kind = "borrow";
+    expect(parseBackupText(JSON.stringify(badOffer))).toMatchObject({
+      ok: false,
+      result: { code: "invalid-backup" },
+    });
   });
 
   it("preserves recommendation provenance after its situation was deleted", async () => {
@@ -289,8 +324,8 @@ describe("backup delivery", () => {
     };
     expect(contents.version).toBe(1);
     expect(Object.keys(contents.data).sort()).toEqual([
-      "availability", "comparisons", "entries", "items", "portrait",
-      "queue", "recs", "situations",
+      "availability", "availabilityRefreshes", "comparisons", "entries", "items", "manualMatches",
+      "portrait", "queue", "recs", "situations",
     ]);
   });
 

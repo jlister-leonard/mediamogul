@@ -1,8 +1,10 @@
 import Dexie, { type DexieOptions, type EntityTable, type Table } from "dexie";
 import type {
   Availability,
+  AvailabilityRefresh,
   Comparison,
   Entry,
+  GoodreadsManualMatch,
   Item,
   Portrait,
   QueueItem,
@@ -90,6 +92,16 @@ export const schemaV1: Record<string, string> = {
   portrait: "version",
 };
 
+/** Version 2 persists Goodreads rows that still need a human catalog choice. */
+export const schemaV2: Record<string, string> = {
+  manualMatches: "id",
+};
+
+/** Version 3 records successful availability checks even when offers are empty. */
+export const schemaV3: Record<string, string> = {
+  availabilityRefreshes: "itemId, fetchedAt",
+};
+
 /**
  * The Nightstand database (PLAN §8: the phone is the source of truth).
  *
@@ -114,10 +126,18 @@ export class NightstandDB extends Dexie {
   availability!: Table<Availability, number, Availability>;
   recs!: EntityTable<Rec, "id", Rec>;
   portrait!: EntityTable<Portrait, "version", Portrait>;
+  manualMatches!: EntityTable<GoodreadsManualMatch, "id", GoodreadsManualMatch>;
+  availabilityRefreshes!: EntityTable<
+    AvailabilityRefresh,
+    "itemId",
+    AvailabilityRefresh
+  >;
 
   /** `options` lets tests inject fake-indexeddb; production uses the browser's. */
   constructor(options?: DexieOptions) {
     super(DB_NAME, options);
     this.version(1).stores(schemaV1);
+    this.version(2).stores(schemaV2);
+    this.version(3).stores(schemaV3);
   }
 }

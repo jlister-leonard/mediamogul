@@ -2,9 +2,11 @@
 // and every lib/ module keeps imports alias-free for that reason.
 import {
   availabilitySchema,
+  availabilityRefreshSchema,
   isoTimestampSchema,
   itemIdSchema,
   type Availability,
+  type AvailabilityRefresh,
   type IsoTimestamp,
   type ItemId,
 } from "../../types";
@@ -73,6 +75,124 @@ export async function refreshAvailabilityForItem(
     await db.availability.where("itemId").equals(target).delete();
     if (rows.length > 0) await db.availability.bulkAdd(rows);
   });
+}
+
+/** The last successful complete check, including a check with zero offers. */
+export async function availabilityRefreshByItemId(
+  itemId: ItemId,
+): Promise<AvailabilityRefresh | undefined> {
+  const target = validate(
+    itemIdSchema,
+    itemId,
+    "availabilityRefreshes",
+    "availabilityRefreshByItemId",
+  );
+  return db.availabilityRefreshes.get(target);
+}
+
+export interface AvailabilityState {
+  offers: Availability[];
+  refresh?: AvailabilityRefresh;
+}
+
+/** Read rows and marker from one IndexedDB snapshot, validating stored data. */
+export async function readAvailabilityState(
+  itemId: ItemId,
+): Promise<AvailabilityState> {
+  const target = validate(
+    itemIdSchema,
+    itemId,
+    "availability",
+    "readAvailabilityState",
+  );
+  return db.transaction(
+    "r",
+    [db.availability, db.availabilityRefreshes],
+    async () => {
+      const [rawOffers, rawRefresh] = await Promise.all([
+        db.availability.where("itemId").equals(target).toArray(),
+        db.availabilityRefreshes.get(target),
+      ]);
+      const offerForItem = availabilitySchema.refine(
+        (offer) => offer.itemId === target,
+        { message: `every stored offer must carry itemId ${target}` },
+      );
+      const offers = rawOffers.map((offer) =>
+        validate(
+          offerForItem,
+          offer,
+          "availability",
+          "readAvailabilityState",
+        ),
+      );
+      const refresh =
+        rawRefresh === undefined
+          ? undefined
+          : validate(
+              availabilityRefreshSchema.refine(
+                (marker) => marker.itemId === target,
+                { message: `stored marker must carry itemId ${target}` },
+              ),
+              rawRefresh,
+              "availabilityRefreshes",
+              "readAvailabilityState",
+            );
+      return { offers, ...(refresh !== undefined && { refresh }) };
+    },
+  );
+}
+
+/**
+ * Replace offers and their successful-refresh marker atomically. The marker
+ * is what makes an empty result a durable 24-hour cache entry.
+ */
+export async function refreshAvailabilityState(
+  itemId: ItemId,
+  offers: readonly Availability[],
+  fetchedAt: IsoTimestamp,
+): Promise<boolean> {
+  const target = validate(
+    itemIdSchema,
+    itemId,
+    "availability",
+    "refreshAvailabilityState",
+  );
+  const marker = validate(
+    availabilityRefreshSchema,
+    { itemId: target, fetchedAt },
+    "availabilityRefreshes",
+    "refreshAvailabilityState",
+  );
+  const offerForItem = availabilitySchema.refine((offer) => offer.itemId === target, {
+    message: `every offer must carry itemId ${target}`,
+  });
+  const deduped = new Map<string, Availability>();
+  for (const offer of offers) {
+    const validated = validate(
+      offerForItem,
+      offer,
+      "availability",
+      "refreshAvailabilityState",
+    );
+    const key = `${validated.kind}|${"providerId" in validated ? validated.providerId : ""}`;
+    if (!deduped.has(key)) deduped.set(key, validated);
+  }
+
+  return db.transaction(
+    "rw",
+    [db.availability, db.availabilityRefreshes],
+    async () => {
+      const current = await db.availabilityRefreshes.get(target);
+      if (current !== undefined && current.fetchedAt >= marker.fetchedAt) {
+        return false;
+      }
+      await db.availability.where("itemId").equals(target).delete();
+      const rows = [...deduped.values()];
+      if (rows.length > 0) await db.availability.bulkAdd(rows);
+      await db.availabilityRefreshes.put(marker);
+      return true;
+    },
+  );
 }
 
 /**

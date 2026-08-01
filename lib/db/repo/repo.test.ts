@@ -30,6 +30,7 @@ import {
   appendComparison,
   appendPortraitVersion,
   availabilityByItemId,
+  availabilityRefreshByItemId,
   availabilityStaleBefore,
   createSituation,
   deleteSituation,
@@ -54,6 +55,8 @@ import {
   recordRec,
   recsBySituationId,
   refreshAvailabilityForItem,
+  refreshAvailabilityState,
+  readAvailabilityState,
   removeFromQueue,
   RepoConflictError,
   RepoNotFoundError,
@@ -61,6 +64,7 @@ import {
   replayComparisonsByGenre,
   restoreSnapshot,
   restoreSnapshotIfEmpty,
+  setAutoItemGenreIfAllowed,
   setEntryScore,
   setItemGenre,
   startEntry,
@@ -142,6 +146,7 @@ describe("items", () => {
 
     expect(item.id).toEqual(expect.any(String));
     expect(item).toMatchObject({ title: "Bad Blood", medium: "book" });
+    expect(item.genre).toEqual({ genre: "money-markets", source: "auto" });
     expect(await getItem(item.id)).toEqual(item);
   });
 
@@ -194,7 +199,7 @@ describe("items", () => {
   it("filters by genre, and unassigned items are absent from the index (E4.2 pools)", async () => {
     const book = await addItem(bookSeed);
     const rival = await addItem(rivalSeed);
-    await addItem(movieSeed); // never assigned
+    await addItem(movieSeed);
     await setItemGenre(book.id, { genre: "money-markets", source: "auto" });
     await setItemGenre(rival.id, { genre: "money-markets", source: "auto" });
 
@@ -225,6 +230,33 @@ describe("items", () => {
     expect(await db.items.count()).toBe(1);
   });
 
+  it("atomically protects manual genre overrides from auto reclassification", async () => {
+    const book = await addItem(bookSeed);
+    expect((await setAutoItemGenreIfAllowed(book.id, "money-markets")).genre)
+      .toEqual({ genre: "money-markets", source: "auto" });
+
+    const manual = await setItemGenre(book.id, {
+      genre: "lives",
+      source: "manual",
+    });
+    expect(await setAutoItemGenreIfAllowed(book.id, "business-strategy"))
+      .toEqual(manual);
+    expect((await getItem(book.id))?.genre).toEqual({
+      genre: "lives",
+      source: "manual",
+    });
+
+    const rival = await addItem(rivalSeed);
+    await Promise.all([
+      setAutoItemGenreIfAllowed(rival.id, "money-markets"),
+      setItemGenre(rival.id, { genre: "lives", source: "manual" }),
+    ]);
+    expect((await getItem(rival.id))?.genre).toEqual({
+      genre: "lives",
+      source: "manual",
+    });
+  });
+
   it("refuses to assign a genre to a missing item", async () => {
     await expect(
       setItemGenre("item-nope" as ItemId, {
@@ -243,7 +275,10 @@ describe("items", () => {
         source: "auto",
       } as unknown as GenreAssignment),
     ).rejects.toThrow(RepoValidationError);
-    expect((await getItem(book.id))?.genre).toBeUndefined();
+    expect((await getItem(book.id))?.genre).toEqual({
+      genre: "money-markets",
+      source: "auto",
+    });
   });
 });
 
@@ -731,6 +766,63 @@ describe("situations", () => {
 });
 
 describe("availability", () => {
+  it("persists a successful empty refresh marker atomically", async () => {
+    const movie = await addItem(movieSeed);
+
+    await refreshAvailabilityState(movie.id, [], T0);
+
+    expect(await availabilityByItemId(movie.id)).toEqual([]);
+    expect(await availabilityRefreshByItemId(movie.id)).toEqual({
+      itemId: movie.id,
+      fetchedAt: T0,
+    });
+  });
+
+  it("prevents a delayed older refresh from overwriting newer rows", async () => {
+    const movie = await addItem(movieSeed);
+    const newerAt = "2026-08-01T16:00:00.000Z";
+    const olderAt = "2026-08-01T15:00:00.000Z";
+    const newer = subscriptionOffer(movie.id, newerAt);
+    const older = {
+      ...subscriptionOffer(movie.id, olderAt),
+      providerId: providerIdSchema.parse("hulu"),
+    };
+    let releaseOlder!: () => void;
+    const gate = new Promise<void>((resolve) => { releaseOlder = resolve; });
+    const delayedOlder = (async () => {
+      await gate;
+      return refreshAvailabilityState(movie.id, [older], olderAt);
+    })();
+
+    expect(await refreshAvailabilityState(movie.id, [newer], newerAt)).toBe(true);
+    releaseOlder();
+    expect(await delayedOlder).toBe(false);
+    expect(await readAvailabilityState(movie.id)).toEqual({
+      offers: [newer],
+      refresh: { itemId: movie.id, fetchedAt: newerAt },
+    });
+  });
+
+  it("rejects corrupted stored marker and offer state on transactional read", async () => {
+    const movie = await addItem(movieSeed);
+    await db.availabilityRefreshes.put({
+      itemId: movie.id,
+      fetchedAt: "not-a-timestamp",
+    } as never);
+    await expect(readAvailabilityState(movie.id)).rejects.toThrow(
+      RepoValidationError,
+    );
+
+    await db.availabilityRefreshes.clear();
+    await db.availability.add({
+      ...subscriptionOffer(movie.id, T0),
+      kind: "borrow",
+    } as never);
+    await expect(readAvailabilityState(movie.id)).rejects.toThrow(
+      RepoValidationError,
+    );
+  });
+
   it("stores an item's offers and reads them back", async () => {
     const movie = await addItem(movieSeed);
     const offer = subscriptionOffer(movie.id, T0);
@@ -1096,9 +1188,11 @@ describe("snapshot (E1.3 export/import, E1.4 seed)", () => {
 
     expect(Object.keys(snapshot).sort()).toEqual([
       "availability",
+      "availabilityRefreshes",
       "comparisons",
       "entries",
       "items",
+      "manualMatches",
       "portrait",
       "queue",
       "recs",

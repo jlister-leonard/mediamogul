@@ -1,0 +1,34 @@
+{
+  "_provenance": {
+    "capturedAt": "2026-08-01T20:20:00.000Z",
+    "endpoint": "https://api.audible.com/1.0/catalog/products",
+    "query": {
+      "title": "Bad Blood",
+      "author": "John Carreyrou",
+      "num_results": "5",
+      "response_groups": "contributors,product_desc,product_extended_attrs"
+    },
+    "note": "Live response from Audible's own public catalog host. An isbn=9781524731656 probe was ignored and returned the general catalog, so E5.1 never treats that parameter as identity evidence."
+  },
+  "total_results": 3,
+  "products": [
+    {
+      "asin": "B07C8GVTB5",
+      "title": "Bad Blood",
+      "authors": [{ "asin": "B07CWLT57D", "name": "John Carreyrou" }]
+    },
+    {
+      "asin": "1628612754",
+      "title": "Bad Blood [French Version]",
+      "authors": [{ "asin": "B07CWLT57D", "name": "John Carreyrou" }]
+    },
+    {
+      "asin": "3963840137",
+      "title": "Bad Blood",
+      "authors": [
+        { "asin": "B07CWLT57D", "name": "John Carreyrou" },
+        { "name": "Karlheinz Dürr - translator" }
+      ]
+    }
+  ]
+}

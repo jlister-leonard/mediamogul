@@ -180,6 +180,50 @@ describe("POST /api/recommend", () => {
       expect(mock.requests).toHaveLength(0);
     });
 
+    it("rejects oversized serialized availability before any model spend", async () => {
+      const mock = new MockLlmTransport([]);
+      setTransportForTesting(mock);
+      const url = "https://example.com/".padEnd(2_048, "x");
+      const availabilityContext = Array.from({ length: 32 }, (_, index) => ({
+        ref: { medium: "movie" as const, tmdbId: index + 1 },
+        offers: [{
+          kind: "subscription" as const,
+          providerId: "provider",
+          region: "US" as const,
+          fetchedAt: "2026-08-01T16:00:00.000Z",
+          url,
+        }],
+      }));
+      const response = await POST(makeRequest({ ...handBody, availabilityContext }));
+      expect(response.status).toBe(400);
+      expect((await response.json()).error.message).toMatch(/too large/i);
+      expect(mock.requests).toHaveLength(0);
+    });
+
+    it.each([
+      ["provider id", { providerId: "p".repeat(101) }],
+      ["offer URL", { url: "https://example.com/".padEnd(2_049, "x") }],
+    ])("rejects an overlong availability %s before any model spend", async (_label, override) => {
+      const mock = new MockLlmTransport([]);
+      setTransportForTesting(mock);
+      const response = await POST(makeRequest({
+        ...handBody,
+        availabilityContext: [{
+          ref: { medium: "movie", tmdbId: 603 },
+          offers: [{
+            kind: "subscription",
+            providerId: "provider",
+            region: "US",
+            fetchedAt: "2026-08-01T16:00:00.000Z",
+            ...override,
+          }],
+        }],
+      }));
+      expect(response.status).toBe(400);
+      expect((await response.json()).error.code).toBe("bad-request");
+      expect(mock.requests).toHaveLength(0);
+    });
+
     it("accepts 40 messages and rejects 41 before any model spend", async () => {
       const accepted = new MockLlmTransport([{ deltas: [], turn: endTurn("ok") }]);
       setTransportForTesting(accepted);
@@ -344,16 +388,25 @@ describe("POST /api/recommend", () => {
       ]);
       setTransportForTesting(mock);
 
-      const response = await POST(makeRequest(handBody));
+      const response = await POST(makeRequest({
+        ...handBody,
+        availabilityContext: [{
+          ref: { medium: "movie", tmdbId: 603 },
+          offers: [{
+            kind: "subscription",
+            providerId: "netflix",
+            region: "US",
+            fetchedAt: "2026-08-01T16:00:00.000Z",
+          }],
+        }],
+      }));
       const events = await readSse(response);
       expect(events).toEqual([
         { event: "text", data: { delta: "Checking availability…" } },
         { event: "tool", data: { name: "check_availability", phase: "start" } },
-        // lib/providers has not merged (E2.x runs in parallel) — the executor
-        // degrades to the typed unavailable result.
         {
           event: "tool",
-          data: { name: "check_availability", phase: "result", status: "unavailable" },
+          data: { name: "check_availability", phase: "result", status: "ok" },
         },
         { event: "text", data: { delta: "The Matrix it is." } },
         { event: "done", data: { stopReason: "end_turn" } },
@@ -384,7 +437,13 @@ describe("POST /api/recommend", () => {
         throw new Error("expected a tool_result block");
       }
       expect(resultBlock.toolUseId).toBe("toolu_1");
-      expect(JSON.parse(resultBlock.content)).toMatchObject({ status: "unavailable" });
+      expect(JSON.parse(resultBlock.content)).toMatchObject({
+        status: "ok",
+        result: [{
+          checked: true,
+          offers: [{ providerId: "netflix", kind: "subscription" }],
+        }],
+      });
     });
 
     it("stops after four total model turns with text plus a machine reason", async () => {

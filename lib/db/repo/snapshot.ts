@@ -3,16 +3,20 @@
 import type { z } from "zod";
 import {
   availabilitySchema,
+  availabilityRefreshSchema,
   comparisonSchema,
   entrySchema,
+  goodreadsManualMatchSchema,
   itemSchema,
   portraitSchema,
   queueItemSchema,
   recSchema,
   situationSchema,
   type Availability,
+  type AvailabilityRefresh,
   type Comparison,
   type Entry,
+  type GoodreadsManualMatch,
   type Item,
   type Portrait,
   type QueueItem,
@@ -44,6 +48,8 @@ export interface RepoSnapshot {
   availability: readonly Availability[];
   recs: readonly Rec[];
   portrait: readonly Portrait[];
+  manualMatches: readonly GoodreadsManualMatch[];
+  availabilityRefreshes: readonly AvailabilityRefresh[];
 }
 
 /**
@@ -68,6 +74,8 @@ export async function readSnapshot(): Promise<RepoSnapshot> {
     availability: await db.availability.toArray(),
     recs: await db.recs.toArray(),
     portrait: await db.portrait.toArray(),
+    manualMatches: await db.manualMatches.toArray(),
+    availabilityRefreshes: await db.availabilityRefreshes.toArray(),
   }));
 }
 
@@ -170,8 +178,20 @@ function validateSnapshot(
     "portrait",
     verb,
   );
+  const manualMatches = validateAll(
+    goodreadsManualMatchSchema,
+    snapshot.manualMatches,
+    "manualMatches",
+    verb,
+  );
+  const availabilityRefreshes = validateAll(
+    availabilityRefreshSchema,
+    snapshot.availabilityRefreshes,
+    "availabilityRefreshes",
+    verb,
+  );
 
-  return { items, entries, comparisons, queue, situations, availability, recs, portrait };
+  return { items, entries, comparisons, queue, situations, availability, recs, portrait, manualMatches, availabilityRefreshes };
 }
 
 async function insertSnapshot(records: RepoSnapshot): Promise<void> {
@@ -183,6 +203,33 @@ async function insertSnapshot(records: RepoSnapshot): Promise<void> {
   await insertAll("availability", records.availability, db.availability);
   await insertAll("recs", records.recs, db.recs);
   await insertAll("portrait", records.portrait, db.portrait);
+  await insertAll("manualMatches", records.manualMatches, db.manualMatches);
+  await insertAll(
+    "availabilityRefreshes",
+    records.availabilityRefreshes,
+    db.availabilityRefreshes,
+  );
+}
+
+/**
+ * Consume one persisted manual match and add its resolved records as one
+ * IndexedDB commit. A missing pending row fails before any library write.
+ */
+export async function resolveManualMatch(
+  matchId: string,
+  snapshot: Pick<RepoSnapshot, "items" | "entries" | "queue">,
+): Promise<void> {
+  const records = validateSnapshot(snapshot, "resolveManualMatch");
+  await db.transaction("rw", db.tables, async () => {
+    if ((await db.manualMatches.get(matchId)) === undefined) {
+      throw new RepoConflictError(
+        "manualMatches",
+        `resolveManualMatch: ${matchId} is no longer pending`,
+      );
+    }
+    await insertSnapshot(records);
+    await db.manualMatches.delete(matchId);
+  });
 }
 
 /** Same gate as every other write, applied record by record. */

@@ -12,12 +12,13 @@ vi.mock("../resolve", () => ({
 import {
   checkAvailabilityInputSchema,
   executeTool,
+  providersLoaderWithAvailability,
   searchCatalogInputSchema,
   serializeToolOutcome,
   TOOL_DEFINITIONS,
 } from "./tools";
 
-const movieRef = { medium: "movie", tmdbId: 603 };
+const movieRef = { medium: "movie", tmdbId: 603 } as const;
 
 describe("tool definitions", () => {
   it("defines exactly check_availability and search_catalog with object schemas", () => {
@@ -53,9 +54,30 @@ describe("executeTool default wiring", () => {
     expect(outcome.status).toBe("unavailable");
   });
 
-  it("honestly degrades check_availability until E5.1 is wired", async () => {
+  it("returns a checked-false result instead of a deliberately unavailable production default", async () => {
     const outcome = await executeTool("check_availability", { itemRefs: [movieRef] });
-    expect(outcome.status).toBe("unavailable");
+    expect(outcome).toEqual({
+      status: "ok",
+      result: [{ ref: movieRef, checked: false, offers: [] }],
+    });
+  });
+
+  it("answers from the client-supplied minimal availability context", async () => {
+    const offers = [{
+      kind: "subscription" as const,
+      providerId: "netflix" as never,
+      region: "US" as const,
+      fetchedAt: "2026-08-01T16:00:00.000Z" as never,
+    }];
+    const outcome = await executeTool(
+      "check_availability",
+      { itemRefs: [movieRef] },
+      providersLoaderWithAvailability([{ ref: movieRef, offers }]),
+    );
+    expect(outcome).toEqual({
+      status: "ok",
+      result: [{ ref: movieRef, checked: true, offers }],
+    });
   });
 
   it("statically routes search_catalog through the existing resolver", async () => {

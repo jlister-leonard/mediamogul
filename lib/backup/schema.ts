@@ -1,8 +1,10 @@
 import { z } from "zod";
 import {
   availabilitySchema,
+  availabilityRefreshSchema,
   comparisonSchema,
   entrySchema,
+  goodreadsManualMatchSchema,
   isoTimestampSchema,
   itemSchema,
   portraitSchema,
@@ -31,8 +33,12 @@ export const backupSchema = z.object({
     availability: z.array(availabilitySchema),
     recs: z.array(recSchema),
     portrait: z.array(portraitSchema),
+    // Optional-on-read keeps pre-E1.4 v1 backups importable; createBackup
+    // always emits the field because readSnapshot contains every table.
+    manualMatches: z.array(goodreadsManualMatchSchema).default([]),
+    // Optional-on-read preserves backups made before the durable empty-result cache.
+    availabilityRefreshes: z.array(availabilityRefreshSchema).default([]),
   }),
 });
 
 export type Backup = z.infer<typeof backupSchema>;
-

@@ -26,11 +26,15 @@ All beads start `todo`. Status lives here, in this file — single source of tru
 | E1.2 repo-layer | **done** ✅ | Merged `d1f93de`; typed repo + live hooks. Reactive-hook verification made deterministic in continuation branch |
 | E2.2 tmdb | **done** ✅ | PASS + amendments (paginated now_playing, degraded marker). Merged `75143b7` |
 | E2.4 resolver | **done** ✅ | Merged `3a19c85`; grouped cross-provider resolution and identity dedupe |
-| E6.1 llm-route | review | Merged route repaired on continuation branch: abort propagation + production-safe static catalog-tool wiring; fresh review pending |
+| E6.1 llm-route | **done** ✅ | Fresh blind review PASS: fixed aggregate request/model/tool/result ceilings, readable exhaustion, abort propagation, static catalog wiring, and mutation-pinned 60 requests/hour policy |
 | E0.7 style-tile 🚦 | review | FAIL (unsupported claims) → grounded in the Goodreads CSV → delta PASS `c7c9997`; Jeremy visual approval is the remaining hard gate |
 | E5.3 branded-buttons | in-progress | Safe partial review PASS: provider-bound links, honest fallbacks, accessible text/Hulu rendering. Physical iPhone installed/absent-app validation still blocks completion |
 | E1.3 export-import | **done** ✅ | FAIL (history integrity, cross-tab race, unproven delivery) → fixed → delta PASS. Atomic fresh-install restore + real browser export/import proof; `d423e2b` |
 | E2.6 books-union | **done** ✅ | FAIL (degraded-union cache mutation gap) → test-only fix → delta PASS. Production text resolution unions OL+GB; ISBN fallback preserved; `9a1c1ef` |
+| E1.4 goodreads-import | blocked — provider evidence | Import, durable manual matching, strict CSV/ISBN identity, and backup integration repaired. Open Library proves 156/179 covers (87.15%); Google Books project quota is hard-zero, so the ≥171/179 coverage gate remains unproven |
+| E4.1 genre-assign | **done** ✅ | FAIL (production wiring, precedence, corpus edge cases) → repaired → delta PASS. Frozen audit: 211/225 = 93.78%; add/import wiring and manual override protection verified |
+| E4.2 ladder-engine | **done** ✅ | FAIL (mutation-insensitive Elo tests, duel information ordering, invalid exposure counts) → repaired → delta PASS. Bounded deterministic Elo, strict pool isolation, and property-tested duel selection |
+| E5.1 availability | **done** ✅ | Repeated blind repair → PASS. Same-origin provider bridge, conservative Audible identity, exact ten-service semantics, monotonic durable cache, honest freshness, and privacy-bounded E6 context verified |
 | everything else | todo | Wave-3 lessons: egress = googleapis only; fixture-first + env-gated smokes; e2e on dedicated ports; never git stash in worktrees |
 
 ---

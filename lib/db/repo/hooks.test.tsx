@@ -116,11 +116,11 @@ describe("useItems / useItemsByMedium / useItemsByGenre", () => {
 
   it("tracks a ladder's pool as items are assigned", async () => {
     const book = await addItem(bookSeed);
-    const { result } = renderHook(() => useItemsByGenre("money-markets"));
+    const { result } = renderHook(() => useItemsByGenre("lives"));
     await waitFor(() => expect(result.current).toEqual([]));
 
     await act(async () => {
-      await setItemGenre(book.id, { genre: "money-markets", source: "auto" });
+      await setItemGenre(book.id, { genre: "lives", source: "manual" });
     });
 
     await waitFor(() => expect(result.current).toHaveLength(1));

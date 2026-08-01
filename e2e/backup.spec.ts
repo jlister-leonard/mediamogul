@@ -25,7 +25,9 @@ test("backup settings are accessible and export/import files in the browser", as
     data: Record<string, unknown[]>;
   };
   expect(backup.version).toBe(1);
-  expect(Object.keys(backup.data)).toHaveLength(8);
+  expect(Object.keys(backup.data)).toHaveLength(10);
+  expect(backup.data.manualMatches).toEqual([]);
+  expect(backup.data.availabilityRefreshes).toEqual([]);
   await expect(page.getByRole("status")).toHaveText("Backup downloaded.");
 
   await page.getByLabel("Choose a Nightstand backup file").setInputFiles({
@@ -35,4 +37,3 @@ test("backup settings are accessible and export/import files in the browser", as
   });
   await expect(page.getByRole("status")).toContainText("not valid JSON");
 });
-

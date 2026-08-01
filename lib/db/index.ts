@@ -7,6 +7,6 @@
  */
 import { NightstandDB } from "./schema";
 
-export { DB_NAME, NightstandDB, schemaV1 } from "./schema";
+export { DB_NAME, NightstandDB, schemaV1, schemaV2, schemaV3 } from "./schema";
 
 export const db = new NightstandDB();
