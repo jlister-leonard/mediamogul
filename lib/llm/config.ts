@@ -6,15 +6,14 @@
 
 /**
  * Per-mode model configuration. Both engine faces run Sonnet (PLAN §8).
- * maxTokens is 8192 because Sonnet 5's adaptive thinking (on by default)
- * spends from the same max_tokens budget as the visible reply — 4096 risks
- * truncating a full 5-pick hand mid-answer.
+ * Each turn is capped at 2,048 output tokens. With at most four model turns
+ * below, one request can configure no more than 8,192 output tokens total.
  */
 export const LLM_MODELS = {
   /** One-shot hand generation. */
-  hand: { model: "claude-sonnet-5", maxTokens: 8192 },
+  hand: { model: "claude-sonnet-5", maxTokens: 2048 },
   /** Multi-turn chat. */
-  chat: { model: "claude-sonnet-5", maxTokens: 8192 },
+  chat: { model: "claude-sonnet-5", maxTokens: 2048 },
 } as const;
 
 export type RecommendMode = keyof typeof LLM_MODELS;
@@ -35,4 +34,16 @@ export const REQUEST_BUDGET = {
  * Cap on model→tool→model round trips within one request, so a tool-happy
  * turn can't loop the meter.
  */
-export const MAX_TOOL_ROUNDS = 4;
+export const MAX_MODEL_TURNS = 4;
+export const MAX_TOOL_ROUNDS = 3;
+export const MAX_TOOL_CALLS_PER_ROUND = 8;
+export const MAX_TOOL_CALLS_PER_REQUEST = 16;
+
+/** Model-bound text and conversation limits, enforced before transport use. */
+export const MAX_REQUEST_TEXT_CHARS = 256_000;
+export const MAX_REQUEST_MESSAGES = 40;
+
+/** Tool input and output circuit breakers. */
+export const MAX_CATALOG_QUERY_CHARS = 500;
+export const MAX_AVAILABILITY_REFS = 50;
+export const MAX_SERIALIZED_TOOL_RESULT_CHARS = 64_000;

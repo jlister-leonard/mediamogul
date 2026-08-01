@@ -15,7 +15,16 @@ export type RecommendSseEvent =
         | { name: string; phase: "start" }
         | { name: string; phase: "result"; status: ToolOutcome["status"] };
     }
-  | { event: "done"; data: { stopReason: LlmStopReason | "tool-rounds-exhausted" } }
+  | {
+      event: "done";
+      data: {
+        stopReason:
+          | LlmStopReason
+          | "model-turns-exhausted"
+          | "tool-rounds-exhausted"
+          | "tool-calls-exhausted";
+      };
+    }
   /** Graceful degraded shape: the UI renders `data.error.message` and stops. */
   | { event: "error"; data: ApiErrorEnvelope };
 

@@ -1,6 +1,11 @@
 import { z } from "zod";
 import { resolve } from "../resolve";
 import { type MediaRef, mediaRefSchema, type Medium, mediumSchema } from "../types";
+import {
+  MAX_AVAILABILITY_REFS,
+  MAX_CATALOG_QUERY_CHARS,
+  MAX_SERIALIZED_TOOL_RESULT_CHARS,
+} from "./config";
 import type { LlmToolDefinition } from "./transport";
 
 /**
@@ -14,12 +19,12 @@ import type { LlmToolDefinition } from "./transport";
  */
 
 export const checkAvailabilityInputSchema = z.object({
-  itemRefs: z.array(mediaRefSchema).min(1),
+  itemRefs: z.array(mediaRefSchema).min(1).max(MAX_AVAILABILITY_REFS),
 });
 export type CheckAvailabilityInput = z.infer<typeof checkAvailabilityInputSchema>;
 
 export const searchCatalogInputSchema = z.object({
-  query: z.string().min(1),
+  query: z.string().min(1).max(MAX_CATALOG_QUERY_CHARS),
   medium: mediumSchema.optional(),
 });
 export type SearchCatalogInput = z.infer<typeof searchCatalogInputSchema>;
@@ -46,18 +51,29 @@ export type ToolOutcome =
   | { status: "unavailable"; message: string };
 
 interface ProvidersModule {
-  checkAvailability?: (itemRefs: MediaRef[]) => Promise<unknown>;
-  searchCatalog?: (query: string, medium?: Medium) => Promise<unknown>;
+  checkAvailability?: (itemRefs: MediaRef[], signal?: AbortSignal) => Promise<unknown>;
+  searchCatalog?: (
+    query: string,
+    medium?: Medium,
+    signal?: AbortSignal,
+  ) => Promise<unknown>;
 }
 
-export type ProvidersLoader = () => Promise<ProvidersModule>;
+export type ProvidersLoader = (signal?: AbortSignal) => Promise<ProvidersModule>;
 
 /** Adapt the model's optional single-medium input to the resolver's scope. */
 async function searchResolvedCatalog(
   query: string,
   medium?: Medium,
+  signal?: AbortSignal,
 ): Promise<unknown> {
-  return await resolve(query, medium === undefined ? {} : { media: [medium] });
+  throwIfAborted(signal);
+  const result = await waitForOrAbort(
+    resolve(query, medium === undefined ? {} : { media: [medium] }),
+    signal,
+  );
+  throwIfAborted(signal);
+  return result;
 }
 
 /**
@@ -80,11 +96,15 @@ export async function executeTool(
   name: string,
   input: unknown,
   loadProviders: ProvidersLoader = defaultProvidersLoader,
+  signal?: AbortSignal,
 ): Promise<ToolOutcome> {
   let providers: ProvidersModule;
   try {
-    providers = await loadProviders();
+    throwIfAborted(signal);
+    providers = await waitForOrAbort(loadProviders(signal), signal);
+    throwIfAborted(signal);
   } catch {
+    if (signal?.aborted) throw abortReason(signal);
     return { status: "unavailable", message: UNAVAILABLE_MESSAGE };
   }
 
@@ -98,8 +118,14 @@ export async function executeTool(
         return { status: "unavailable", message: UNAVAILABLE_MESSAGE };
       }
       try {
-        return { status: "ok", result: await providers.checkAvailability(parsed.data.itemRefs) };
+        const result = await waitForOrAbort(
+          providers.checkAvailability(parsed.data.itemRefs, signal),
+          signal,
+        );
+        throwIfAborted(signal);
+        return { status: "ok", result };
       } catch {
+        if (signal?.aborted) throw abortReason(signal);
         return { status: "unavailable", message: UNAVAILABLE_MESSAGE };
       }
     }
@@ -112,12 +138,61 @@ export async function executeTool(
         return { status: "unavailable", message: UNAVAILABLE_MESSAGE };
       }
       try {
-        return { status: "ok", result: await providers.searchCatalog(parsed.data.query, parsed.data.medium) };
+        const result = await waitForOrAbort(
+          providers.searchCatalog(parsed.data.query, parsed.data.medium, signal),
+          signal,
+        );
+        throwIfAborted(signal);
+        return { status: "ok", result };
       } catch {
+        if (signal?.aborted) throw abortReason(signal);
         return { status: "unavailable", message: UNAVAILABLE_MESSAGE };
       }
     }
     default:
       return { status: "invalid-input", message: `Unknown tool: ${name}` };
   }
+}
+
+/**
+ * Tool results are replayed into the next billed model turn. Keep one result
+ * below 64,000 characters so a surprising provider payload cannot dominate
+ * context or memory. Oversize/circular results degrade to a small typed result.
+ */
+export function serializeToolOutcome(outcome: ToolOutcome): string {
+  try {
+    const serialized = JSON.stringify(outcome);
+    if (serialized.length <= MAX_SERIALIZED_TOOL_RESULT_CHARS) {
+      return serialized;
+    }
+  } catch {
+    // Fall through to the small typed result below.
+  }
+  return JSON.stringify({
+    status: "unavailable",
+    message: "The tool result was too large to use safely; continue without it.",
+  } satisfies ToolOutcome);
+}
+
+function abortReason(signal: AbortSignal): unknown {
+  return signal.reason ?? new DOMException("The operation was aborted.", "AbortError");
+}
+
+function throwIfAborted(signal: AbortSignal | undefined): void {
+  if (signal?.aborted) throw abortReason(signal);
+}
+
+async function waitForOrAbort<T>(
+  promise: Promise<T>,
+  signal: AbortSignal | undefined,
+): Promise<T> {
+  if (signal === undefined) return await promise;
+  throwIfAborted(signal);
+  return await new Promise<T>((resolvePromise, rejectPromise) => {
+    const onAbort = (): void => rejectPromise(abortReason(signal));
+    signal.addEventListener("abort", onAbort, { once: true });
+    promise.then(resolvePromise, rejectPromise).finally(() => {
+      signal.removeEventListener("abort", onAbort);
+    });
+  });
 }

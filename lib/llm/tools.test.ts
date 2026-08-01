@@ -9,7 +9,13 @@ vi.mock("../resolve", () => ({
   resolve: resolveMock,
 }));
 
-import { executeTool, TOOL_DEFINITIONS } from "./tools";
+import {
+  checkAvailabilityInputSchema,
+  executeTool,
+  searchCatalogInputSchema,
+  serializeToolOutcome,
+  TOOL_DEFINITIONS,
+} from "./tools";
 
 const movieRef = { medium: "movie", tmdbId: 603 };
 
@@ -172,5 +178,79 @@ describe("executeTool input validation", () => {
   it("rejects an unknown tool name", async () => {
     const outcome = await executeTool("delete_library", {}, providers);
     expect(outcome.status).toBe("invalid-input");
+  });
+
+  it("accepts a 500-character catalog query and rejects 501", () => {
+    expect(
+      searchCatalogInputSchema.safeParse({ query: "q".repeat(500) }).success,
+    ).toBe(true);
+    expect(
+      searchCatalogInputSchema.safeParse({ query: "q".repeat(501) }).success,
+    ).toBe(false);
+  });
+
+  it("accepts 50 availability refs and rejects 51", () => {
+    expect(
+      checkAvailabilityInputSchema.safeParse({ itemRefs: Array(50).fill(movieRef) })
+        .success,
+    ).toBe(true);
+    expect(
+      checkAvailabilityInputSchema.safeParse({ itemRefs: Array(51).fill(movieRef) })
+        .success,
+    ).toBe(false);
+  });
+});
+
+describe("tool execution safety", () => {
+  it("caps every serialized tool result at 64,000 characters", () => {
+    expect(serializeToolOutcome({ status: "ok", result: "small" })).toBe(
+      JSON.stringify({ status: "ok", result: "small" }),
+    );
+    const serialized = serializeToolOutcome({
+      status: "ok",
+      result: "x".repeat(100_000),
+    });
+    expect(serialized.length).toBeLessThanOrEqual(64_000);
+    expect(JSON.parse(serialized)).toMatchObject({ status: "unavailable" });
+    expect(serialized).not.toContain("x".repeat(1_000));
+  });
+
+  it("rejects before loading a provider when already aborted", async () => {
+    const controller = new AbortController();
+    controller.abort();
+    const loader = vi.fn(() => Promise.resolve({}));
+    await expect(
+      executeTool("search_catalog", { query: "x" }, loader, controller.signal),
+    ).rejects.toMatchObject({ name: "AbortError" });
+    expect(loader).not.toHaveBeenCalled();
+  });
+
+  it("passes the signal to a provider and stops waiting when it aborts", async () => {
+    const controller = new AbortController();
+    let observedSignal: AbortSignal | undefined;
+    let markStarted!: () => void;
+    const started = new Promise<void>((resolve) => {
+      markStarted = resolve;
+    });
+    const never = new Promise<unknown>(() => {});
+    const pending = executeTool(
+      "search_catalog",
+      { query: "x" },
+      () =>
+        Promise.resolve({
+          searchCatalog: (_query, _medium, signal) => {
+            observedSignal = signal;
+            markStarted();
+            return never;
+          },
+        }),
+      controller.signal,
+    );
+    await started;
+    controller.abort();
+
+    await expect(pending).rejects.toMatchObject({ name: "AbortError" });
+    expect(observedSignal).toBe(controller.signal);
+    expect(observedSignal?.aborted).toBe(true);
   });
 });
