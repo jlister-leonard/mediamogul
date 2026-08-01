@@ -361,23 +361,3 @@
     inset -1px 0 0 color-mix(in oklab, var(--color-ink) 25%, transparent),
     0 1.5rem 2.5rem -1rem color-mix(in oklab, var(--color-ink) 55%, transparent);
 }
-
-/* ------------------------------------------------------- the spread readout
- * The one thing worth stealing from the teardown (PLAN §2): a flat 3.98 and
- * a bimodal 3.98 are different books. Five bars, no axes, no legend — but
- * big enough to read as a shape rather than as a rendering artefact, which
- * is what it was at 23×18.
- */
-.ns-spread {
-  display: flex;
-  flex: none;
-  align-items: flex-end;
-  gap: 3px;
-  height: 2rem;
-}
-.ns-spread span {
-  width: 7px;
-  min-height: 3px;
-  border-radius: 1px;
-  background: var(--accent);
-}
