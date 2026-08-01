@@ -138,7 +138,7 @@ describe("typed link building", () => {
         title: TITLE,
         zip: "94110",
       }),
-    ).toBe("https://www.fandango.com/search?q=Dune%3A%20Part%20Two&zip=94110");
+    ).toBe("https://www.fandango.com/search?q=Dune%3A%20Part%20Two");
 
     expect(
       providerWebUrl(providerRegistry.fandango, {

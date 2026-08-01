@@ -35,6 +35,8 @@ All beads start `todo`. Status lives here, in this file — single source of tru
 | E4.1 genre-assign | **done** ✅ | FAIL (production wiring, precedence, corpus edge cases) → repaired → delta PASS. Frozen audit: 211/225 = 93.78%; add/import wiring and manual override protection verified |
 | E4.2 ladder-engine | **done** ✅ | FAIL (mutation-insensitive Elo tests, duel information ordering, invalid exposure counts) → repaired → delta PASS. Bounded deterministic Elo, strict pool isolation, and property-tested duel selection |
 | E5.1 availability | **done** ✅ | Repeated blind repair → PASS. Same-origin provider bridge, conservative Audible identity, exact ten-service semantics, monotonic durable cache, honest freshness, and privacy-bounded E6 context verified |
+| E5.4 theaters | blocked — external product gates | Safe partial review PASS: presence-only cache, local ZIP, exact-title Fandango search, real recommendations chip, visible staleness. Geolocation awaits processor approval; Fandango publishes no stable title+ZIP contract |
+| E5.5 getit-order | **done** ✅ | FAIL (unverified blocked links, unsafe price width) → repaired → delta PASS. Pure media-aware ordering, honest empty fallback, bounded suffixes, and 20 rendered HTTP-200 link captures |
 | E8.5 offline-hardening | **done** ✅ | FAIL (query leakage and error-label honesty) → repaired → delta PASS. All routes render offline; real IndexedDB writes persist; query URLs bypass Cache Storage and HTTP disk cache |
 | everything else | todo | Wave-3 lessons: egress = googleapis only; fixture-first + env-gated smokes; e2e on dedicated ports; never git stash in worktrees |
 

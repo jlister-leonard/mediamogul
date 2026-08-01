@@ -76,7 +76,7 @@ export interface BookParams {
   isbn13?: string;
 }
 
-/** Fandango title showtimes; zip comes from stored settings or device location (PLAN §5). */
+/** Fandango title showtimes; ZIP remains local pending a documented provider contract. */
 export interface ShowtimesParams {
   title: string;
   zip?: string;
@@ -489,15 +489,11 @@ export const providerRegistry: Readonly<
     allowedHosts: ["fandango.com", "www.fandango.com"],
     deepLink: {
       params: "showtimes",
-      // Title search; zip appended so "showtimes near me" lands localized
-      // (PLAN §5 — zip stored once or read from device location). The zip
-      // param is best-effort and unverified on both the search route and the
-      // resolved movie-times page — harmless if ignored; confirm in E5.4.
+      // Fandango documents title search, but no stable title+ZIP URL contract.
+      // ShowtimesParams retains local ZIP for a future approved contract; it
+      // must not leave Nightstand through an invented query parameter.
       app: null,
-      web: (p) => {
-        const base = `https://www.fandango.com/search?q=${enc(p.title)}`;
-        return p.zip === undefined ? base : `${base}&zip=${enc(p.zip)}`;
-      },
+      web: (p) => `https://www.fandango.com/search?q=${enc(p.title)}`,
     },
   },
 

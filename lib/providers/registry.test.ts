@@ -247,12 +247,12 @@ describe("deep links", () => {
     expect(withoutIsbn.searchParams.get("k")).toBe("Piranesi Susanna Clarke");
   });
 
-  it("fandango: carries the zip only when provided", () => {
+  it("fandango: keeps ZIP local until a title+location contract is documented", () => {
     const { deepLink } = providerRegistry.fandango;
     if (deepLink.params !== "showtimes")
       throw new Error("fandango takes ShowtimesParams");
     const zipped = new URL(deepLink.web(sampleShowtimes));
-    expect(zipped.searchParams.get("zip")).toBe("94110");
+    expect(zipped.searchParams.get("zip")).toBeNull();
     expect(zipped.searchParams.get("q")).toBe(sampleShowtimes.title);
     const unzipped = new URL(deepLink.web({ title: "Dune: Part Two" }));
     expect(unzipped.searchParams.get("zip")).toBeNull();

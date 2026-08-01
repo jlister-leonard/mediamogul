@@ -13,6 +13,7 @@ import { providerForTmdbId } from "../providers/registry";
 import {
   type AudibleCatalogResult,
 } from "./audible";
+import { withFandangoShowtimes } from "./theaters";
 import {
   readAvailabilityState,
   refreshAvailabilityState,
@@ -124,8 +125,16 @@ async function resolveItemAvailabilityOnce(
   const cached = dedupeOffers(state.offers);
   const now = dependencies.now();
   const cachedMetadata = metadataFor(cached, now, state.refresh?.fetchedAt);
+  const lastSuccessfulCheck = state.refresh?.fetchedAt ?? cachedMetadata.fetchedAt;
 
-  if (!cachedMetadata.stale && cachedMetadata.fetchedAt !== undefined) {
+  // Network cadence follows the latest complete check. Visible freshness
+  // continues to follow the oldest offer evidence in `metadataFor`, so a
+  // preserved theater row can honestly read stale without hammering TMDB on
+  // every render for the next 24 hours.
+  if (
+    lastSuccessfulCheck !== undefined &&
+    now.getTime() < Date.parse(lastSuccessfulCheck) + AVAILABILITY_TTL_MS
+  ) {
     return present(item.id, cached, { ...cachedMetadata, cache: "hit" });
   }
 
@@ -205,7 +214,18 @@ async function resolveItemAvailabilityOnce(
       ? theater.data.find((entry) => entry.seed.ref.tmdbId === item.ref.tmdbId)
       : undefined;
   if (theatrical !== undefined) {
-    mapped.push({ ...theatrical.availability, itemId: item.id });
+    mapped.push(withFandangoShowtimes(
+      { ...theatrical.availability, itemId: item.id },
+      item.title,
+    ));
+  } else {
+    // The feed is capped, so a later miss cannot disprove an earlier match.
+    // Preserve the old row (and its old evidence timestamp) as a stale,
+    // non-current hint instead of turning feed absence into a negative claim.
+    const priorTheater = cached.find((offer) => offer.kind === "theater");
+    if (priorTheater !== undefined) {
+      mapped.push(withFandangoShowtimes(priorTheater, item.title));
+    }
   }
   const offers = dedupeOffers(mapped);
   const refreshedAt = now.toISOString() as IsoTimestamp;
@@ -273,7 +293,11 @@ function metadataFor(
     ...(refreshFetchedAt !== undefined && { checkedAt: refreshFetchedAt }),
     ...(staleAfterMs !== undefined && { staleAfter: new Date(staleAfterMs).toISOString() }),
     stale: staleAfterMs === undefined || now.getTime() >= staleAfterMs,
-    theater: offers.some((offer) => offer.kind === "theater")
+    theater: offers.some(
+      (offer) =>
+        offer.kind === "theater" &&
+        now.getTime() < Date.parse(offer.fetchedAt) + AVAILABILITY_TTL_MS,
+    )
       ? "present"
       : "unknown",
     failures: [],

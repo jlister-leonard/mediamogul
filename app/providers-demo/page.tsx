@@ -26,7 +26,7 @@ function sampleLink(entry: ProviderEntry): ProviderLinkArgs {
     case "book":
       return { params: "book", ...BOOK };
     case "showtimes":
-      return { params: "showtimes", title: MOVIE, zip: "94110" };
+      return { params: "showtimes", title: MOVIE };
     case "spotifyShow":
       return { params: "spotifyShow", spotifyShowId: SHOW_SPOTIFY };
     case "applePodcast":
@@ -86,7 +86,7 @@ export default function ProvidersDemoPage() {
                 { provider: providerRegistry["hbo-max"], link: { params: "title", title: MOVIE } },
                 { provider: providerRegistry["prime-video"], link: { params: "title", title: MOVIE }, suffix: "rent $3.99" },
                 { provider: providerRegistry["apple-tv-plus"], link: { params: "title", title: MOVIE }, suffix: "buy $19.99" },
-                { provider: providerRegistry.fandango, link: { params: "showtimes", title: MOVIE, zip: "94110" }, suffix: "showtimes" },
+                { provider: providerRegistry.fandango, link: { params: "showtimes", title: MOVIE }, suffix: "showtimes" },
               ]}
             />
           </div>

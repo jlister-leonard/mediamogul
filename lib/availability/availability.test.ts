@@ -241,9 +241,10 @@ describe("E5.1 availability", () => {
       checkedAt: FRESH,
       staleAfter: "2026-07-31T15:00:00.000Z",
       stale: true,
-      cache: "stale-fallback",
+      cache: "hit",
     });
-    expect(deps.watchProviders).toHaveBeenCalledOnce();
+    expect(deps.watchProviders).not.toHaveBeenCalled();
+    expect(deps.nowPlaying).not.toHaveBeenCalled();
   });
 
   it("durably treats a successful empty result as fresh instead of refetching", async () => {
@@ -281,13 +282,71 @@ describe("E5.1 availability", () => {
     const present = await resolveItemAvailability(movie, presentDeps);
     expect(present.metadata.theater).toBe("present");
     expect(present.offers).toContainEqual(
-      expect.objectContaining({ kind: "theater", itemId: movie.id }),
+      expect.objectContaining({
+        kind: "theater",
+        itemId: movie.id,
+        fandangoUrl: "https://www.fandango.com/search?q=Heat",
+      }),
     );
 
     const absentDeps = dependencies({ theaters: okTheaters([theaterEntry(123)]) });
     const absent = await resolveItemAvailability(movie, absentDeps);
     expect(absent.metadata.theater).toBe("unknown");
     expect(absent.offers.some((offer) => offer.kind === "theater")).toBe(false);
+  });
+
+  it("preserves an earlier theater match as stale/unknown after a later capped-feed miss", async () => {
+    const staleTheater: Availability = {
+      itemId: movie.id,
+      kind: "theater",
+      region: "US",
+      fetchedAt: STALE,
+      fandangoUrl: "https://www.fandango.com/search?q=Heat",
+    };
+    const deps = dependencies({
+      cached: [staleTheater],
+      refreshedAt: STALE,
+      theaters: okTheaters([]),
+    });
+
+    const result = await resolveItemAvailability(movie, deps);
+
+    expect(result.offers).toContainEqual(staleTheater);
+    expect(result.metadata).toMatchObject({
+      theater: "unknown",
+      stale: true,
+      cache: "refreshed",
+    });
+    expect(deps.write).toHaveBeenCalledWith(
+      movie.id,
+      expect.arrayContaining([staleTheater]),
+      NOW.toISOString(),
+    );
+  });
+
+  it("uses a fresh successful-check marker for cadence while old theater evidence stays visibly stale", async () => {
+    const staleTheater: Availability = {
+      itemId: movie.id,
+      kind: "theater",
+      region: "US",
+      fetchedAt: STALE,
+      fandangoUrl: "https://www.fandango.com/search?q=Heat",
+    };
+    const deps = dependencies({ cached: [staleTheater], refreshedAt: NOW.toISOString() });
+
+    const result = await resolveItemAvailability(movie, deps);
+
+    expect(result.offers).toEqual([staleTheater]);
+    expect(result.metadata).toMatchObject({
+      fetchedAt: STALE,
+      checkedAt: NOW.toISOString(),
+      stale: true,
+      theater: "unknown",
+      cache: "hit",
+    });
+    expect(deps.watchProviders).not.toHaveBeenCalled();
+    expect(deps.nowPlaying).not.toHaveBeenCalled();
+    expect(deps.write).not.toHaveBeenCalled();
   });
 
   it("reports provider failures on an uncached item without claiming unavailability", async () => {
