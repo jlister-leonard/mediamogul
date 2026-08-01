@@ -160,14 +160,14 @@ describe("useEntriesByStatus / useEntriesByItemId / useOpenEntry", () => {
       entry = await startEntry(book.id);
     });
     await waitFor(() => expect(openOne.result.current?.id).toBe(entry.id));
-    expect(all.result.current).toHaveLength(1);
+    await waitFor(() => expect(all.result.current).toHaveLength(1));
 
     await act(async () => {
       await finishEntry(entry.id);
     });
     // The log survives; only the "open" read goes empty.
     await waitFor(() => expect(openOne.result.current).toBeNull());
-    expect(all.result.current).toHaveLength(1);
+    await waitFor(() => expect(all.result.current).toHaveLength(1));
   });
 });
 

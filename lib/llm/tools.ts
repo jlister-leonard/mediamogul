@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { resolve } from "../resolve";
 import { type MediaRef, mediaRefSchema, type Medium, mediumSchema } from "../types";
 import type { LlmToolDefinition } from "./transport";
 
@@ -6,22 +7,10 @@ import type { LlmToolDefinition } from "./transport";
  * The tools the model may call while dealing a hand or chatting: check what
  * the user can actually access tonight, and search the world's catalog.
  *
- * ## The lib/providers seam (wave-4 wiring)
- *
- * E2.x builds the provider modules in parallel with this bead, so the
- * executor must not hard-depend on them. It expects `lib/providers` (barrel)
- * to export:
- *
- *   checkAvailability(itemRefs: MediaRef[]): Promise<unknown>
- *   searchCatalog(query: string, medium?: Medium): Promise<unknown>
- *
- * The default loader dynamic-imports that barrel with a non-literal specifier
- * (so the bundler doesn't fail the build while the module is absent) and any
- * failure degrades to a typed `unavailable` tool result the model can work
- * around. Once E2.x lands, wave-4 wiring replaces `defaultProvidersLoader`'s
- * body with a static `import("@/lib/providers")` — a one-line change — and
- * the `unavailable` path remains as the graceful degradation for genuinely
- * broken providers.
+ * Catalog search is statically wired to E2.4's resolver so the production
+ * bundle includes the real provider fan-out and identity-deduplication path.
+ * Availability remains optional until E5.1 supplies it; its absence degrades
+ * to the typed `unavailable` result below rather than claiming it was checked.
  */
 
 export const checkAvailabilityInputSchema = z.object({
@@ -63,15 +52,21 @@ interface ProvidersModule {
 
 export type ProvidersLoader = () => Promise<ProvidersModule>;
 
-/**
- * Non-literal specifier defeats bundler static resolution: `lib/providers`
- * does not exist until E2.x merges, and a literal `import("@/lib/providers")`
- * would fail `next build` today. See the seam note above.
- */
-const providersSpecifier = ["@", "lib", "providers"].join("/");
+/** Adapt the model's optional single-medium input to the resolver's scope. */
+async function searchResolvedCatalog(
+  query: string,
+  medium?: Medium,
+): Promise<unknown> {
+  return await resolve(query, medium === undefined ? {} : { media: [medium] });
+}
 
-const defaultProvidersLoader: ProvidersLoader = () =>
-  import(providersSpecifier) as Promise<ProvidersModule>;
+/**
+ * This static adapter is deliberately a loader-shaped value: production gets
+ * bundle-safe imports while tests can still inject deterministic tool fakes.
+ */
+const defaultProvidersLoader: ProvidersLoader = async () => ({
+  searchCatalog: searchResolvedCatalog,
+});
 
 const UNAVAILABLE_MESSAGE =
   "This capability is not available right now; recommend without it and say availability was not checked.";

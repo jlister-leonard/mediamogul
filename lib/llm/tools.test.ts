@@ -1,5 +1,14 @@
 // @vitest-environment node
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+const { resolveMock } = vi.hoisted(() => ({
+  resolveMock: vi.fn(),
+}));
+
+vi.mock("../resolve", () => ({
+  resolve: resolveMock,
+}));
+
 import { executeTool, TOOL_DEFINITIONS } from "./tools";
 
 const movieRef = { medium: "movie", tmdbId: 603 };
@@ -17,8 +26,12 @@ describe("tool definitions", () => {
   });
 });
 
-describe("executeTool without lib/providers (E2.x not yet merged)", () => {
+describe("executeTool default wiring", () => {
   const absentLoader = () => Promise.reject(new Error("Cannot find module"));
+
+  beforeEach(() => {
+    resolveMock.mockReset();
+  });
 
   it("degrades check_availability to a typed unavailable result", async () => {
     const outcome = await executeTool(
@@ -29,18 +42,52 @@ describe("executeTool without lib/providers (E2.x not yet merged)", () => {
     expect(outcome.status).toBe("unavailable");
   });
 
-  it("degrades search_catalog to a typed unavailable result", async () => {
+  it("degrades search_catalog when an injected provider loader is unavailable", async () => {
     const outcome = await executeTool("search_catalog", { query: "lighthouse" }, absentLoader);
     expect(outcome.status).toBe("unavailable");
   });
 
-  it("degrades via the DEFAULT loader too — the real current state of the repo", async () => {
+  it("honestly degrades check_availability until E5.1 is wired", async () => {
     const outcome = await executeTool("check_availability", { itemRefs: [movieRef] });
     expect(outcome.status).toBe("unavailable");
   });
+
+  it("statically routes search_catalog through the existing resolver", async () => {
+    const resolved = {
+      ok: true,
+      groups: { book: [], movie: [], tv: [], podcast: [] },
+      searched: ["book"],
+      degraded: [],
+    };
+    resolveMock.mockResolvedValue(resolved);
+
+    const outcome = await executeTool("search_catalog", {
+      query: "lighthouse keeper",
+      medium: "book",
+    });
+
+    expect(resolveMock).toHaveBeenCalledOnce();
+    expect(resolveMock).toHaveBeenCalledWith("lighthouse keeper", {
+      media: ["book"],
+    });
+    expect(outcome).toEqual({ status: "ok", result: resolved });
+  });
+
+  it("lets an unscoped catalog search fan out across every medium", async () => {
+    resolveMock.mockResolvedValue({
+      ok: true,
+      groups: { book: [], movie: [], tv: [], podcast: [] },
+      searched: ["book", "movie", "tv", "podcast"],
+      degraded: [],
+    });
+
+    await executeTool("search_catalog", { query: "dune" });
+
+    expect(resolveMock).toHaveBeenCalledWith("dune", {});
+  });
 });
 
-describe("executeTool with lib/providers present (post wave-4 state)", () => {
+describe("executeTool with injected providers", () => {
   it("routes check_availability to the provider function with parsed refs", async () => {
     const calls: unknown[] = [];
     const outcome = await executeTool("check_availability", { itemRefs: [movieRef] }, () =>
